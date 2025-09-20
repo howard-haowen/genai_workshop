@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>井字遊戲 Tic-Tac-Toe</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <main class="container">
+    <h1>井字遊戲 Tic-Tac-Toe</h1>
+
+    <section class="controls">
+      <div id="status" aria-live="polite">目前玩家：X</div>
+      <button id="reset" type="button">重新開始</button>
+    </section>
+
+    <section
+      id="board"
+      class="board"
+      role="grid"
+      aria-label="Tic Tac Toe board"
+      aria-describedby="status"
+    >
+      <!-- 9 個格子 -->
+      <button class="cell" role="gridcell" data-index="0" aria-label="cell 1"></button>
+      <button class="cell" role="gridcell" data-index="1" aria-label="cell 2"></button>
+      <button class="cell" role="gridcell" data-index="2" aria-label="cell 3"></button>
+      <button class="cell" role="gridcell" data-index="3" aria-label="cell 4"></button>
+      <button class="cell" role="gridcell" data-index="4" aria-label="cell 5"></button>
+      <button class="cell" role="gridcell" data-index="5" aria-label="cell 6"></button>
+      <button class="cell" role="gridcell" data-index="6" aria-label="cell 7"></button>
+      <button class="cell" role="gridcell" data-index="7" aria-label="cell 8"></button>
+      <button class="cell" role="gridcell" data-index="8" aria-label="cell 9"></button>
+    </section>
+
+    <footer class="tips">
+      <p>提示：點擊任一格下子。X 先手，三子連線即勝。</p>
+    </footer>
+  </main>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
