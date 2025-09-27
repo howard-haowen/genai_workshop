@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台語單詞卡</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>台語單詞卡</h1>
+        
+        <div class="controls">
+            <button id="prevCard">上一個</button>
+            <span id="cardCount">1 / 5</span>
+            <button id="nextCard">下一個</button>
+        </div>
+
+        <div class="flash-card">
+            <div class="card-inner">
+                <div class="card-front">
+                    <div class="content"></div>
+                </div>
+                <div class="card-back">
+                    <div class="content">
+                        <div class="romanization"></div>
+                        <div class="definition"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="file-controls">
+            <input type="file" id="importFile" accept=".json">
+            <button id="importBtn">匯入單詞</button>
+            <button id="exportBtn">匯出單詞</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

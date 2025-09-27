@@ -104,3 +104,20 @@ h1 {
 }
 
 .tips { opacity: .8; margin-top: 16px; font-size: 14px; }
+
+.symbol-select {
+  margin-bottom: 1em;
+}
+.symbol-select label {
+  margin-right: 0.5em;
+}
+.stats {
+  margin-top: 1em;
+  padding: 0.5em;
+  background: #f8f8f8;
+  border-radius: 6px;
+}
+.stats h2 {
+  margin-top: 0;
+  font-size: 1.1em;
+}

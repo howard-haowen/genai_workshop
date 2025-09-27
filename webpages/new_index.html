@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Howard — 個人網站</title>
+  <meta name="description" content="Howard 的個人網站：教育、教學、研究、作品與聯絡方式" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- 可改成你喜歡的字體 -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0e0f12;
+      --card:#151821;
+      --text:#e8ecf1;
+      --sub:#a7b0be;
+      --brand:#5cc8ff;
+      --accent:#9b7bff;
+      --muted:#7a8596;
+      --line:rgba(255,255,255,.08);
+      --shadow:0 10px 30px rgba(0,0,0,.35);
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:"Noto Sans TC",system-ui,-apple-system,sans-serif;line-height:1.6}
+    a{color:var(--brand);text-decoration:none}
+    a:hover{text-decoration:underline}
+    img{max-width:100%;display:block}
+    .wrap{max-width:1000px;margin:0 auto;padding:32px 20px 80px}
+    header{display:flex;gap:24px;align-items:center;justify-content:space-between;margin:12px 0 28px}
+    .id{display:flex;gap:18px;align-items:center}
+    .avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--brand),var(--accent));box-shadow:var(--shadow)}
+    .title h1{font-size:28px;margin:0 0 4px}
+    .title p{margin:0;color:var(--sub)}
+    nav{display:flex;gap:14px;flex-wrap:wrap}
+    nav a{padding:8px 12px;border:1px solid var(--line);border-radius:999px;color:var(--text);background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,0));}
+    nav a:hover{border-color:var(--brand);color:#fff}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+    @media (max-width:860px){.grid{grid-template-columns:1fr}}
+    section.card{background:linear-gradient(180deg,rgba(255,255,255,.02),rgba(255,255,255,.0)), var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow)}
+    section.card h2{margin:0 0 10px;font-size:22px}
+    .sub{color:var(--muted);font-size:14px;margin-top:-4px}
+    ul.clean{list-style:none;padding:0;margin:14px 0 0}
+    ul.clean li{padding:12px 10px;border-top:1px dashed var(--line)}
+    ul.clean li:first-child{border-top:none}
+    .badge{display:inline-block;font-size:12px;color:#0b1020;background:linear-gradient(135deg,#a9f2ff,#6cd0ff);padding:2px 8px;border-radius:999px;margin-left:8px}
+    .row{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+    .muted{color:var(--muted)}
+    footer{margin-top:28px;color:var(--muted);font-size:13px}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+    .cta{display:inline-block;margin-top:12px;padding:10px 14px;border-radius:10px;background:linear-gradient(135deg,var(--brand),var(--accent));color:#0b1020;font-weight:700}
+    .logo{height:28px;opacity:.9}
+    .edu-card{display:flex;gap:14px;align-items:flex-start}
+    .edu-logo{width:42px;height:42px;object-fit:contain;border-radius:8px;background:#fff;padding:4px}
+    .kicker{font-size:12px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase}
+    /* 新增縮小 logo 樣式 */
+    .edu-logo-small {
+      width: 28px;
+      height: 28px;
+      object-fit: contain;
+      border-radius: 6px;
+      background: #fff;
+      padding: 2px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="id">
+        <!-- 換成你的大頭貼 -->
+        <div class="avatar" aria-hidden="true"></div>
+        <div class="title">
+          <div class="kicker">個人網站</div>
+          <h1>Haowen Jiang</h1>
+          <p>教學設計 × 語言學 × 工作流程自動化｜把複雜變簡單，把知識說到心裡</p>
+        </div>
+      </div>
+      <nav aria-label="Sections">
+        <a href="#about">關於</a>
+        <a href="#education">教育</a>
+        <a href="#teaching">教學</a>
+        <a href="#projects">作品</a>
+        <!-- 刪除聯絡選單 -->
+      </nav>
+    </header>
+
+    <div class="grid">
+      <!-- 關於 -->
+      <section id="about" class="card">
+        <h2>關於我</h2>
+        <p>我把教學當成設計工作：以故事、顏色與比喻，讓抽象的技術概念變得可視、可感、可運用。從語言學訓練到 DevOps 工具鏈，我關注的是「如何讓人理解，並且願意動手做」。</p>
+        <ul class="clean">
+          <li>
+            <span class="row">
+              <strong>關注領域</strong>
+              <span class="badge">AI × 人文</span>
+              <span class="badge">工作流程自動化</span>
+              <span class="badge">教學設計</span>
+              <span class="badge">資訊安全素養</span>
+            </span>
+          </li>
+          <li><strong>我相信</strong> 知識需要被設計；好的課程，像一段會被記住的故事。</li>
+          <li><strong>近期方向</strong> 將 Markdown→HTML/投影片流程產品化，讓課程維護與發佈更順手。</li>
+        </ul>
+        <a class="cta" href="#contact">合作與演講邀約</a>
+      </section>
+
+      <!-- 教育 -->
+      <section id="education" class="card">
+        <h2>教育</h2>
+        <p class="sub">學術訓練奠基於語言學，長期結合教學與跨域應用</p>
+        <ul class="clean">
+          <li class="edu-card">
+            <img class="edu-logo-small" src="https://howard-haowen.github.io/rice-logo.png" alt="Rice University 標誌">
+            <div>
+              <strong>Rice University</strong>
+              <div class="muted">美國德州休士頓</div>
+              <div>語言學系博士（Ph.D.）</div>
+              <div>語言學系碩士（M.A.）</div>
+              <div class="row" style="margin-top:6px">
+                <a class="pill" href="https://linguistics.rice.edu/" target="_blank" rel="noopener">系所連結</a>
+              </div>
+            </div>
+          </li>
+          <li class="edu-card">
+            <img class="edu-logo-small" src="https://howard-haowen.github.io/ntu-logo.png" alt="National Taiwan University 標誌">
+            <div>
+              <strong>National Taiwan University（臺灣大學）</strong>
+              <div class="muted">臺灣臺北</div>
+              <div>語言學研究所 碩士（M.A.）</div>
+              <div>外國語文學系 學士（B.A.）</div>
+              <div class="row" style="margin-top:6px">
+                <a class="pill" href="https://linguistics.ntu.edu.tw/" target="_blank" rel="noopener">語言學研究所</a>
+                <a class="pill" href="https://www.forex.ntu.edu.tw/?lang=en" target="_blank" rel="noopener">外文系</a>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </section>
+
+      <!-- 教學 -->
+      <section id="teaching" class="card">
+        <h2>教學與主題</h2>
+        <p class="sub">把抽象拆小、把流程具象，讓學習者帶走可複用的方法</p>
+        <ul class="clean">
+          <li><strong>AI × 人文工作坊</strong> 用比喻、色彩與故事，建立可遷移的 Prompt 與評估思維。</li>
+          <li><strong>工作流程自動化</strong> 從 Markdown 到投影片/網站的端到端管線（含 CI/CD 與版本控管）。</li>
+          <li><strong>資訊安全素養</strong> 以分層防禦與內部威脅偵測為主軸的情境式學習。</li>

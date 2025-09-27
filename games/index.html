@@ -10,9 +10,22 @@
   <main class="container">
     <h1>井字遊戲 Tic-Tac-Toe</h1>
 
+    <!-- 新增符號選擇區塊 -->
+    <section class="symbol-select">
+      <label>選擇符號組合：</label>
+      <select id="symbolSet">
+        <option value="XO">X 和 O</option>
+        <option value="DOGCAT">🐕 和 🐈</option>
+        <option value="SUNMOON">☀️ 和 🌙</option>
+      </select>
+      <button id="startGame" type="button">開始遊戲</button>
+    </section>
+
     <section class="controls">
       <div id="status" aria-live="polite">目前玩家：X</div>
       <button id="reset" type="button">重新開始</button>
+      <!-- 新增悔棋按鈕 -->
+      <button id="undo" type="button" disabled>悔棋</button>
     </section>
 
     <section
@@ -32,6 +45,12 @@
       <button class="cell" role="gridcell" data-index="6" aria-label="cell 7"></button>
       <button class="cell" role="gridcell" data-index="7" aria-label="cell 8"></button>
       <button class="cell" role="gridcell" data-index="8" aria-label="cell 9"></button>
+    </section>
+
+    <!-- 新增統計數據顯示區塊 -->
+    <section id="stats" class="stats" style="display:none;">
+      <h2>統計數據</h2>
+      <div id="statsContent"></div>
     </section>
 
     <footer class="tips">
