@@ -1,0 +1,39 @@
+{
+    "cards": [
+        {
+            "front": "響應式網頁設計",
+            "back": {
+                "romanization": "xiǎng yìng shì wǎng yè shè jì",
+                "definition": "能夠自動調整版面以適應不同裝置（桌機與手機）的網頁設計方式。"
+            }
+        },
+        {
+            "front": "GitHub Pages",
+            "back": {
+                "romanization": "GitHub Pages",
+                "definition": "GitHub 提供的免費靜態網頁託管服務，可用於部署網頁應用程式。"
+            }
+        },
+        {
+            "front": "繁體中文介面",
+            "back": {
+                "romanization": "fán tǐ zhōng wén jiè miàn",
+                "definition": "網頁應用程式的使用者介面語言為繁體中文。"
+            }
+        },
+        {
+            "front": "React 框架",
+            "back": {
+                "romanization": "React kuàng jià",
+                "definition": "一種用於建立現代化網頁應用程式的 JavaScript 框架。"
+            }
+        },
+        {
+            "front": "GitHub Workflow",
+            "back": {
+                "romanization": "GitHub Workflow",
+                "definition": "GitHub 上自動化流程，可用於測試與部署網頁應用程式。"
+            }
+        }
+    ]
+}
