@@ -113,11 +113,29 @@ h1 {
 }
 .stats {
   margin-top: 1em;
-  padding: 0.5em;
-  background: #f8f8f8;
-  border-radius: 6px;
+  padding: 0.5em 1em;
+  background: #f7f7f7;
+  border-radius: 8px;
+  font-size: 1.1em;
 }
 .stats h2 {
   margin-top: 0;
   font-size: 1.1em;
+}
+.stats strong {
+  font-size: 1.2em;
+}
+#status .win {
+  color: gold;
+  font-weight: bold;
+}
+#status .lose {
+  color: #888;
+}
+.symbol-select {
+  margin-bottom: 1em;
+}
+#undo:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
