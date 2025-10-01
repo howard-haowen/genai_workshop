@@ -1,3 +1,40 @@
+.result {
+  text-align: center;
+  font-size: 2.2em;
+  margin-bottom: 18px;
+  font-weight: bold;
+}
+.result-icon {
+  font-size: 2.8em;
+  vertical-align: middle;
+  margin: 0 8px;
+  line-height: 1;
+  display: inline-block;
+}
+.symbol-x {
+  color: #f59e0b;
+  text-shadow: 0 0 12px rgba(245,158,11,.35);
+}
+.symbol-o {
+  color: #10b981;
+  text-shadow: 0 0 12px rgba(16,185,129,.35);
+}
+.symbol-fish {
+  color: #2196f3;
+  text-shadow: 0 0 12px rgba(33,150,243,.35);
+}
+.symbol-cat {
+  color: #e53935;
+  text-shadow: 0 0 12px rgba(229,57,53,.35);
+}
+.symbol-female {
+  color: #ab47bc;
+  text-shadow: 0 0 12px rgba(171,71,188,.35);
+}
+.symbol-male {
+  color: #00897b;
+  text-shadow: 0 0 12px rgba(0,137,123,.35);
+}
 :root {
   --bg: #0f172a;
   --panel: #111827;

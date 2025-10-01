@@ -1,7 +1,12 @@
 const symbolSets = {
-  XO: ['X', 'O'],
-  DOGCAT: ['🐕', '🐈'],
-  SUNMOON: ['☀️', '🌙']
+  XO: [
+    '<span class="symbol-x">X</span>',
+    '<span class="symbol-o">O</span>'
+  ],
+  SHRUG: [
+    '<span class="symbol-female">🤷‍♀️</span>',
+    '<span class="symbol-male">🤷‍♂️</span>'
+  ]
 };
 
 let currentSymbols = symbolSets.XO;
@@ -30,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function renderBoard() {
     board.forEach((val, i) => {
-      cells[i].textContent = val;
+      cells[i].innerHTML = val;
       cells[i].disabled = !!val || !gameActive;
     });
   }
@@ -40,7 +45,7 @@ document.addEventListener('DOMContentLoaded', () => {
       statusDiv.textContent = '請點擊「開始遊戲」';
       return;
     }
-    statusDiv.textContent = `目前玩家：${currentSymbols[currentPlayer]}（剩餘 ${timeLeft} 秒）`;
+    statusDiv.innerHTML = `目前玩家：${currentSymbols[currentPlayer]}（剩餘 ${timeLeft} 秒）`;
     undoBtn.disabled = !undoAvailable[currentPlayer] || !gameActive;
   }
 
@@ -59,17 +64,18 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function startGame() {
-    currentSymbols = symbolSets[symbolSelect.value];
-    board = Array(9).fill('');
-    currentPlayer = 0;
-    gameActive = true;
-    undoAvailable = [true, true];
-    history = [];
-    renderBoard();
-    renderStatus();
-    statsSection.style.display = 'none';
-    undoBtn.disabled = false;
-    startTurnTimer();
+  currentSymbols = symbolSets[symbolSelect.value];
+  board = Array(9).fill('');
+  currentPlayer = 0;
+  gameActive = true;
+  undoAvailable = [true, true];
+  history = [];
+  renderBoard();
+  renderStatus();
+  statsSection.style.display = 'none';
+  undoBtn.disabled = false;
+  document.getElementById('result').style.display = 'none';
+  startTurnTimer();
   }
 
   function endGame(winner, reason = 'win') {
@@ -81,10 +87,13 @@ document.addEventListener('DOMContentLoaded', () => {
     stats[(winner + 1) % 2].lose++;
     stats[0].total++;
     stats[1].total++;
-    let winIcon = '👑', loseIcon = '😢';
-    statusDiv.innerHTML = reason === 'timeout'
-      ? `玩家 ${currentSymbols[currentPlayer]} 超時，${currentSymbols[winner]} ${winIcon} 勝，${currentSymbols[(winner + 1) % 2]} ${loseIcon} 敗`
-      : `${currentSymbols[winner]} ${winIcon} 勝，${currentSymbols[(winner + 1) % 2]} ${loseIcon} 敗`;
+    let winIcon = '<span class="result-icon win">👑</span>', loseIcon = '<span class="result-icon lose">😢</span>';
+    const resultDiv = document.getElementById('result');
+    resultDiv.style.display = '';
+    resultDiv.innerHTML = reason === 'timeout'
+      ? `玩家 ${currentSymbols[currentPlayer]} 超時<br>${currentSymbols[winner]} ${winIcon} 勝<br>${currentSymbols[(winner + 1) % 2]} ${loseIcon} 敗`
+      : `${currentSymbols[winner]} ${winIcon} 勝<br>${currentSymbols[(winner + 1) % 2]} ${loseIcon} 敗`;
+    statusDiv.innerHTML = '';
     showStats();
   }
 
