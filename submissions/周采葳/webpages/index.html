@@ -5,21 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Howard — 個人網站</title>
   <meta name="description" content="Howard 的個人網站：教育、教學、研究、作品與聯絡方式" />
+  <!-- Open Graph SEO -->
+  <meta property="og:title" content="Howard — 個人網站" />
+  <meta property="og:description" content="Howard 的個人網站：教育、教學、研究、作品與聯絡方式" />
+  <meta property="og:image" content="https://howard-haowen.github.io/avatar.jpg" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://howard-haowen.github.io/" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <!-- 可改成你喜歡的字體 -->
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;600;700&display=swap" rel="stylesheet">
   <style>
     :root{
-      --bg:#0e0f12;
-      --card:#151821;
-      --text:#e8ecf1;
-      --sub:#a7b0be;
-      --brand:#5cc8ff;
-      --accent:#9b7bff;
-      --muted:#7a8596;
-      --line:rgba(255,255,255,.08);
-      --shadow:0 10px 30px rgba(0,0,0,.35);
+      /* 明亮日系配色 */
+      --bg:#f7f7fa;
+      --card:#fff6f0;
+      --text:#3a3a3a;
+      --sub:#a8b6c1;
+      --brand:#ffb6b9;
+      --accent:#fcd5ce;
+      --muted:#b8b8b8;
+      --line:rgba(200,200,200,.18);
+      --shadow:0 8px 24px rgba(255,183,185,.12);
       --radius:14px;
     }
     *{box-sizing:border-box}
@@ -138,3 +145,18 @@
           <li><strong>AI × 人文工作坊</strong> 用比喻、色彩與故事，建立可遷移的 Prompt 與評估思維。</li>
           <li><strong>工作流程自動化</strong> 從 Markdown 到投影片/網站的端到端管線（含 CI/CD 與版本控管）。</li>
           <li><strong>資訊安全素養</strong> 以分層防禦與內部威脅偵測為主軸的情境式學習。</li>
+        </ul>
+      </section>
+
+      <!-- 聯絡方式 -->
+      <section id="contact" class="card">
+        <h2>聯絡方式</h2>
+        <p>歡迎合作、演講或課程邀約！</p>
+        <ul class="clean">
+          <li>Email: <a href="mailto:howard@email.com">howard@email.com</a></li>
+        </ul>
+      </section>
+    </div>
+  </div>
+</body>
+</html>
