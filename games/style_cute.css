@@ -1,9 +1,10 @@
+/* 主題色與可愛色彩 */
 :root {
-  --bg: #e0f7fa;
-  --panel: #fffde7;
-  --grid: #b2f5ea;
-  --text: #3b82f6;
-  --accent: #fcd34d;
+  --bg: #fce7f3;
+  --panel: #f9a8d4;
+  --grid: #fbcfe8;
+  --text: #6d28d9;
+  --accent: #f472b6;
   --x: #ef4444; /* 紅色叉叉 */
   --o: #22c55e; /* 綠色圈圈 */
   --win: #f87171;
@@ -20,6 +21,7 @@ body {
   place-items: center;
 }
 
+.container {
   width: min(92vw, 700px);
   padding: 24px;
   background: color-mix(in oklab, var(--panel) 90%, #fff 10%);
@@ -28,6 +30,7 @@ body {
   box-shadow: 0 10px 40px rgba(249,168,212,.25), 0 1px 0 rgba(255,255,255,.15);
 }
 
+h1 {
   margin: 0 0 16px;
   font-size: clamp(28px, 4vw, 38px);
   letter-spacing: 1px;
@@ -41,26 +44,38 @@ body {
   gap: 12px;
   justify-content: space-between;
   margin-bottom: 16px;
+  background: #fbcfe8;
+  border-radius: 12px;
+  padding: 8px 12px;
+  box-shadow: 0 2px 8px #f9a8d4;
 }
 
 #status {
   font-weight: 600;
   padding: 8px 12px;
-  border-radius: 8px;
-  background: #0b1220;
-  border: 1px solid #1f2a44;
+  border-radius: 12px;
+  background: #f9a8d4;
+  border: 2px solid #f472b6;
+  color: #be185d;
+  font-size: 18px;
+  box-shadow: 0 1px 8px #fbcfe8;
 }
 
 #reset {
-  background: linear-gradient(180deg, #1f2a44, #0b1220);
-  color: var(--text);
-  border: 1px solid #2a3a5c;
-  padding: 8px 12px;
-  border-radius: 8px;
+  background: linear-gradient(180deg, #f9a8d4, #fbcfe8);
+  color: #fff;
+  border: 2px solid #f472b6;
+  padding: 8px 16px;
+  border-radius: 16px;
   cursor: pointer;
+  font-size: 16px;
+  font-family: inherit;
+  box-shadow: 0 2px 8px #fbcfe8;
+  transition: background .2s, border-color .2s, transform .1s;
 }
-#reset:hover { border-color: var(--accent); color: white; }
+#reset:hover { border-color: #ec4899; background: #f472b6; color: #fff; transform: scale(1.08); }
 
+.board {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
@@ -72,6 +87,7 @@ body {
   box-shadow: 0 2px 16px #f9a8d4;
 }
 
+.cell {
   display: grid;
   place-items: center;
   aspect-ratio: 1 / 1;
@@ -87,7 +103,7 @@ body {
   box-shadow: 0 2px 12px #f9a8d4;
   transition: transform .12s, border-color .18s, box-shadow .2s;
 }
-
+.cell:hover {
   transform: scale(1.08);
   border-color: #f472b6;
   box-shadow: 0 4px 16px #f9a8d4;
@@ -95,24 +111,23 @@ body {
 .cell:disabled { cursor: not-allowed; opacity: .7; filter: grayscale(0.2); }
 
 .cell[data-mark="X"] {
-  color: var(--x) !important;
-  text-shadow: 0 0 16px #ef4444, 0 2px 0 #fff;
+  color: var(--x);
+  text-shadow: 0 0 16px #f87171, 0 2px 0 #fff;
   font-family: inherit;
 }
 .cell[data-mark="O"] {
-  color: var(--o) !important;
+  color: var(--o);
   text-shadow: 0 0 16px #22c55e, 0 2px 0 #fff;
   font-family: inherit;
 }
 
+.cell.win {
   border-color: var(--win);
   box-shadow: 0 0 0 4px color-mix(in oklab, var(--win) 80%, transparent),
               0 10px 30px rgba(248,113,113,.25);
   background: #fff0f1;
 }
 
-.tips { opacity: .8; margin-top: 16px; font-size: 14px; }
-/* 可愛提示區塊 */
 .tips {
   opacity: .9;
   margin-top: 16px;
@@ -136,6 +151,7 @@ body {
   color: #be185d;
   font-size: 16px;
 }
+
 .stats {
   margin-top: 1em;
   padding: 0.5em;
