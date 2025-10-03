@@ -37,3 +37,7 @@ graph TD
 ## 第 3 週：探索GitHub Copilot的三種互動模式
 - 工具重點：**GitHub Copilot, GitHub Codespaces**
 - 📚 [課程簡報](https://howard-haowen.github.io/genai_workshop/w3_deck_marp.html)
+
+## 第 4 週：應用程式部署與自動化
+- 工具重點：**GitHub Pages, GitHub Actions**
+- 📚 [課程簡報](https://howard-haowen.github.io/genai_workshop/w4_deck_marp.html)

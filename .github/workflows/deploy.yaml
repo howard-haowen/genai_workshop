@@ -1,5 +1,4 @@
-name: marp2pages
-concurrency: marp2pages
+name: Deploy All
 
 on:
   push:
@@ -12,7 +11,7 @@ on:
       - closed
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -21,7 +20,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Prepare build dir
+      - name: Prepare build directory
         run: |
           mkdir -p build
           chmod 777 build
@@ -29,7 +28,7 @@ jobs:
       - name: Copy images directory (if exists)
         run: if [[ -d img ]]; then cp -R img build/img; fi
 
-      - name: Convert all marp MD to HTML
+      - name: Convert all Marp MD to HTML
         run: |
           for file in *_marp.md; do
             [ -e "$file" ] || continue
@@ -40,7 +39,12 @@ jobs:
               "$file" --html -o "/home/marp/app/build/${base}.html"
           done
 
-      - name: Deploy preview
+      # - name: Copy Flash Cards app
+      #   run: |
+      #     mkdir -p build/apps
+      #     cp -r flash-cards/* build/apps/
+
+      - name: Deploy preview (PRs)
         if: ${{ github.event_name == 'pull_request' }}
         uses: rossjrw/pr-preview-action@v1
         with:
@@ -48,9 +52,9 @@ jobs:
           preview-branch: gh-pages
           umbrella-dir: pr-preview
 
-      - name: Deploy production
+      - name: Deploy to GitHub Pages (main branch)
         if: ${{ github.event_name == 'push' }}
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
-          folder: ./build/
+          folder: build
