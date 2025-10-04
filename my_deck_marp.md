@@ -13,10 +13,7 @@
 
 ---
 
-## 常見部署方式
-- 雲端平台（如：Heroku、Vercel、GitHub Pages）
-- 虛擬主機（VPS）
-- 本地伺服器
+
 
 ---
 
