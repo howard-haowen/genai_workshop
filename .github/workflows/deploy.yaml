@@ -39,10 +39,10 @@ jobs:
               "$file" --html -o "/home/marp/app/build/${base}.html"
           done
 
-      # - name: Copy Flash Cards app
-      #   run: |
-      #     mkdir -p build/apps
-      #     cp -r flash-cards/* build/apps/
+       - name: Copy Flash Cards app
+         run: |
+           mkdir -p build/apps
+           cp -r flash-cards/* build/apps/
 
       - name: Deploy preview (PRs)
         if: ${{ github.event_name == 'pull_request' }}
