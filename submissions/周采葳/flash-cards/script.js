@@ -4,6 +4,7 @@ let currentCardIndex = 0;
 // DOM Elements
 const flashCard = document.querySelector('.flash-card');
 const cardFront = document.querySelector('.card-front .content');
+const cardFrontEmoji = document.querySelector('.card-front .emoji') || document.querySelector('.emoji');
 const cardBack = document.querySelector('.card-back .romanization');
 const cardBackDefinition = document.querySelector('.card-back .definition');
 const prevButton = document.getElementById('prevCard');
@@ -28,7 +29,18 @@ function updateCard() {
     cardBack.textContent = cards[currentCardIndex].back.romanization;
     cardBackDefinition.textContent = cards[currentCardIndex].back.definition;
     cardCount.textContent = `${currentCardIndex + 1} / ${cards.length}`;
-    
+
+    // emoji 對照表
+    const emojiMap = {
+        '狗仔': '🐶',
+        '貓仔': '😺',
+        '鳥仔': '🐦',
+        '魚仔': '🐟',
+        '豬仔': '🐷'
+    };
+    const word = cards[currentCardIndex].front;
+    cardFrontEmoji.textContent = emojiMap[word] || '';
+
     // Update navigation buttons
     prevButton.disabled = currentCardIndex === 0;
     nextButton.disabled = currentCardIndex === cards.length - 1;
