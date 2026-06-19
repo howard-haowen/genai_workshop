@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AI創造工作坊：文科視角的 AI 應用開發入門</title>
+  <meta name="description" content="AI創造工作坊課程首頁：Markdown、Git/GitHub、GitHub Copilot、Codespaces、GitHub Pages 與 GitHub Actions。">
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f7f4ff;
+      --panel: #ffffff;
+      --text: #1f2330;
+      --muted: #5f6680;
+      --brand: #6f48ff;
+      --brand-2: #0ea5e9;
+      --line: rgba(31, 35, 48, 0.12);
+      --shadow: 0 18px 48px rgba(61, 44, 130, 0.16);
+      --radius: 22px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #11131f;
+        --panel: #1a1d2b;
+        --text: #f2f5ff;
+        --muted: #b8bed4;
+        --line: rgba(242, 245, 255, 0.14);
+        --shadow: 0 18px 48px rgba(0, 0, 0, 0.36);
+      }
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif;
+      line-height: 1.65;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, rgba(111, 72, 255, 0.22), transparent 34rem),
+        radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.18), transparent 30rem),
+        var(--bg);
+    }
+
+    a { color: inherit; }
+
+    .wrap {
+      width: min(1080px, calc(100% - 40px));
+      margin: 0 auto;
+      padding: 56px 0 72px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 24px;
+      padding: 42px;
+      border: 1px solid var(--line);
+      border-radius: calc(var(--radius) + 10px);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.38));
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .hero { background: linear-gradient(135deg, rgba(26, 29, 43, 0.88), rgba(26, 29, 43, 0.62)); }
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      width: fit-content;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      font-size: 0.92rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(2.25rem, 6vw, 4.75rem);
+      line-height: 1.08;
+      letter-spacing: -0.05em;
+    }
+
+    .subtitle {
+      max-width: 760px;
+      margin: 0;
+      color: var(--muted);
+      font-size: clamp(1.05rem, 2vw, 1.28rem);
+    }
+
+    .cta-row { display: flex; flex-wrap: wrap; gap: 12px; }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 44px;
+      padding: 10px 18px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 800;
+      transition: transform 0.16s ease, border-color 0.16s ease, box-shadow 0.16s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      border-color: rgba(111, 72, 255, 0.5);
+      box-shadow: 0 10px 24px rgba(111, 72, 255, 0.18);
+    }
+
+    .button.primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      border-color: transparent;
+    }
+
+    .section-title {
+      margin: 46px 0 18px;
+      font-size: clamp(1.55rem, 3vw, 2.1rem);
+    }
+
+    .course-map { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .resources { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+
+    .card, .resource-link {
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: 0 10px 28px rgba(61, 44, 130, 0.08);
+    }
+
+    .card { display: flex; flex-direction: column; gap: 14px; min-height: 100%; }
+    .card h2 { margin: 0; font-size: 1.2rem; line-height: 1.35; }
+    .card p { margin: 0; color: var(--muted); }
+
+    .week {
+      display: inline-flex;
+      width: fit-content;
+      padding: 3px 10px;
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--brand), var(--brand-2));
+      font-size: 0.85rem;
+      font-weight: 800;
+    }
+
+    .slide-link {
+      margin-top: auto;
+      color: var(--brand);
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .slide-link:hover { text-decoration: underline; }
+
+    .resource-link {
+      display: block;
+      text-decoration: none;
+      transition: transform 0.16s ease, border-color 0.16s ease;
+    }
+
+    .resource-link:hover { transform: translateY(-2px); border-color: rgba(111, 72, 255, 0.5); }
+    .resource-link strong { display: block; margin-bottom: 6px; font-size: 1.1rem; }
+    .resource-link span { color: var(--muted); }
+
+    footer {
+      margin-top: 42px;
+      color: var(--muted);
+      text-align: center;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 860px) {
+      .hero { padding: 28px; }
+      .course-map, .resources { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <section class="hero" aria-labelledby="page-title">
+      <span class="eyebrow">🤖 AI × 人文 × 數位創作</span>
+      <h1 id="page-title">AI創造工作坊</h1>
+      <p class="subtitle">文科視角的 AI 應用開發入門：從 Markdown 與版本管理開始，逐步學習 GitHub Copilot、Codespaces、GitHub Pages 與 GitHub Actions，把想法做成可分享的數位作品。</p>
+      <div class="cta-row" aria-label="主要連結">
+        <a class="button primary" href="w1_deck_marp.html">開始第 1 週課程</a>
+        <a class="button" href="apps/">開啟台語單詞卡</a>
+      </div>
+    </section>
+
+    <h2 class="section-title">課程地圖</h2>
+    <section class="course-map" aria-label="四週課程地圖">
+      <article class="card">
+        <span class="week">W1</span>
+        <h2>開始數位創作的第一步</h2>
+        <p><strong>工具重點：</strong>Markdown, Git/GitHub</p>
+        <p><strong>應用：</strong>專案筆記與版本管理</p>
+        <a class="slide-link" href="w1_deck_marp.html">📚 查看課程簡報</a>
+      </article>
+
+      <article class="card">
+        <span class="week">W2</span>
+        <h2>讓 AI 幫你動腦</h2>
+        <p><strong>工具重點：</strong>GitHub Copilot, Codespaces</p>
+        <p><strong>應用：</strong>Copilot 輔助生成元件與程式</p>
+        <a class="slide-link" href="w2_deck_marp.html">📚 查看課程簡報</a>
+      </article>
+
+      <article class="card">
+        <span class="week">W3</span>
+        <h2>探索 Copilot 的三種互動模式</h2>
+        <p><strong>工具重點：</strong>GitHub Copilot, Codespaces</p>
+        <p><strong>應用：</strong>提問、編輯與代理模式</p>
+        <a class="slide-link" href="w3_deck_marp.html">📚 查看課程簡報</a>
+      </article>
+
+      <article class="card">
+        <span class="week">W4</span>
+        <h2>應用程式部署與自動化</h2>
+        <p><strong>工具重點：</strong>GitHub Pages, GitHub Actions</p>
+        <p><strong>應用：</strong>公開數位創作成果</p>
+        <a class="slide-link" href="w4_deck_marp.html">📚 查看課程簡報</a>
+      </article>
+    </section>
+
+    <h2 class="section-title">延伸資源</h2>
+    <section class="resources" aria-label="延伸資源">
+      <a class="resource-link" href="markdown_basics_marp.html">
+        <strong>Markdown 基礎簡報</strong>
+        <span>學習用純文字建立清楚、可重複利用的內容結構。</span>
+      </a>
+      <a class="resource-link" href="git_basics_marp.html">
+        <strong>Git 基礎簡報</strong>
+        <span>理解版本管理、提交紀錄與協作流程的基本概念。</span>
+      </a>
+      <a class="resource-link" href="apps/">
+        <strong>台語單詞卡應用程式</strong>
+        <span>以靜態網頁示範資料、互動與 GitHub Pages 部署。</span>
+      </a>
+      <a class="resource-link" href="https://github.com/howard-haowen/genai_workshop">
+        <strong>GitHub 原始碼倉庫</strong>
+        <span>查看課程原始檔、Marp 投影片來源與部署流程。</span>
+      </a>
+    </section>
+
+    <footer>
+      <p>讓想法從筆記、版本、原型到發布，一步一步成為可以分享的作品。</p>
+    </footer>
+  </main>
+</body>
+</html>

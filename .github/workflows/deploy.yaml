@@ -2,7 +2,7 @@ name: Deploy All
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
     types:
       - opened
@@ -27,6 +27,9 @@ jobs:
 
       - name: Copy images directory (if exists)
         run: if [[ -d img ]]; then cp -R img build/img; fi
+
+      - name: Copy landing page
+        run: cp index.html build/index.html
 
       - name: Convert all Marp MD to HTML
         run: |
