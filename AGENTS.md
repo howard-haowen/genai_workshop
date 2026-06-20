@@ -4,17 +4,39 @@ Guidance for AI coding agents working in this repository.
 
 ## Repository purpose
 
-This repository supports **AI創造工作坊: 文科視角的 AI 應用開發入門**, a Traditional Chinese workshop about Markdown, Git/GitHub, GitHub Copilot/Codespaces, GitHub Pages, and GitHub Actions.
-
-The repo contains:
-
-- Workshop landing documentation in `README.md`.
-- Marp slide sources in `*_marp.md`.
-- Plain Markdown teaching material such as `markdown_basics.md`, `git_basics.md`, and `md_conversion/instructions.md`.
-- Small static web app examples in `flash-cards/`, `games/`, and `webpages/`.
-- A GitHub Actions workflow that builds and publishes part of the repo to GitHub Pages.
+This repository supports **AI創造工作坊**, a Traditional Chinese workshop series about AI-assisted digital creation, Markdown, Git/GitHub, GitHub Copilot/Codespaces, GitHub Pages, and GitHub Actions.
 
 Most user-facing content is written in **Traditional Chinese**. Keep that language unless the user explicitly asks otherwise.
+
+## Current structure
+
+The repository now uses clean year-based workshop URLs.
+
+Source content lives on `main`:
+
+```text
+index.html              # root year selector for GitHub Pages
+README.md               # repository overview
+AGENTS.md               # instructions for AI coding agents
+.github/workflows/      # deployment workflow
+workshops/
+├── 2025/               # archived 2025 workshop source materials
+└── 2026/               # current-year workshop source materials
+```
+
+Published content is generated on `gh-pages`:
+
+```text
+index.html              # year selector
+2025/                   # published 2025 materials
+2026/                   # published 2026 materials
+```
+
+Important public URLs:
+
+- `https://howard-haowen.github.io/genai_workshop/`
+- `https://howard-haowen.github.io/genai_workshop/2025/`
+- `https://howard-haowen.github.io/genai_workshop/2026/`
 
 ## Branch model
 
@@ -22,88 +44,42 @@ Most user-facing content is written in **Traditional Chinese**. Keep that langua
 
 `main` is the source branch. Edit source files here.
 
-Important source files/directories:
+Use `workshops/<year>/` for year-specific materials. For example:
 
-- `README.md` — course overview with links to the published slide HTML files.
-- `w1_deck_marp.md`, `w2_deck_marp.md`, `w3_deck_marp.md`, `w4_deck_marp.md` — weekly Marp slide sources.
-- `markdown_basics_marp.md`, `git_basics_marp.md` — additional Marp slide sources.
-- `markdown_basics.md`, `git_basics.md`, `deployQnA.md`, `kanban.md` — supporting teaching notes.
-- `flash-cards/` — source for the deployed Taiwanese flash-card static app.
-- `games/` — static tic-tac-toe example app; currently present on `main` but not deployed by the existing workflow.
-- `webpages/` — static personal-site/webpage examples; currently present on `main` but not deployed by the existing workflow.
-- `.github/workflows/deploy.yaml` — deployment pipeline.
+- `workshops/2025/w1_deck_marp.md`
+- `workshops/2025/flash-cards/`
+- `workshops/2026/index.html`
+- `workshops/2026/README.md`
 
 ### `gh-pages`
 
-`gh-pages` is the generated/published branch for GitHub Pages. Do **not** make normal source edits directly on `gh-pages` unless the user specifically asks for an emergency published-site patch.
+`gh-pages` is generated/published output for GitHub Pages. Do **not** make normal source edits directly on `gh-pages` unless the user specifically asks for an emergency published-site patch.
 
-Current published branch contents are generated equivalents of selected source files:
+The deployment workflow replaces the published branch from the generated `build/` directory. Manual edits on `gh-pages` can be overwritten.
 
-- `w1_deck_marp.html`, `w2_deck_marp.html`, `w3_deck_marp.html`, `w4_deck_marp.html`
-- `markdown_basics_marp.html`, `git_basics_marp.html`
-- `apps/` containing the published copy of `flash-cards/`:
-  - `apps/index.html`
-  - `apps/style.css`
-  - `apps/script.js`
-  - `apps/data.json`
-  - `apps/agent.md`
+## Deployment workflow
 
-The `main` → `gh-pages` mapping is handled by `.github/workflows/deploy.yaml`:
+`.github/workflows/deploy.yaml` builds the site on pushes to `main` and pull requests:
 
-- Converts every root-level `*_marp.md` file to `build/<same_basename>.html` using `marpteam/marp-cli:latest` in Docker.
-- Copies `flash-cards/*` into `build/apps/`.
-- Deploys `build/` to the `gh-pages` branch on pushes to `main`.
-- Creates pull request previews under `gh-pages` using `rossjrw/pr-preview-action@v1`.
+1. Copies root `index.html` to `build/index.html`.
+2. Iterates over each `workshops/<year>/` directory.
+3. Copies `workshops/<year>/index.html` to `build/<year>/index.html`.
+4. Converts `workshops/<year>/*_marp.md` to `build/<year>/*.html` using `marpteam/marp-cli:latest` in Docker.
+5. Copies `workshops/<year>/flash-cards/*` to `build/<year>/apps/` when present.
+6. Deploys `build/` to `gh-pages` on pushes to `main`.
+7. Creates PR previews using `rossjrw/pr-preview-action@v1`.
 
-## Build and deployment commands
+## Adding a new year
 
-### Local Marp conversion
+To add another workshop year:
 
-If Marp CLI is installed locally:
+1. Create `workshops/<year>/`.
+2. Add `workshops/<year>/index.html` and `workshops/<year>/README.md`.
+3. Add Marp slide sources such as `w1_deck_marp.md` inside that year folder.
+4. Add static app folders, such as `flash-cards/`, inside that year folder if needed.
+5. Push to `main`; the workflow publishes the new year under `/<year>/`.
 
-```bash
-./convert_marp.sh
-```
-
-This converts all root-level `*_marp.md` files to HTML in the repository root.
-
-If `convert_marp.sh` is not executable:
-
-```bash
-chmod +x convert_marp.sh
-./convert_marp.sh
-```
-
-The GitHub Actions workflow uses Docker instead of the local script and writes outputs to `build/`.
-
-### Local static app testing
-
-There is no package manager configuration in this repo. Static apps can be tested with any simple local HTTP server from the relevant directory, for example:
-
-```bash
-python3 -m http.server 8000
-```
-
-For `flash-cards/`, use an HTTP server instead of opening `index.html` directly, because `script.js` fetches `data.json` and browser file-origin restrictions may block local file fetches.
-
-### Deployment
-
-Pushes to `main` trigger `.github/workflows/deploy.yaml`. The workflow deploys only:
-
-1. Root-level Marp slide HTML outputs.
-2. `flash-cards/` copied to `apps/`.
-
-If a user asks to deploy `games/`, `webpages/`, or another app, update `.github/workflows/deploy.yaml` deliberately and document the new published path.
-
-## Project conventions
-
-### Language and audience
-
-- Use Traditional Chinese (`zh-Hant` / `zh-TW`) for workshop-facing UI, slides, explanations, and prompts.
-- Keep explanations beginner-friendly and teaching-oriented; this repository is for a humanities-oriented AI application development workshop.
-- Preserve the existing tone: clear, encouraging, metaphor-rich, and practical.
-
-### Marp slides
+## Marp slide conventions
 
 Marp slide files use frontmatter similar to:
 
@@ -121,17 +97,22 @@ Guidelines:
 
 - Keep slide separators as `---`.
 - Preserve Marp directives such as `![bg right]`, `![bg fit right]`, and `![right bg fit]` unless intentionally redesigning a slide.
-- Root-level slide files intended for publication should be named `*_marp.md`; the workflow converts only those files.
-- Published slide links in `README.md` point to `https://howard-haowen.github.io/genai_workshop/<basename>.html`.
+- Year-specific slide files intended for publication should be named `*_marp.md` and placed directly inside `workshops/<year>/`.
+- Published slide links should include the year path, e.g. `/genai_workshop/2025/w1_deck_marp.html`.
 
-### Static apps
+## Static apps
 
 The apps are plain HTML/CSS/JavaScript without a build step.
 
-#### `flash-cards/`
+### `flash-cards/`
 
-- Deployed path: `apps/` on `gh-pages`.
-- Runtime data shape in `data.json`:
+If a year contains `workshops/<year>/flash-cards/`, it deploys to:
+
+```text
+https://howard-haowen.github.io/genai_workshop/<year>/apps/
+```
+
+Runtime data shape in `data.json`:
 
 ```json
 {
@@ -147,29 +128,16 @@ The apps are plain HTML/CSS/JavaScript without a build step.
 }
 ```
 
-- `script.js` expects `cards` to be a non-empty array and reads `back.romanization` plus `back.definition`.
-- Keep import/export compatible with this JSON structure.
-
-#### `games/`
-
-- Contains a tic-tac-toe app with `index.html`, `style.css`, `script.js`, and `tic-tac-toe.html`.
-- The JavaScript uses DOM APIs and `localStorage` (`ttt_stats`) for stats.
-- Currently not copied into `build/` by the deployment workflow.
-
-#### `webpages/`
-
-- Contains static personal website examples.
-- Currently not copied into `build/` by the deployment workflow.
+`script.js` expects `cards` to be a non-empty array and reads `back.romanization` plus `back.definition`.
 
 ## Editing rules for agents
 
 - Prefer editing `main` source files, not generated files on `gh-pages`.
 - Do not manually edit generated `.html` slide outputs unless the user explicitly asks to patch generated output.
-- If changing published slide content, edit the corresponding `*_marp.md` source and let the workflow regenerate HTML.
-- If changing the published flash-card app, edit `flash-cards/`; it deploys to `apps/`.
-- If adding new deployable content, update `.github/workflows/deploy.yaml` and explain the resulting public path.
-- Avoid adding dependencies unless necessary. The current repo intentionally uses simple Markdown, Marp, and static web files.
-- Keep file and directory names stable because README links and workflow copy paths depend on them.
+- Preserve archived year content unless the user explicitly asks to update that year.
+- Add new workshop content under the correct `workshops/<year>/` directory.
+- Avoid adding dependencies unless necessary. The repo intentionally uses Markdown, Marp, GitHub Actions, and static web files.
+- Keep file and directory names stable because workflow paths and published URLs depend on them.
 - Do not commit or push changes unless the user explicitly asks.
 
 ## Validation checklist
@@ -177,14 +145,14 @@ The apps are plain HTML/CSS/JavaScript without a build step.
 Use the most relevant checks for the change:
 
 - For Markdown-only changes: inspect rendered Markdown/Marp syntax for broken tables, frontmatter, or slide separators.
-- For Marp changes: run `./convert_marp.sh` if Marp CLI is available, or rely on the GitHub Actions Docker workflow if local Marp is unavailable.
-- For `flash-cards/`: serve `flash-cards/` over HTTP and verify `data.json` loads, card navigation works, and import/export still use the expected JSON shape.
-- For `games/`: serve `games/` over HTTP and verify starting/resetting a game, timer behavior, undo, and stats.
+- For Marp changes: run the GitHub Actions workflow or local Marp conversion if Docker/Marp is available.
+- For `flash-cards/`: serve the relevant year folder over HTTP and verify `data.json` loads, card navigation works, and import/export still use the expected JSON shape.
 - For workflow changes: review `.github/workflows/deploy.yaml` carefully for source/destination paths and branch names (`main`, `gh-pages`).
+- After pushing workflow changes, check the GitHub Actions run status.
 
 ## Known caveats
 
-- `gh-pages` contains generated/published files and is intentionally much smaller than `main`.
-- `games/` and `webpages/` exist on `main` but are not currently included in the published `gh-pages` output.
-- The local `convert_marp.sh` writes HTML to the repo root, while the GitHub Actions workflow writes to `build/` before deployment.
+- `gh-pages` contains generated/published files and is intentionally smaller than `main`.
+- The workflow now uses clean versioned URLs only; legacy root-level slide URLs are not preserved by design.
+- Local Docker may not be running even when Docker CLI is installed. GitHub Actions runs Docker on `ubuntu-latest`.
 - Some content references external image URLs; when editing slides, avoid replacing these with unstable or inaccessible URLs unless necessary.

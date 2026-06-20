@@ -1,43 +1,43 @@
+# 🤖 AI創造工作坊
 
-# 🤖 AI創造工作坊: 文科視角的AI應用開發入門
+本倉庫保存多年度的 **AI創造工作坊** 教材。課程以文科視角介紹 AI 應用開發、Markdown、Git/GitHub、GitHub Copilot/Codespaces、GitHub Pages 與 GitHub Actions。
 
-## 課程簡介
-```mermaid
-graph TD
-    W1["W1: 開始數位創作的第一步"]
-    W2["W2: 讓 AI 幫你動腦"]
-    W3["W3: 探索 Copilot 的 Ask, Edit, Agent 模式"]
-    W4["W4: 應用程式部署與自動化"]
+## 年度課程入口
 
-    T1["工具：Markdown, Git/GitHub"]
-    T2["工具：GitHub Copilot, Codespaces"]
-    T3["工具：GitHub Copilot, Codespaces"]
-    T4["工具：GitHub Pages, GitHub Actions"]
+- [2025 工作坊](https://howard-haowen.github.io/genai_workshop/2025/) — 去年度課程封存版
+- [2026 工作坊](https://howard-haowen.github.io/genai_workshop/2026/) — 今年度課程材料入口
 
-    A1["應用：專案筆記與版本管理"]
-    A2["應用：Copilot 輔助生成元件與程式"]
-    A3["應用：提問、編輯與代理模式"]
-    A4["應用：公開數位創作成果"]
+## 公開網站
 
-    W1 --> T1 --> A1
-    W2 --> T2 --> A2
-    W3 --> T3 --> A3
-    W4 --> T4 --> A4 
+年度入口首頁：
+
+```text
+https://howard-haowen.github.io/genai_workshop/
 ```
 
-## 第 1 週：開始數位創作的第一步
+## 內容結構
 
-- 工具重點：**Markdown, Git/GitHub**  
-- 📚 [課程簡報](https://howard-haowen.github.io/genai_workshop/w1_deck_marp.html)
+```text
+workshops/
+├── 2025/    # 2025 年度教材與範例
+└── 2026/    # 2026 年度教材與範例
+```
 
-## 第 2 週：讓 AI 幫你動腦
-- 工具重點：**GitHub Copilot, GitHub Codespaces**
-- 📚 [課程簡報](https://howard-haowen.github.io/genai_workshop/w2_deck_marp.html)
+每個年度資料夾可以包含：
 
-## 第 3 週：探索GitHub Copilot的三種互動模式
-- 工具重點：**GitHub Copilot, GitHub Codespaces**
-- 📚 [課程簡報](https://howard-haowen.github.io/genai_workshop/w3_deck_marp.html)
+- `index.html` — 該年度的 GitHub Pages 首頁
+- `*_marp.md` — Marp 投影片來源檔
+- `README.md` — 年度說明
+- `flash-cards/` 或其他靜態應用程式範例
 
-## 第 4 週：應用程式部署與自動化
-- 工具重點：**GitHub Pages, GitHub Actions**
-- 📚 [課程簡報](https://howard-haowen.github.io/genai_workshop/w4_deck_marp.html)
+## 部署方式
+
+推送到 `main` 後，GitHub Actions 會：
+
+1. 複製根目錄 `index.html` 到 GitHub Pages 根目錄。
+2. 逐一處理 `workshops/<year>/`。
+3. 將每個年度的 `index.html` 複製到 `/<year>/`。
+4. 將年度資料夾中的 `*_marp.md` 轉換為 HTML。
+5. 若年度資料夾有 `flash-cards/`，則發布到 `/<year>/apps/`。
+
+`gh-pages` 是產生後的發布分支；一般教材編輯請在 `main` 進行。
