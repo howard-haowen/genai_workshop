@@ -34,6 +34,7 @@ jobs:
             [ -d "$year_dir" ] || continue
             year="$(basename "$year_dir")"
             mkdir -p "build/$year"
+            chmod 777 "build/$year"
 
             if [ -f "$year_dir/index.html" ]; then
               cp "$year_dir/index.html" "build/$year/index.html"
@@ -41,6 +42,7 @@ jobs:
 
             if [ -d "$year_dir/flash-cards" ]; then
               mkdir -p "build/$year/apps"
+              chmod 777 "build/$year/apps"
               cp -r "$year_dir/flash-cards/." "build/$year/apps/"
             fi
 
