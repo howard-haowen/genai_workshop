@@ -1,7 +1,2 @@
 # Local Marp HTML outputs
-workshops/2025/git_basics_marp.html
-workshops/2025/markdown_basics_marp.html
-workshops/2025/w1_deck_marp.html
-workshops/2025/w2_deck_marp.html
-workshops/2025/w3_deck_marp.html
-workshops/2025/w4_deck_marp.html
+workshops/**/*_marp.html
