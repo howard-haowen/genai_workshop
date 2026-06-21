@@ -47,7 +47,7 @@ Important public URLs:
 Use `workshops/<year>/` for year-specific materials. For example:
 
 - `workshops/2025/w1_deck_marp.md`
-- `workshops/2025/flash-cards/`
+- `workshops/2025/apps/flash-cards/`
 - `workshops/2026/index.html`
 - `workshops/2026/README.md`
 
@@ -65,7 +65,7 @@ The deployment workflow replaces the published branch from the generated `build/
 2. Iterates over each `workshops/<year>/` directory.
 3. Copies `workshops/<year>/index.html` to `build/<year>/index.html`.
 4. Converts `workshops/<year>/*_marp.md` to `build/<year>/*.html` using `marpteam/marp-cli:latest` in Docker.
-5. Copies `workshops/<year>/flash-cards/*` to `build/<year>/apps/` when present.
+5. Copies `workshops/<year>/apps/*` to `build/<year>/apps/` when present.
 6. Deploys `build/` to `gh-pages` on pushes to `main`.
 7. Creates PR previews using `rossjrw/pr-preview-action@v1`.
 
@@ -76,7 +76,7 @@ To add another workshop year:
 1. Create `workshops/<year>/`.
 2. Add `workshops/<year>/index.html` and `workshops/<year>/README.md`.
 3. Add Marp slide sources such as `w1_deck_marp.md` inside that year folder.
-4. Add static app folders, such as `flash-cards/`, inside that year folder if needed.
+4. Add static app folders, such as `apps/flash-cards/`, inside that year folder if needed.
 5. Push to `main`; the workflow publishes the new year under `/<year>/`.
 
 ## Marp slide conventions
@@ -104,12 +104,20 @@ Guidelines:
 
 The apps are plain HTML/CSS/JavaScript without a build step.
 
+General app guidance:
+
+- Prefer web applications. A framework such as React is acceptable when a user specifically asks for a richer app, but plain HTML/CSS/JavaScript is preferred for this repo unless a build step is justified.
+- Web applications should be responsive and compatible with both desktop and mobile devices.
+- Web applications should be deployable on GitHub Pages.
+- After testing applications locally, ensure the GitHub workflow deploys them under the appropriate year-specific app path.
+- The interface language of web applications should be Traditional Chinese (`繁體中文`).
+
 ### `flash-cards/`
 
-If a year contains `workshops/<year>/flash-cards/`, it deploys to:
+If a year contains `workshops/<year>/apps/flash-cards/`, it deploys to:
 
 ```text
-https://howard-haowen.github.io/genai_workshop/<year>/apps/
+https://howard-haowen.github.io/genai_workshop/<year>/apps/flash-cards/
 ```
 
 Runtime data shape in `data.json`:
