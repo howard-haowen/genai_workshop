@@ -20,8 +20,8 @@ README.md               # repository overview
 AGENTS.md               # instructions for AI coding agents
 .github/workflows/      # deployment workflow
 workshops/
-├── 2025/               # archived 2025 workshop source materials
-└── 2026/               # current-year workshop source materials
+├── 2025/               # archived 2025 workshop source materials and apps
+└── 2026/               # current-year workshop scaffold/source materials
 ```
 
 Published content is generated on `gh-pages`:
@@ -48,6 +48,8 @@ Use `workshops/<year>/` for year-specific materials. For example:
 
 - `workshops/2025/w1_deck_marp.md`
 - `workshops/2025/apps/flash-cards/`
+- `workshops/2025/apps/games/`
+- `workshops/2025/apps/webpages/`
 - `workshops/2026/index.html`
 - `workshops/2026/README.md`
 
@@ -69,6 +71,8 @@ The deployment workflow replaces the published branch from the generated `build/
 6. Deploys `build/` to `gh-pages` on pushes to `main`.
 7. Creates PR previews using `rossjrw/pr-preview-action@v1`.
 
+Static apps follow the path pattern `workshops/<year>/apps/<app-name>/`. For example, `workshops/2025/apps/flash-cards/` is published at `/genai_workshop/2025/apps/flash-cards/`. Other app folders, such as `games` or `webpages`, follow the same pattern. Each app folder’s default entry page is `index.html`.
+
 ## Adding a new year
 
 To add another workshop year:
@@ -76,7 +80,7 @@ To add another workshop year:
 1. Create `workshops/<year>/`.
 2. Add `workshops/<year>/index.html` and `workshops/<year>/README.md`.
 3. Add Marp slide sources such as `w1_deck_marp.md` inside that year folder.
-4. Add static app folders, such as `apps/flash-cards/`, inside that year folder if needed.
+4. Add static app folders, such as `apps/flash-cards/`, inside that year folder if needed. Other apps follow `apps/<app-name>/`; each app folder should include `index.html` as its entry page.
 5. Push to `main`; the workflow publishes the new year under `/<year>/`.
 
 ## Marp slide conventions
@@ -112,13 +116,29 @@ General app guidance:
 - After testing applications locally, ensure the GitHub workflow deploys them under the appropriate year-specific app path.
 - The interface language of web applications should be Traditional Chinese (`繁體中文`).
 
-### `flash-cards/`
+### App folder pattern
 
-If a year contains `workshops/<year>/apps/flash-cards/`, it deploys to:
+Apps live under:
+
+```text
+workshops/<year>/apps/<app-name>/
+```
+
+The deployment workflow copies them to:
+
+```text
+https://howard-haowen.github.io/genai_workshop/<year>/apps/<app-name>/
+```
+
+For example, if a year contains `workshops/<year>/apps/flash-cards/`, it deploys to:
 
 ```text
 https://howard-haowen.github.io/genai_workshop/<year>/apps/flash-cards/
 ```
+
+Other apps follow the same pattern. For example, `workshops/2025/apps/games/` deploys to `/genai_workshop/2025/apps/games/`, and `workshops/2025/apps/webpages/` deploys to `/genai_workshop/2025/apps/webpages/`. Each app folder’s default entry page is `index.html`.
+
+### `flash-cards/`
 
 Runtime data shape in `data.json`:
 
