@@ -107,6 +107,68 @@
                 margin: 0;
                 color: var(--muted);
                 font-size: clamp(1.05rem, 2vw, 1.28rem);
+                text-align: justify;
+                text-align-last: left;
+            }
+            .program-brief {
+                position: relative;
+                overflow: hidden;
+                margin-top: 34px;
+                padding: 30px;
+                border: 2px solid rgba(111, 72, 255, 0.36);
+                border-radius: calc(var(--radius) + 6px);
+                background:
+                    linear-gradient(
+                        135deg,
+                        rgba(111, 72, 255, 0.14),
+                        rgba(14, 165, 233, 0.1)
+                    ),
+                    var(--panel);
+                box-shadow: var(--shadow);
+            }
+            .program-brief::before {
+                content: "";
+                position: absolute;
+                inset: 0 auto 0 0;
+                width: 8px;
+                background: linear-gradient(
+                    180deg,
+                    var(--brand),
+                    var(--brand-2)
+                );
+            }
+            .brief-label {
+                display: inline-flex;
+                margin-bottom: 10px;
+                padding: 5px 11px;
+                border-radius: 999px;
+                color: #fff;
+                background: linear-gradient(
+                    135deg,
+                    var(--brand),
+                    var(--brand-2)
+                );
+                font-size: 0.85rem;
+                font-weight: 800;
+            }
+            .program-brief h2 {
+                margin: 0 0 12px;
+                font-size: clamp(1.45rem, 3vw, 2rem);
+            }
+            .copy-text {
+                margin: 0;
+                color: var(--text);
+                font-size: 1.04rem;
+            }
+            .copy-text strong {
+                color: var(--brand);
+            }
+            .brief-weeks {
+                margin: 18px 0 0;
+                padding-left: 1.35rem;
+            }
+            .brief-weeks li {
+                margin: 8px 0;
             }
             .section-title {
                 margin: 46px 0 18px;
@@ -200,7 +262,8 @@
                 .wrap {
                     padding-top: 36px;
                 }
-                .hero {
+                .hero,
+                .program-brief {
                     padding: 28px;
                 }
                 .course-map,
@@ -227,6 +290,46 @@
                     href="https://howard-haowen.github.io/genai_workshop/"
                     >← 回年度入口</a
                 >
+            </section>
+
+            <section
+                class="program-brief"
+                aria-labelledby="program-brief-title"
+            >
+                <h2 id="program-brief-title">
+                    四週課程大綱：AI 輔助數位創作與公開發表
+                </h2>
+                <p class="copy-text">
+                    本微學程單元以「文科視角的 AI
+                    應用開發入門」為核心，設計為四週循序漸進的實作課程。課程目標在於培養學生運用
+                    <strong
+                        >Markdown 結構化寫作、Git/GitHub 版本管理、GitHub
+                        Copilot 與 Codespaces AI 輔助開發、GitHub Pages 與
+                        Actions 自動化部署</strong
+                    >
+                    的能力，使非資訊背景學生也能完成可公開展示的數位作品。課程採講解、示範、任務導向實作與成果發布並行的方式，協助學生建立從內容發想、資料組織、AI
+                    協作、互動網頁製作到線上發布的完整創作流程。
+                </p>
+                <ul class="brief-weeks" aria-label="四週課程大綱">
+                    <li>
+                        <strong>第 1 週：</strong>以 Markdown
+                        建立專案筆記與內容結構，搭配 Git/GitHub
+                        理解版本管理、提交紀錄與協作保存。
+                    </li>
+                    <li>
+                        <strong>第 2 週：</strong>導入 GitHub Copilot 與
+                        Codespaces，練習以提示語生成網頁元件、程式片段與創作素材。
+                    </li>
+                    <li>
+                        <strong>第 3 週：</strong>比較 Copilot Ask、Edit、Agent
+                        三種互動模式，完成如台語單詞卡等小型 AI 輔助應用改作。
+                    </li>
+                    <li>
+                        <strong>第 4 週：</strong>使用 GitHub Pages 與 GitHub
+                        Actions
+                        發布作品，理解靜態網站部署、自動化轉檔與成果展示流程。
+                    </li>
+                </ul>
             </section>
 
             <h2 class="section-title">2025 材料現況</h2>

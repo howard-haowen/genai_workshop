@@ -30,45 +30,235 @@
                 }
             }
 
-            * { box-sizing: border-box; }
+            * {
+                box-sizing: border-box;
+            }
             body {
                 margin: 0;
                 min-height: 100vh;
-                font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans TC", "PingFang TC", sans-serif;
+                font-family:
+                    system-ui,
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    "Noto Sans TC",
+                    "PingFang TC",
+                    sans-serif;
                 line-height: 1.65;
                 color: var(--text);
                 background:
-                    radial-gradient(circle at top left, rgba(111, 72, 255, 0.24), transparent 34rem),
-                    radial-gradient(circle at bottom right, rgba(14, 165, 233, 0.18), transparent 30rem),
+                    radial-gradient(
+                        circle at top left,
+                        rgba(111, 72, 255, 0.24),
+                        transparent 34rem
+                    ),
+                    radial-gradient(
+                        circle at bottom right,
+                        rgba(14, 165, 233, 0.18),
+                        transparent 30rem
+                    ),
                     var(--bg);
             }
-            a { color: inherit; }
-            .wrap { width: min(980px, calc(100% - 40px)); margin: 0 auto; padding: 72px 0; }
-            .hero, .card {
+            a {
+                color: inherit;
+            }
+            .wrap {
+                width: min(1080px, calc(100% - 40px));
+                margin: 0 auto;
+                padding: 72px 0;
+            }
+            .hero,
+            .card,
+            .resource-link {
                 border: 1px solid var(--line);
                 border-radius: var(--radius);
                 background: var(--panel);
+                box-shadow: 0 10px 28px rgba(61, 44, 130, 0.08);
+            }
+            .hero {
+                padding: 42px;
+                border-radius: calc(var(--radius) + 10px);
                 box-shadow: var(--shadow);
             }
-            .hero { padding: 42px; border-radius: calc(var(--radius) + 10px); }
             .eyebrow {
                 display: inline-flex;
                 padding: 6px 12px;
                 border-radius: 999px;
                 color: #fff;
-                background: linear-gradient(135deg, var(--brand), var(--brand-2));
+                background: linear-gradient(
+                    135deg,
+                    var(--brand),
+                    var(--brand-2)
+                );
                 font-size: 0.92rem;
                 font-weight: 700;
             }
-            h1 { margin: 18px 0 12px; font-size: clamp(2.25rem, 6vw, 4.75rem); line-height: 1.08; letter-spacing: -0.05em; }
-            .subtitle { max-width: 760px; margin: 0; color: var(--muted); font-size: clamp(1.05rem, 2vw, 1.28rem); }
-            .cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; margin-top: 28px; }
-            .card { padding: 22px; }
-            .card h2 { margin: 0 0 8px; font-size: 1.2rem; }
-            .card p { margin: 0; color: var(--muted); }
-            .back { display: inline-flex; margin-top: 24px; color: var(--brand); font-weight: 800; text-decoration: none; }
-            footer { margin-top: 42px; color: var(--muted); text-align: center; font-size: 0.95rem; }
-            @media (max-width: 760px) { .wrap { padding-top: 36px; } .hero { padding: 28px; } .cards { grid-template-columns: 1fr; } }
+            h1 {
+                margin: 18px 0 12px;
+                font-size: clamp(2.25rem, 6vw, 4.75rem);
+                line-height: 1.08;
+                letter-spacing: -0.05em;
+            }
+            .subtitle {
+                max-width: 780px;
+                margin: 0;
+                color: var(--muted);
+                font-size: clamp(1.05rem, 2vw, 1.28rem);
+                text-align: justify;
+                text-align-last: left;
+            }
+            .program-brief {
+                position: relative;
+                overflow: hidden;
+                margin-top: 34px;
+                padding: 30px;
+                border: 2px solid rgba(111, 72, 255, 0.36);
+                border-radius: calc(var(--radius) + 6px);
+                background:
+                    linear-gradient(
+                        135deg,
+                        rgba(111, 72, 255, 0.14),
+                        rgba(14, 165, 233, 0.1)
+                    ),
+                    var(--panel);
+                box-shadow: var(--shadow);
+            }
+            .program-brief::before {
+                content: "";
+                position: absolute;
+                inset: 0 auto 0 0;
+                width: 8px;
+                background: linear-gradient(
+                    180deg,
+                    var(--brand),
+                    var(--brand-2)
+                );
+            }
+            .program-brief h2 {
+                margin: 0 0 12px;
+                font-size: clamp(1.45rem, 3vw, 2rem);
+            }
+            .copy-text {
+                margin: 0;
+                color: var(--text);
+                font-size: 1.04rem;
+            }
+            .copy-text strong {
+                color: var(--brand);
+            }
+            .brief-weeks {
+                margin: 18px 0 0;
+                padding-left: 1.35rem;
+            }
+            .brief-weeks li {
+                margin: 8px 0;
+            }
+            .section-title {
+                margin: 46px 0 18px;
+                font-size: clamp(1.55rem, 3vw, 2.1rem);
+            }
+            .course-map {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 14px;
+            }
+            .resources {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 14px;
+            }
+            .card,
+            .resource-link {
+                padding: 22px;
+            }
+            .card {
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+                min-height: 100%;
+            }
+            .card h2,
+            .resource-link strong {
+                margin: 0;
+                font-size: 1.15rem;
+                line-height: 1.35;
+            }
+            .card p,
+            .resource-link span {
+                margin: 0;
+                color: var(--muted);
+            }
+            .week {
+                display: inline-flex;
+                width: fit-content;
+                padding: 3px 10px;
+                border-radius: 999px;
+                color: #fff;
+                background: linear-gradient(
+                    135deg,
+                    var(--brand),
+                    var(--brand-2)
+                );
+                font-size: 0.85rem;
+                font-weight: 800;
+            }
+            .slide-link,
+            .back {
+                color: var(--brand);
+                font-weight: 800;
+                text-decoration: none;
+            }
+            .slide-link {
+                margin-top: auto;
+            }
+            .back {
+                display: inline-flex;
+                margin-top: 24px;
+            }
+            .slide-link:hover,
+            .back:hover,
+            .resource-link:hover {
+                text-decoration: underline;
+            }
+            .resource-link {
+                display: block;
+                text-decoration: none;
+                transition:
+                    transform 0.16s ease,
+                    border-color 0.16s ease;
+            }
+            .resource-link:hover {
+                transform: translateY(-2px);
+                border-color: rgba(111, 72, 255, 0.5);
+            }
+            .resource-link strong {
+                display: block;
+                margin-bottom: 6px;
+            }
+            footer {
+                margin-top: 42px;
+                color: var(--muted);
+                text-align: center;
+                font-size: 0.95rem;
+            }
+            @media (max-width: 1080px) {
+                .course-map {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+            }
+            @media (max-width: 860px) {
+                .wrap {
+                    padding-top: 36px;
+                }
+                .hero,
+                .program-brief {
+                    padding: 28px;
+                }
+                .course-map,
+                .resources {
+                    grid-template-columns: 1fr;
+                }
+            }
         </style>
     </head>
     <body>
@@ -76,21 +266,105 @@
             <section class="hero" aria-labelledby="page-title">
                 <span class="eyebrow">2026 工作坊</span>
                 <h1 id="page-title">AI創造工作坊</h1>
-                <p class="subtitle">今年度課程材料入口。新的投影片、教材與應用程式可以依照課程進度逐步加入此資料夾並發布到 GitHub Pages。</p>
-                <div class="cards" aria-label="2026 課程材料狀態">
-                    <article class="card">
-                        <h2>年度材料建置中</h2>
-                        <p>請將今年度的 Marp 投影片、講義與範例應用程式新增到 `workshops/2026/`。</p>
-                    </article>
-                    <article class="card">
-                        <h2>獨立年度網址</h2>
-                        <p>此頁會發布到 `/genai_workshop/2026/`，不會覆蓋 2025 年度內容。</p>
-                    </article>
-                </div>
-                <a class="back" href="../">← 回年度入口</a>
+                <p class="subtitle">
+                    2026 年度課程面向台灣大專院校人文學科學生，核心不只是學會使用
+                    AI 工具，而是成為能設計、調整、分享 AI 工作流程的 AI
+                    創造者。課程將引導學生把閱讀、寫作、研究、翻譯、整理與創作任務，轉化為可重複、可改良、可分享的
+                    AI-assisted workflow。
+                </p>
+                <a
+                    class="back"
+                    href="https://howard-haowen.github.io/genai_workshop/"
+                    >← 回年度入口</a
+                >
             </section>
+
+            <section
+                class="program-brief"
+                aria-labelledby="program-brief-title"
+            >
+                <h2 id="program-brief-title">
+                    五週課程大綱：從 AI 使用者到 AI 工作流程創造者
+                </h2>
+                <p class="copy-text">
+                    本課程以人文學科的學習、研究與創作需求為出發點，帶領學生理解
+                    <strong
+                        >AI agent、tools、AGENTS.md、skills、SKILL.md、MCP、Git/GitHub、GitHub
+                        Pages、Obsidian 與 Markdown</strong
+                    >
+                    如何共同構成可操作的個人 AI 工作流程。完成課程後，學生將能把一個日常學習或創作任務，整理為具備專案脈絡、操作規則、技能規格與公開展示頁的
+                    personal AI-assisted workflow。
+                </p>
+                <ul class="brief-weeks" aria-label="五週課程大綱">
+                    <li>
+                        <strong>第 1 週：</strong>從 AI 使用者到 AI
+                        創造者，盤點人文學科常見任務，建立 Obsidian
+                        筆記資料夾，並產出 <code>workflow_idea.md</code>。
+                    </li>
+                    <li>
+                        <strong>第 2 週：</strong>理解 AI Agent 與 Tool
+                        的差異，將個人任務拆解為 agent steps，建立 GitHub
+                        repository，並產出 <code>workflow_steps.md</code>。
+                    </li>
+                    <li>
+                        <strong>第 3 週：</strong>用 <code>AGENTS.md</code>
+                        建立專案脈絡、語言偏好、工作規則與驗證清單，測試 AI
+                        agent 是否能依規則穩定執行任務。
+                    </li>
+                    <li>
+                        <strong>第 4 週：</strong>認識 Skills for AI Agents 與
+                        <code>SKILL.md</code> 結構，將可重複任務封裝為 skill
+                        草稿，並在 IBM Bob 中測試指令是否清楚。
+                    </li>
+                    <li>
+                        <strong>第 5 週：</strong>理解 MCP 如何連接外部工具與資料，整理五週產出，使用
+                        GitHub Pages 發布個人 AI-assisted workflow 展示頁。
+                    </li>
+                </ul>
+            </section>
+
+            <h2 class="section-title">2026 課程地圖</h2>
+            <section class="course-map" aria-label="2026 五週課程地圖">
+                <article class="card">
+                    <span class="week">W1</span>
+                    <h2>從 AI 使用者到 AI 創造者</h2>
+                    <p><strong>工具重點：</strong>IBM Bob, Obsidian, Markdown</p>
+                    <p><strong>產出：</strong><code>workflow_idea.md</code></p>
+                </article>
+                <article class="card">
+                    <span class="week">W2</span>
+                    <h2>什麼是 AI Agent？什麼是 Tool？</h2>
+                    <p><strong>工具重點：</strong>IBM Bob, Git/GitHub</p>
+                    <p><strong>產出：</strong><code>workflow_steps.md</code></p>
+                </article>
+                <article class="card">
+                    <span class="week">W3</span>
+                    <h2>用 AGENTS.md 建立專案脈絡</h2>
+                    <p><strong>工具重點：</strong>AGENTS.md, Markdown, GitHub</p>
+                    <p><strong>產出：</strong><code>AGENTS.md</code></p>
+                </article>
+                <article class="card">
+                    <span class="week">W4</span>
+                    <h2>Skills for AI Agents 與 SKILL.md</h2>
+                    <p><strong>工具重點：</strong>Skills, SKILL.md, Obsidian</p>
+                    <p><strong>產出：</strong><code>skills/&lt;skill-name&gt;/SKILL.md</code></p>
+                </article>
+                <article class="card">
+                    <span class="week">W5</span>
+                    <h2>MCP 與個人 AI 工作流程發布</h2>
+                    <p><strong>工具重點：</strong>MCP, GitHub Pages, Git/GitHub</p>
+                    <p><strong>產出：</strong>個人作品頁與完整 workflow repository</p>
+                </article>
+            </section>
+
             <footer>
-                <p>新的年度可以從這裡開始，保留舊內容，也讓今年的材料有自己的空間。</p>
+                <p>
+                    <a
+                        class="back"
+                        href="https://howard-haowen.github.io/genai_workshop/"
+                        >← 回年度入口</a
+                    >
+                </p>
             </footer>
         </main>
     </body>
