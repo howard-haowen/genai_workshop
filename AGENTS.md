@@ -51,7 +51,6 @@ Use `workshops/<year>/` for year-specific materials. For example:
 - `workshops/2025/apps/games/`
 - `workshops/2025/apps/webpages/`
 - `workshops/2026/index.html`
-- `workshops/2026/README.md`
 
 ### `gh-pages`
 
@@ -66,10 +65,11 @@ The deployment workflow replaces the published branch from the generated `build/
 1. Copies root `index.html` to `build/index.html`.
 2. Iterates over each `workshops/<year>/` directory.
 3. Copies `workshops/<year>/index.html` to `build/<year>/index.html`.
-4. Converts `workshops/<year>/*_marp.md` to `build/<year>/*.html` using `marpteam/marp-cli:latest` in Docker.
-5. Copies `workshops/<year>/apps/*` to `build/<year>/apps/` when present.
-6. Deploys `build/` to `gh-pages` on pushes to `main`.
-7. Creates PR previews using `rossjrw/pr-preview-action@v1`.
+4. Copies `workshops/<year>/README.md` and `workshops/<year>/planning/` when present.
+5. Converts `workshops/<year>/*_marp.md` to `build/<year>/*.html` using `marpteam/marp-cli:latest` in Docker.
+6. Copies `workshops/<year>/apps/*` to `build/<year>/apps/` when present.
+7. Deploys `build/` to `gh-pages` on pushes to `main`.
+8. Creates PR previews using `rossjrw/pr-preview-action@v1`.
 
 Static apps follow the path pattern `workshops/<year>/apps/<app-name>/`. For example, `workshops/2025/apps/flash-cards/` is published at `/genai_workshop/2025/apps/flash-cards/`. Other app folders, such as `games` or `webpages`, follow the same pattern. Each app folder’s default entry page is `index.html`.
 
