@@ -1,395 +1,969 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
-    <head>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>2026人文AI創造工作坊</title>
-        <meta name="description" content="2026 AI創造工作坊課程材料入口。" />
-        <style>
-            :root {
-                color-scheme: light dark;
-                --bg: #f7f4ff;
-                --panel: #ffffff;
-                --text: #1f2330;
-                --muted: #5f6680;
-                --brand: #6f48ff;
-                --brand-2: #0ea5e9;
-                --line: rgba(31, 35, 48, 0.12);
-                --shadow: 0 18px 48px rgba(61, 44, 130, 0.16);
-                --radius: 22px;
-            }
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>2026人文AI創造工作坊・學習地圖</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700;800&family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet"/>
+<style>
+  /* ═══════════════════════════════════════════════
+     THEME: Light  ·  Amber Signal
+     Palette: #f9f7f4 bg / #ffffff surface / #d97706 amber / #dc4e37 coral
+     Type: Plus Jakarta Sans (display) · DM Mono (code/labels) · Noto Sans TC (body)
+  ═══════════════════════════════════════════════ */
+  :root {
+    --bg:       #f4f6f9;
+    --surface:  #ffffff;
+    --surface-2:#eef1f6;
+    --border:   rgba(0,0,0,0.09);
+    --border-hi:rgba(217,119,6,0.45);
+    --text:     #1a1d26;
+    --muted:    #64748b;
+    --amber:    #d97706;
+    --coral:    #dc4e37;
+    --teal:     #0d9488;
+    --radius:   4px;
+    --mono:     "DM Mono", "Consolas", monospace;
+  }
 
-            @media (prefers-color-scheme: dark) {
-                :root {
-                    --bg: #11131f;
-                    --panel: #1a1d2b;
-                    --text: #f2f5ff;
-                    --muted: #b8bed4;
-                    --line: rgba(242, 245, 255, 0.14);
-                    --shadow: 0 18px 48px rgba(0, 0, 0, 0.36);
-                }
-            }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
 
-            * {
-                box-sizing: border-box;
-            }
-            body {
-                margin: 0;
-                min-height: 100vh;
-                font-family:
-                    system-ui,
-                    -apple-system,
-                    BlinkMacSystemFont,
-                    "Segoe UI",
-                    "Noto Sans TC",
-                    "PingFang TC",
-                    sans-serif;
-                line-height: 1.65;
-                color: var(--text);
-                background:
-                    radial-gradient(
-                        circle at top left,
-                        rgba(111, 72, 255, 0.24),
-                        transparent 34rem
-                    ),
-                    radial-gradient(
-                        circle at bottom right,
-                        rgba(14, 165, 233, 0.18),
-                        transparent 30rem
-                    ),
-                    var(--bg);
-            }
-            a {
-                color: inherit;
-            }
-            .wrap {
-                width: min(1080px, calc(100% - 40px));
-                margin: 0 auto;
-                padding: 72px 0;
-            }
-            .hero,
-            .card,
-            .resource-link {
-                border: 1px solid var(--line);
-                border-radius: var(--radius);
-                background: var(--panel);
-                box-shadow: 0 10px 28px rgba(61, 44, 130, 0.08);
-            }
-            .hero {
-                padding: 42px;
-                border-radius: calc(var(--radius) + 10px);
-                box-shadow: var(--shadow);
-            }
-            .eyebrow {
-                display: inline-flex;
-                padding: 6px 12px;
-                border-radius: 999px;
-                color: #fff;
-                background: linear-gradient(
-                    135deg,
-                    var(--brand),
-                    var(--brand-2)
-                );
-                font-size: 0.92rem;
-                font-weight: 700;
-            }
-            h1 {
-                margin: 18px 0 12px;
-                font-size: clamp(2.25rem, 6vw, 4.75rem);
-                line-height: 1.08;
-                letter-spacing: -0.05em;
-            }
-            .page-subtitle {
-                margin: 0 0 14px;
-                font-size: clamp(1.2rem, 3vw, 1.75rem);
-                font-weight: 700;
-                letter-spacing: -0.02em;
-                background: linear-gradient(
-                    135deg,
-                    var(--brand),
-                    var(--brand-2)
-                );
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-            }
-            .subtitle {
-                max-width: 780px;
-                margin: 0;
-                color: var(--muted);
-                font-size: clamp(1.05rem, 2vw, 1.28rem);
-                text-align: justify;
-                text-align-last: left;
-            }
-            .program-brief {
-                position: relative;
-                overflow: hidden;
-                margin-top: 34px;
-                padding: 30px;
-                border: 2px solid rgba(111, 72, 255, 0.36);
-                border-radius: calc(var(--radius) + 6px);
-                background:
-                    linear-gradient(
-                        135deg,
-                        rgba(111, 72, 255, 0.14),
-                        rgba(14, 165, 233, 0.1)
-                    ),
-                    var(--panel);
-                box-shadow: var(--shadow);
-            }
-            .program-brief::before {
-                content: "";
-                position: absolute;
-                inset: 0 auto 0 0;
-                width: 8px;
-                background: linear-gradient(
-                    180deg,
-                    var(--brand),
-                    var(--brand-2)
-                );
-            }
-            .program-brief h2 {
-                margin: 0 0 12px;
-                font-size: clamp(1.45rem, 3vw, 2rem);
-            }
-            .podcast-invite {
-                margin: 18px 0 0;
-                font-size: 1rem;
-                color: var(--muted);
-            }
-            .podcast-link {
-                color: var(--brand);
-                font-weight: 700;
-                text-decoration: none;
-            }
-            .podcast-link:hover {
-                text-decoration: underline;
-            }
-            .hook-questions {
-                margin: 0 0 16px 1.2rem;
-                padding: 0;
-                color: var(--text);
-                font-size: 1.04rem;
-                line-height: 1.9;
-            }
-            .hook-questions li::marker {
-                color: var(--brand);
-            }
-            .copy-text {
-                margin: 0;
-                color: var(--text);
-                font-size: 1.04rem;
-            }
-            .copy-text strong {
-                color: var(--brand);
-            }
-            .brief-weeks {
-                margin: 18px 0 0;
-                padding-left: 1.35rem;
-            }
-            .brief-weeks li {
-                margin: 8px 0;
-            }
-            .section-title {
-                margin: 46px 0 18px;
-                font-size: clamp(1.55rem, 3vw, 2.1rem);
-            }
-            .course-map {
-                display: grid;
-                grid-template-columns: repeat(5, 1fr);
-                gap: 14px;
-            }
-            .resources {
-                display: grid;
-                grid-template-columns: repeat(2, 1fr);
-                gap: 14px;
-            }
-            .card,
-            .resource-link {
-                padding: 22px;
-            }
-            .card {
-                display: flex;
-                flex-direction: column;
-                gap: 14px;
-                min-height: 100%;
-            }
-            .card h2,
-            .resource-link strong {
-                margin: 0;
-                font-size: 1.15rem;
-                line-height: 1.35;
-            }
-            .card p,
-            .resource-link span {
-                margin: 0;
-                color: var(--muted);
-            }
-            .week {
-                display: inline-flex;
-                width: fit-content;
-                padding: 3px 10px;
-                border-radius: 999px;
-                color: #fff;
-                background: linear-gradient(
-                    135deg,
-                    var(--brand),
-                    var(--brand-2)
-                );
-                font-size: 0.85rem;
-                font-weight: 800;
-            }
-            .slide-link,
-            .back {
-                color: var(--brand);
-                font-weight: 800;
-                text-decoration: none;
-            }
-            .slide-link {
-                margin-top: auto;
-            }
-            .back {
-                display: inline-flex;
-                margin-top: 24px;
-            }
-            .slide-link:hover,
-            .back:hover,
-            .resource-link:hover {
-                text-decoration: underline;
-            }
-            .resource-link {
-                display: block;
-                text-decoration: none;
-                transition:
-                    transform 0.16s ease,
-                    border-color 0.16s ease;
-            }
-            .resource-link:hover {
-                transform: translateY(-2px);
-                border-color: rgba(111, 72, 255, 0.5);
-            }
-            .resource-link strong {
-                display: block;
-                margin-bottom: 6px;
-            }
-            footer {
-                margin-top: 42px;
-                color: var(--muted);
-                text-align: center;
-                font-size: 0.95rem;
-            }
-            @media (max-width: 1080px) {
-                .course-map {
-                    grid-template-columns: repeat(2, 1fr);
-                }
-            }
-            @media (max-width: 860px) {
-                .wrap {
-                    padding-top: 36px;
-                }
-                .hero,
-                .program-brief {
-                    padding: 28px;
-                }
-                .course-map,
-                .resources {
-                    grid-template-columns: 1fr;
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <main class="wrap">
-            <section class="hero" aria-labelledby="page-title">
-                <span class="eyebrow">2026 工作坊</span>
-                <h1 id="page-title">AI創造工作坊</h1>
-                <p class="page-subtitle">AI Agents 工作流</p>
-                <p class="subtitle">
-                    你不只是 AI 的使用者，你可以成為 AI 工作流程的<strong>設計者</strong>。2026
-                    年度課程專為人文領域學生打造，帶你把閱讀、寫作、研究、翻譯等日常任務，一步步轉化成可重複使用、隨時調整、公開分享的個人
-                    AI 工作流。
-                </p>
-                <a
-                    class="back"
-                    href="https://howard-haowen.github.io/genai_workshop/"
-                    >← 回年度入口</a
-                >
-            </section>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
 
-            <section
-                class="program-brief"
-                aria-labelledby="program-brief-title"
-            >
-                <h2 id="program-brief-title">
-                    五週課程大綱：從 AI 使用者到 AI 工作流程創造者
-                </h2>
-                <ul class="hook-questions">
-                    <li>你是否曾覺得 AI 給的答案「差那麼一點」？</li>
-                    <li>你是否常覺得現有軟體如果能再加一個功能就完美了？</li>
-                    <li>你是否想過，這些問題其實你自己就能解決？</li>
-                </ul>
-                <p class="copy-text">
-                    問題往往不在 AI 不夠強，而是缺少一個能讓它理解你的任務、脈絡與習慣的工作框架。本課程帶你認識
-                    <strong>AI agent、AGENTS.md、SKILL.md、MCP、Git/GitHub、GitHub Pages 與 Markdown</strong>
-                    ——不需要任何程式背景，五週內你就能打造屬於自己的 Portable Agentic AI workflow。課程目標是「夠用的掌握」，而非深度精通；這也呼應
-                    <a
-                        href="https://www.anthropic.com/research/claude-code-expertise"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        >Anthropic 研究報告</a
-                    >
-                    的發現：真正有效使用 AI 的人，勝在懂得組織脈絡、引導方向，而不是死記功能。
-                </p>
-                <p class="podcast-invite">
-                    🎧 上課前，推薦你先聽這集 Podcast 暖身：
-                    <a
-                        class="podcast-link"
-                        href="https://podcasts.apple.com/hk/podcast/building-portable-ai-workflows-that-you-can-take-anywhere/id1740971373?i=1000768537308"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        >Building Portable AI Workflows That You Can Take Anywhere</a
-                    >
-                </p>
-            </section>
+  body {
+    font-family: "Noto Sans TC", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 48px 20px 72px;
+    line-height: 1.65;
+    /* subtle grid texture */
+    background-image:
+      linear-gradient(rgba(0,0,0,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,0,0,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+  }
 
-            <h2 class="section-title">2026 課程地圖</h2>
-            <section class="course-map" aria-label="2026 五週課程地圖">
-                <article class="card">
-                    <span class="week">W1</span>
-                    <h2>Agentic AI 的五個關鍵概念</h2>
-                    <p>搞懂 <code>AGENTS.md</code>，讓 AI 從「隨機應答」變成你的專屬助理。</p>
-                </article>
-                <article class="card">
-                    <span class="week">W2</span>
-                    <h2>給 Agent 一把順手的工具</h2>
-                    <p>工欲善其事，先替你的 AI 打造無障礙工作環境。</p>
-                </article>
-                <article class="card">
-                    <span class="week">W3</span>
-                    <h2>用 SKILL.md 培養 Agent 的專長</h2>
-                    <p>一個檔案，讓 AI 記住你的工作方式，比你想像得快。</p>
-                </article>
-                <article class="card">
-                    <span class="week">W4</span>
-                    <h2>打通 Agent 與外界的連線</h2>
-                    <p>接上 MCP，讓 AI 伸出手，直接操作各種外部服務。</p>
-                </article>
-                <article class="card">
-                    <span class="week">W5</span>
-                    <h2>把成果發布到全世界</h2>
-                    <p>用 GitHub Pages 讓你的 AI 工作流程作品，站上公開舞台。</p>
-                </article>
-            </section>
+  /* ════════════════════════════
+     PAGE HEADER
+  ════════════════════════════ */
+  .page-header {
+    text-align: center;
+    margin-bottom: 56px;
+    animation: hdr-in 0.7s cubic-bezier(.16,1,.3,1) both;
+  }
+  @keyframes hdr-in {
+    from { opacity: 0; transform: translateY(-18px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
 
-            <footer>
-                <p>
-                    <a
-                        class="back"
-                        href="https://howard-haowen.github.io/genai_workshop/"
-                        >← 回年度入口</a
-                    >
-                </p>
-            </footer>
-        </main>
-    </body>
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 14px;
+    border: 1px solid var(--amber);
+    border-radius: 2px;
+    color: var(--amber);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .eyebrow::before { content: "▶"; font-size: 0.6rem; }
+
+  .page-header h1 {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-weight: 800;
+    font-size: clamp(2rem, 6vw, 3.6rem);
+    letter-spacing: -0.04em;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  .page-header h1 em {
+    font-style: normal;
+    color: var(--amber);
+  }
+
+  .page-header p {
+    color: var(--muted);
+    font-size: 1.05rem;
+    margin-top: 10px;
+    letter-spacing: 0.01em;
+  }
+  .page-header p strong { color: var(--teal); font-weight: 600; }
+
+  /* ════════════════════════════
+     JOURNEY CONTAINER
+  ════════════════════════════ */
+  .journey {
+    max-width: 1080px;
+    margin: 0 auto;
+  }
+
+  /* ════════════════════════════
+     WEEK ROW
+     grid: node-col | left-card | bridge | right-panel
+  ════════════════════════════ */
+  .week-row {
+    display: grid;
+    grid-template-columns: 72px 1fr 40px 1fr;
+    align-items: stretch;
+    gap: 0;
+    position: relative;
+    animation: row-in 0.55s cubic-bezier(.16,1,.3,1) both;
+  }
+  .week-row:nth-child(1) { animation-delay: 0.10s; }
+  .week-row:nth-child(3) { animation-delay: 0.20s; }
+  .week-row:nth-child(5) { animation-delay: 0.30s; }
+  .week-row:nth-child(7) { animation-delay: 0.40s; }
+  .week-row:nth-child(9) { animation-delay: 0.50s; }
+  @keyframes row-in {
+    from { opacity: 0; transform: translateX(-12px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── Between-row arrow ── */
+  .row-arrow {
+    display: flex;
+    justify-content: flex-start;
+    padding-left: 18px;   /* centres visually under 72px node */
+    margin: 2px 0;
+  }
+  .row-arrow svg { display: block; }
+
+  /* ════════════════════════════
+     NODE CIRCLE
+  ════════════════════════════ */
+  .node {
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--surface-2);
+    border: 2px solid var(--amber);
+    color: var(--amber);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-weight: 800;
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    position: relative;
+    align-self: flex-start;
+    margin-top: 12px;
+    flex-shrink: 0;
+    box-shadow: 0 0 0 4px rgba(217,119,6,0.08), 0 0 20px rgba(217,119,6,0.1);
+    transition: box-shadow 0.2s;
+  }
+  .node:hover {
+    box-shadow: 0 0 0 6px rgba(217,119,6,0.14), 0 0 32px rgba(217,119,6,0.18);
+  }
+  .node .wnum {
+    font-size: 1.5rem;
+    line-height: 1.3;
+    color: var(--amber);
+  }
+
+  /* ════════════════════════════
+     LEFT CARD
+  ════════════════════════════ */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber);
+    border-radius: var(--radius);
+    padding: 20px 22px;
+    margin-left: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .card:hover {
+    border-left-color: var(--coral);
+    background: #f8f4ef;
+  }
+
+  .card-header { display: flex; align-items: center; gap: 10px; }
+  .card-icon { font-size: 1.4rem; line-height: 1; flex-shrink: 0; }
+  .card h2 {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-weight: 700;
+    font-size: 1.04rem;
+    letter-spacing: -0.02em;
+    line-height: 1.5;
+    color: var(--text);
+  }
+  .card .tagline {
+    color: var(--muted);
+    font-size: 0.9rem;
+  }
+  .card .tagline code {
+    font-family: var(--mono);
+    font-size: 0.82rem;
+    color: var(--teal);
+    background: rgba(13,148,136,0.08);
+    padding: 1px 5px;
+    border-radius: 2px;
+  }
+
+  /* pills */
+  .pills { display: flex; flex-wrap: wrap; gap: 6px; }
+  .pill {
+    padding: 2px 9px;
+    border-radius: 2px;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    font-weight: 600;
+    background: rgba(217,119,6,0.08);
+    color: var(--amber);
+    border: 1px solid rgba(217,119,6,0.28);
+    letter-spacing: 0.02em;
+  }
+  .pill.sky {
+    background: rgba(13,148,136,0.07);
+    color: var(--teal);
+    border-color: rgba(13,148,136,0.25);
+  }
+
+  /* outcome */
+  .outcome {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 9px 12px;
+    background: rgba(220,78,55,0.06);
+    border-left: 2px solid var(--coral);
+    border-radius: 0 3px 3px 0;
+    font-size: 0.86rem;
+    color: var(--text);
+    margin-top: auto;
+  }
+  .outcome code {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--teal);
+    background: rgba(13,148,136,0.09);
+    padding: 1px 4px;
+    border-radius: 2px;
+  }
+  .outcome .label {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--coral);
+    white-space: nowrap;
+    padding-top: 2px;
+  }
+
+  /* ════════════════════════════
+     DASHED BRIDGE
+  ════════════════════════════ */
+  .bridge {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .bridge::before {
+    content: "";
+    display: block;
+    width: 100%;
+    height: 1px;
+    background: repeating-linear-gradient(
+      90deg,
+      rgba(217,119,6,0.45) 0px,
+      rgba(217,119,6,0.45) 6px,
+      transparent 6px,
+      transparent 12px
+    );
+  }
+
+  /* ════════════════════════════
+     RIGHT PANEL
+  ════════════════════════════ */
+  .side-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-right: 3px solid var(--teal);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .side-section-title {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  /* term tags */
+  .term-list { display: flex; flex-wrap: wrap; gap: 6px; }
+  .term {
+    padding: 2px 9px;
+    border-radius: 2px;
+    font-family: var(--mono);
+    font-size: 0.74rem;
+    font-weight: 600;
+    background: rgba(13,148,136,0.07);
+    color: var(--teal);
+    border: 1px solid rgba(13,148,136,0.22);
+    letter-spacing: 0.02em;
+  }
+
+  /* example list */
+  .example-list { list-style: none; padding: 0; }
+  .example-list li {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text);
+    padding: 5px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .example-list li:last-child { border-bottom: none; }
+  .example-list li::before {
+    content: "//";
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    font-weight: 600;
+    color: var(--amber);
+    opacity: 0.85;
+    flex-shrink: 0;
+    letter-spacing: -0.04em;
+  }
+
+  /* ════════════════════════════
+     DESTINATION
+  ════════════════════════════ */
+  .dest-arrow {
+    display: flex;
+    justify-content: center;
+    margin: 8px 0 6px;
+  }
+
+  .destination {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 28px 36px;
+    border-radius: var(--radius);
+    background: var(--surface-2);
+    border: 1px solid rgba(217,119,6,0.25);
+    border-top: 3px solid var(--amber);
+    text-align: center;
+    position: relative;
+    overflow: visible;
+  }
+  .destination::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(217,119,6,0.07) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .destination h2 {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-weight: 800;
+    font-size: 1.5rem;
+    letter-spacing: -0.03em;
+    color: var(--amber);
+    margin-bottom: 8px;
+  }
+  .destination p {
+    font-size: 0.98rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .destination p strong {
+    color: var(--text);
+    font-weight: 600;
+    font-family: var(--mono);
+    font-size: 0.9em;
+    background: rgba(217,119,6,0.1);
+    padding: 1px 6px;
+    border-radius: 2px;
+  }
+
+  /* ════════════════════════════
+     PAGE SUBTITLE
+  ════════════════════════════ */
+  .page-header .page-subtitle {
+    color: var(--amber);
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    margin-top: 8px;
+    letter-spacing: 0.01em;
+    line-height: 1.6;
+    padding-bottom: 4px;
+  }
+
+  /* ════════════════════════════
+     INTRO BLOCK
+  ════════════════════════════ */
+  .intro-block {
+    max-width: 1080px;
+    margin: 0 auto 32px;
+    padding: 24px 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+  }
+  .intro-block p {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.8;
+  }
+  .intro-block p strong {
+    color: var(--text);
+    font-weight: 700;
+  }
+
+  /* ════════════════════════════
+     PROGRAM BRIEF
+  ════════════════════════════ */
+  .program-brief {
+    max-width: 1080px;
+    margin: 0 auto 52px;
+    padding: 28px 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--amber);
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .program-brief h2 {
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-weight: 800;
+    font-size: 1.08rem;
+    letter-spacing: -0.02em;
+    color: var(--amber);
+  }
+
+  .hook-questions {
+    margin: 0 0 4px 1.2rem;
+    padding: 0;
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.9;
+  }
+  .hook-questions li::marker { color: var(--amber); }
+
+  .copy-text {
+    color: var(--muted);
+    font-size: 0.9rem;
+    line-height: 1.75;
+  }
+  .copy-text strong {
+    font-family: var(--mono);
+    font-size: 0.84em;
+    color: var(--teal);
+    background: rgba(13,148,136,0.08);
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-weight: 600;
+  }
+  .copy-text a {
+    color: var(--amber);
+    text-decoration: none;
+  }
+  .copy-text a:hover { text-decoration: underline; }
+
+  .podcast-invite {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 0.02em;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+  }
+  .podcast-link {
+    color: var(--amber);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .podcast-link:hover { text-decoration: underline; }
+
+  /* ════════════════════════════
+     AUTHOR LINK (top-right)
+  ════════════════════════════ */
+  .author-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--amber);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+    background: var(--surface);
+    border: 1px solid var(--border-hi);
+    padding: 4px 10px;
+    border-radius: 3px;
+  }
+  .author-link-wrap {
+    display: flex;
+    justify-content: flex-end;
+    max-width: 1080px;
+    margin: -40px auto 16px;
+    padding: 0 32px;
+  }
+  .author-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* ════════════════════════════
+     BACK LINK
+  ════════════════════════════ */
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: var(--amber);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    opacity: 0.75;
+    transition: opacity 0.15s;
+  }
+  .back-link:hover { opacity: 1; text-decoration: underline; }
+
+  footer {
+    text-align: center;
+    margin-top: 44px;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: #9ca3af;
+    letter-spacing: 0.06em;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+
+  /* ════════════════════════════
+     JOURNEY SECTION TITLE
+   ════════════════════════════ */
+  .journey-title {
+    max-width: 1080px;
+    margin: 0 auto 12px;
+    font-family: "Plus Jakarta Sans", sans-serif;
+    font-weight: 800;
+    font-size: clamp(1.5rem, 4vw, 2.4rem);
+    letter-spacing: -0.03em;
+    color: var(--text);
+    border-left: 4px solid var(--amber);
+    padding-left: 16px;
+  }
+
+  /* ════════════════════════════
+     WEEK COLLAPSE CONTROLS
+   ════════════════════════════ */
+  .collapse-controls {
+    max-width: 1080px;
+    margin: 0 auto 24px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+  .collapse-controls .ctrl-label {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+    margin-right: 4px;
+  }
+  .ctrl-btn {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    padding: 5px 12px;
+    border-radius: 3px;
+    border: 1px solid var(--border-hi);
+    background: var(--surface);
+    color: var(--amber);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .ctrl-btn:hover {
+    background: var(--amber);
+    color: #fff;
+  }
+
+  /* Collapsible week sections (W2–W5) */
+  .week-collapsible {
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(.4,0,.2,1), opacity 0.25s;
+  }
+  .week-collapsible.collapsed {
+    max-height: 0 !important;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  /* Clickable arrows that toggle the next week */
+  .row-arrow {
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .row-arrow:hover { opacity: 0.6; }
+  .row-arrow[data-opens].collapsed-state svg line,
+  .row-arrow[data-opens].collapsed-state svg polyline {
+    stroke: #9ca3af;
+  }
+
+  /* ════════════════════════════
+     RESPONSIVE
+   ════════════════════════════ */
+  @media (max-width: 860px) {
+    .week-row { grid-template-columns: 72px 1fr; grid-template-rows: auto auto; }
+    .bridge { display: none; }
+    .side-panel { grid-column: 2 / 3; margin-left: 16px; margin-top: 10px; }
+    .row-arrow { padding-left: 18px; }
+  }
+  @media (max-width: 540px) {
+    .week-row { grid-template-columns: 1fr; }
+    .node { align-self: center; margin: 0 auto 12px; }
+    .card, .side-panel { margin-left: 0; }
+    .row-arrow { justify-content: center; padding-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ════ HEADER ════ -->
+<header class="page-header">
+  <a class="back-link" href="https://howard-haowen.github.io/genai_workshop/">← 回年度入口</a>
+  <div class="eyebrow">2026 工作坊</div>
+  <h1>人文AI創造工作坊</h1>
+  <p class="page-subtitle">AI Agents工作流</p>
+</header>
+
+<!-- ════ AUTHOR LINK ════ -->
+<div class="author-link-wrap">
+  <a class="author-link" href="https://howard-haowen.github.io/" target="_blank" rel="noopener noreferrer">作者網站 ↗</a>
+</div>
+
+<!-- ════ INTRO ════ -->
+<div class="intro-block">
+  <p>你不只是 AI 的使用者，你可以成為 AI 工作流程的<strong>設計者</strong>。2026 年度課程專為人文領域學生打造，帶你把閱讀、寫作、研究、翻譯等日常任務，一步步轉化成可重複使用、隨時調整、公開分享的個人 AI 工作流。</p>
+</div>
+
+<!-- ════ PROGRAM BRIEF ════ -->
+<div class="program-brief">
+  <h2>五週課程大綱：從 AI 使用者到 AI 工作流程創造者</h2>
+  <ul class="hook-questions">
+    <li>你是否曾覺得 AI 給的答案「差那麼一點」？</li>
+    <li>你是否常覺得現有軟體如果能再加一個功能就完美了？</li>
+    <li>你是否想過，這些問題其實你自己就能解決？</li>
+  </ul>
+  <p class="copy-text">
+    問題往往不在 AI 不夠強，而是缺少一個能讓它理解你的任務、脈絡與習慣的工作框架。本課程帶你認識
+    <strong>AI agent、AGENTS.md、SKILL.md、MCP、Git/GitHub、GitHub Pages 與 Markdown</strong>
+    ——不需要任何程式背景，五週內你就能打造屬於自己的 Portable Agentic AI workflow。課程目標是「夠用的掌握」，而非深度精通；這也呼應
+    <a href="https://www.anthropic.com/research/claude-code-expertise" target="_blank" rel="noopener noreferrer">Anthropic 研究報告</a>
+    的發現：真正有效使用 AI 的人，勝在懂得組織脈絡、引導方向，而不是死記功能。
+  </p>
+  <p class="podcast-invite">
+    🎧 上課前，推薦你先聽這集 Podcast 暖身：
+    <a class="podcast-link" href="https://podcasts.apple.com/hk/podcast/building-portable-ai-workflows-that-you-can-take-anywhere/id1740971373?i=1000768537308" target="_blank" rel="noopener noreferrer">Building Portable AI Workflows That You Can Take Anywhere</a>
+  </p>
+</div>
+
+<!-- ════ COLLAPSE CONTROLS ════ -->
+<h2 class="journey-title">5 週課程地圖</h2>
+<div class="collapse-controls">
+  <span class="ctrl-label">課程週次：</span>
+  <button class="ctrl-btn" id="btn-collapse-all" type="button">全部收起</button>
+  <button class="ctrl-btn" id="btn-expand-all"   type="button">展開所有</button>
+</div>
+
+<div class="journey">
+
+  <!-- ══ W1 ══ -->
+  <div class="week-row">
+    <div class="node"><span class="wnum">W1</span></div>
+    <div class="card">
+      <div class="card-header"><span class="card-icon">🧠</span><h2>Agentic AI 的五個關鍵概念</h2></div>
+      <p class="tagline">搞懂 <code>AGENTS.md</code>，讓 AI 從「隨機應答」變成你的專屬助理。</p>
+      <div class="pills">
+        <span class="pill">脈絡設計</span><span class="pill">指令工程</span>
+      </div>
+      <div class="outcome">
+        <span class="label">學習成果</span>
+        <span>能撰寫 <code>AGENTS.md</code>，定義 AI 的角色、規則與邊界</span>
+      </div>
+    </div>
+    <div class="bridge"></div>
+    <div class="side-panel">
+      <div>
+        <div class="side-section-title">🔑 關鍵名詞</div>
+        <div class="term-list"><span class="term">Markdown</span><span class="term">AGENTS.md</span><span class="term">YAML</span><span class="term">GIT</span></div>
+      </div>
+      <div>
+        <div class="side-section-title">⚗️ 實作範例</div>
+        <ul class="example-list"><li>建立個人 LLM Wiki</li></ul>
+        <ul class="example-list"><li>根據Wiki產出網頁</li></ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- arrow W1 → W2: click to toggle W2 -->
+  <div class="row-arrow" data-opens="2" title="點擊展開／收起 W2">
+    <svg width="33" height="28" viewBox="0 0 33 28" fill="none">
+      <line x1="16.5" y1="0" x2="16.5" y2="18" stroke="#d97706" stroke-width="2" stroke-linecap="round"/>
+      <polyline points="8,12 16.5,24 25,12" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- ══ W2 collapsible ══ -->
+  <div class="week-collapsible collapsed" id="week-2">
+    <div class="week-row">
+      <div class="node"><span class="wnum">W2</span></div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🛠️</span><h2>給 Agent 一把順手的工具</h2></div>
+        <p class="tagline">工欲善其事，先替你的 AI 打造無障礙工作環境。</p>
+        <div class="pills">
+          <span class="pill">工具選擇</span><span class="pill">命令列</span>
+        </div>
+        <div class="outcome">
+          <span class="label">學習成果</span>
+          <span>能理解不同工具對 AI 的友善程度</span>
+        </div>
+      </div>
+      <div class="bridge"></div>
+      <div class="side-panel">
+        <div>
+          <div class="side-section-title">🔑 關鍵名詞</div>
+          <div class="term-list"><span class="term">API</span><span class="term">CLI</span><span class="term">GUI</span><span class="term">ACI</span><span class="term">JSON</span></div>
+        </div>
+        <div>
+          <div class="side-section-title">⚗️ 實作範例</div>
+          <ul class="example-list"><li>Openlibrary API</li><li>Obsidian CLI</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- arrow W2 → W3: click to toggle W3 -->
+  <div class="row-arrow" data-opens="3" title="點擊展開／收起 W3">
+    <svg width="33" height="28" viewBox="0 0 33 28" fill="none">
+      <line x1="16.5" y1="0" x2="16.5" y2="18" stroke="#d97706" stroke-width="2" stroke-linecap="round"/>
+      <polyline points="8,12 16.5,24 25,12" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- ══ W3 collapsible ══ -->
+  <div class="week-collapsible collapsed" id="week-3">
+    <div class="week-row">
+      <div class="node"><span class="wnum">W3</span></div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🎓</span><h2>用 SKILL.md 培養 Agent 的專長</h2></div>
+        <p class="tagline">一個檔案，讓 AI 記住你的工作方式，比你想得還快。</p>
+        <div class="pills">
+          <span class="pill">可攜式工作流</span>
+          <span class="pill">客製化技能</span>
+        </div>
+        <div class="outcome">
+          <span class="label">學習成果</span>
+          <span>能讓 Agent 學習可重複使用的客製化技能</span>
+        </div>
+      </div>
+      <div class="bridge"></div>
+      <div class="side-panel">
+        <div>
+          <div class="side-section-title">🔑 關鍵名詞</div>
+          <div class="term-list"><span class="term">SKILL.md</span><span class="term">scripts</span><span class="term">references</span></div>
+        </div>
+        <div>
+          <div class="side-section-title">⚗️ 實作範例</div>
+          <ul class="example-list"><li>find-skills</li><li>skill-create</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- arrow W3 → W4: click to toggle W4 -->
+  <div class="row-arrow" data-opens="4" title="點擊展開／收起 W4">
+    <svg width="33" height="28" viewBox="0 0 33 28" fill="none">
+      <line x1="16.5" y1="0" x2="16.5" y2="18" stroke="#d97706" stroke-width="2" stroke-linecap="round"/>
+      <polyline points="8,12 16.5,24 25,12" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- ══ W4 collapsible ══ -->
+  <div class="week-collapsible collapsed" id="week-4">
+    <div class="week-row">
+      <div class="node"><span class="wnum">W4</span></div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🔌</span><h2>打通 Agent 與外界的連線</h2></div>
+        <p class="tagline">接上 MCP，讓 AI 伸出手，直接操作各種外部服務。</p>
+        <div class="pills">
+          <span class="pill">外部服務整合</span>
+          <span class="pill">工具擴充</span>
+        </div>
+        <div class="outcome">
+          <span class="label">學習成果</span>
+          <span>能透過 MCP 為 Agent 接入真實世界的服務與資料</span>
+        </div>
+      </div>
+      <div class="bridge"></div>
+      <div class="side-panel">
+        <div>
+          <div class="side-section-title">🔑 關鍵名詞</div>
+          <div class="term-list"><span class="term">MCP</span><span class="term">A2A</span><span class="term">RSS</span></div>
+        </div>
+        <div>
+          <div class="side-section-title">⚗️ 實作範例</div>
+          <ul class="example-list"><li>NetNewsWire</li><li>Excalidraw</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- arrow W4 → W5: click to toggle W5 -->
+  <div class="row-arrow" data-opens="5" title="點擊展開／收起 W5">
+    <svg width="33" height="28" viewBox="0 0 33 28" fill="none">
+      <line x1="16.5" y1="0" x2="16.5" y2="18" stroke="#d97706" stroke-width="2" stroke-linecap="round"/>
+      <polyline points="8,12 16.5,24 25,12" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </svg>
+  </div>
+
+  <!-- ══ W5 collapsible ══ -->
+  <div class="week-collapsible collapsed" id="week-5">
+    <div class="week-row">
+      <div class="node"><span class="wnum">W5</span></div>
+      <div class="card">
+        <div class="card-header"><span class="card-icon">🌍</span><h2>把成果發布到全世界</h2></div>
+        <p class="tagline">用 GitHub Pages 讓你的 AI 工作流程作品，站上公開舞台。</p>
+        <div class="pills">
+          <span class="pill">成果發布</span>
+          <span class="pill">公開分享</span>
+        </div>
+        <div class="outcome">
+          <span class="label">學習成果</span>
+          <span>能將個人數位作品對外展示與分享</span>
+        </div>
+      </div>
+      <div class="bridge"></div>
+      <div class="side-panel">
+        <div>
+          <div class="side-section-title">🔑 關鍵名詞</div>
+          <div class="term-list"><span class="term">deployment</span><span class="term">workflow</span><span class="term">CI/CD</span></div>
+        </div>
+        <div>
+          <div class="side-section-title">⚗️ 實作範例</div>
+          <ul class="example-list"><li>GitHub Pages</li></ul>
+          <ul class="example-list"><li>GitHub Workflows</li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- arrow into destination -->
+<div class="dest-arrow">
+  <svg width="24" height="32" viewBox="0 0 24 32" fill="none">
+    <path d="M12 0 L12 22 M4 14 L12 26 L20 14" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</div>
+
+<!-- DESTINATION -->
+<div class="destination">
+  <h2>🏆 課程終點站</h2>
+  <p>具備設計個人 <strong>Portable Agentic AI Workflow</strong> 的能力<br>
+     ── 可重複使用 · 隨時調整 · 公開分享</p>
+</div>
+
+<footer>
+  <a class="back-link" href="https://howard-haowen.github.io/genai_workshop/">← 回年度入口</a>
+  <span>Made with IBM Bob</span>
+</footer>
+
+<script>
+(function () {
+  var weeks = [2, 3, 4, 5];
+
+  function setMaxHeight(el) {
+    el.style.maxHeight = el.scrollHeight + 'px';
+  }
+
+  function isOpen(weekNum) {
+    var el = document.getElementById('week-' + weekNum);
+    return el && !el.classList.contains('collapsed');
+  }
+
+  function openWeek(weekNum) {
+    var el = document.getElementById('week-' + weekNum);
+    if (!el) return;
+    el.classList.remove('collapsed');
+    requestAnimationFrame(function () { setMaxHeight(el); });
+    // dim the triggering arrow to show "expanded" state
+    var arrow = document.querySelector('[data-opens="' + weekNum + '"]');
+    if (arrow) arrow.classList.remove('collapsed-state');
+  }
+
+  function closeWeek(weekNum) {
+    var el = document.getElementById('week-' + weekNum);
+    if (!el) return;
+    el.style.maxHeight = el.scrollHeight + 'px';
+    requestAnimationFrame(function () { el.classList.add('collapsed'); });
+    var arrow = document.querySelector('[data-opens="' + weekNum + '"]');
+    if (arrow) arrow.classList.add('collapsed-state');
+  }
+
+  // Start all collapsed → mark arrows as collapsed-state
+  weeks.forEach(function (n) {
+    var arrow = document.querySelector('[data-opens="' + n + '"]');
+    if (arrow) arrow.classList.add('collapsed-state');
+  });
+
+  // Arrow click toggles the week it points to
+  document.querySelectorAll('[data-opens]').forEach(function (arrow) {
+    arrow.addEventListener('click', function () {
+      var n = parseInt(arrow.getAttribute('data-opens'), 10);
+      if (isOpen(n)) { closeWeek(n); } else { openWeek(n); }
+    });
+  });
+
+  // Global collapse all
+  document.getElementById('btn-collapse-all').addEventListener('click', function () {
+    weeks.forEach(closeWeek);
+  });
+
+  // Global expand all
+  document.getElementById('btn-expand-all').addEventListener('click', function () {
+    weeks.forEach(openWeek);
+  });
+})();
+</script>
+</body>
 </html>
