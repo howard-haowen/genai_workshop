@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <title>2026 AI創造工作坊</title>
+        <title>2026人文AI創造工作坊</title>
         <meta name="description" content="2026 AI創造工作坊課程材料入口。" />
         <style>
             :root {
@@ -99,6 +99,20 @@
                 line-height: 1.08;
                 letter-spacing: -0.05em;
             }
+            .page-subtitle {
+                margin: 0 0 14px;
+                font-size: clamp(1.2rem, 3vw, 1.75rem);
+                font-weight: 700;
+                letter-spacing: -0.02em;
+                background: linear-gradient(
+                    135deg,
+                    var(--brand),
+                    var(--brand-2)
+                );
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                background-clip: text;
+            }
             .subtitle {
                 max-width: 780px;
                 margin: 0;
@@ -137,6 +151,29 @@
             .program-brief h2 {
                 margin: 0 0 12px;
                 font-size: clamp(1.45rem, 3vw, 2rem);
+            }
+            .podcast-invite {
+                margin: 18px 0 0;
+                font-size: 1rem;
+                color: var(--muted);
+            }
+            .podcast-link {
+                color: var(--brand);
+                font-weight: 700;
+                text-decoration: none;
+            }
+            .podcast-link:hover {
+                text-decoration: underline;
+            }
+            .hook-questions {
+                margin: 0 0 16px 1.2rem;
+                padding: 0;
+                color: var(--text);
+                font-size: 1.04rem;
+                line-height: 1.9;
+            }
+            .hook-questions li::marker {
+                color: var(--brand);
             }
             .copy-text {
                 margin: 0;
@@ -266,12 +303,11 @@
             <section class="hero" aria-labelledby="page-title">
                 <span class="eyebrow">2026 工作坊</span>
                 <h1 id="page-title">AI創造工作坊</h1>
+                <p class="page-subtitle">AI Agents 工作流</p>
                 <p class="subtitle">
-                    2026
-                    年度課程面向台灣大專院校人文學科學生，核心不只是學會使用 AI
-                    工具，而是成為能設計、調整、分享 AI 工作流程的 AI
-                    創造者。課程將引導學生把閱讀、寫作、研究、翻譯、整理與創作任務，轉化為可重複、可改良、可分享的
-                    AI-assisted workflow。
+                    你不只是 AI 的使用者，你可以成為 AI 工作流程的<strong>設計者</strong>。2026
+                    年度課程專為人文領域學生打造，帶你把閱讀、寫作、研究、翻譯等日常任務，一步步轉化成可重複使用、隨時調整、公開分享的個人
+                    AI 工作流。
                 </p>
                 <a
                     class="back"
@@ -287,96 +323,61 @@
                 <h2 id="program-brief-title">
                     五週課程大綱：從 AI 使用者到 AI 工作流程創造者
                 </h2>
+                <ul class="hook-questions">
+                    <li>你是否曾覺得 AI 給的答案「差那麼一點」？</li>
+                    <li>你是否常覺得現有軟體如果能再加一個功能就完美了？</li>
+                    <li>你是否想過，這些問題其實你自己就能解決？</li>
+                </ul>
                 <p class="copy-text">
-                    本課程以人文學科的學習、研究與創作需求為出發點，帶領學生理解
-                    <strong
-                        >AI
-                        agent、tools、AGENTS.md、skills、SKILL.md、MCP、Git/GitHub、GitHub
-                        Pages、Obsidian 與 Markdown</strong
-                    >
-                    如何共同構成可操作的個人 AI 工作流程。許多人在使用現成 AI
-                    工具時，會覺得輸出不夠貼近自己的需求；問題未必在於 AI
-                    不夠強，而是缺少能引導它理解任務、脈絡與步驟的技能設計。完成課程後，學生將能把一個日常學習或創作任務，整理為具備專案脈絡、操作規則、技能規格與公開展示頁的
-                    personal AI-assisted workflow，讓 AI
-                    逐步配合自己的閱讀、寫作與研究方法，而不是被既有軟體功能牽著走。課程的學習目標是對相關技術達到「夠用的掌握」，而不需要深度精通；這呼應
+                    問題往往不在 AI 不夠強，而是缺少一個能讓它理解你的任務、脈絡與習慣的工作框架。本課程帶你認識
+                    <strong>AI agent、AGENTS.md、SKILL.md、MCP、Git/GitHub、GitHub Pages 與 Markdown</strong>
+                    ——不需要任何程式背景，五週內你就能打造屬於自己的 Portable Agentic AI workflow。課程目標是「夠用的掌握」，而非深度精通；這也呼應
                     <a
                         href="https://www.anthropic.com/research/claude-code-expertise"
                         target="_blank"
                         rel="noopener noreferrer"
-                        >Anthropic的使用者專業能力的研究報告</a
+                        >Anthropic 研究報告</a
                     >
-                    所指出的趨勢：有效使用 AI
-                    工具時，重點往往在於能理解脈絡、判斷方向並組織工作流程。
+                    的發現：真正有效使用 AI 的人，勝在懂得組織脈絡、引導方向，而不是死記功能。
                 </p>
-                <ul class="brief-weeks" aria-label="五週課程大綱">
-                    <li>
-                        <strong>第 1 週：</strong>認識 AI Agents：把 agent
-                        想成一位會讀脈絡、能照著任務清單行動的研究助理，不只是回答問題的聊天對象。
-                    </li>
-                    <li>
-                        <strong>第 2 週：</strong>認識
-                        tools、CLI、GUI：理解工具就像研究者的筆、索引卡與資料庫；CLI
-                        像直接下指令的工作台，GUI 則像有按鈕與選單的書桌介面。
-                    </li>
-                    <li>
-                        <strong>第 3 週：</strong>認識 <code>AGENTS.md</code> 與
-                        <code>SKILL.md</code
-                        >：前者像寫給助理的研究室規範，後者像一張可重複使用的工作方法卡。
-                    </li>
-                    <li>
-                        <strong>第 4 週：</strong>認識 MCP：把 MCP 想成 AI agent
-                        與外部工具、資料來源之間的翻譯與接線員，讓不同系統能彼此溝通。
-                    </li>
-                    <li>
-                        <strong>第 5 週：</strong>認識 GitHub
-                        Pages：把它想成自己的線上展覽牆，讓學習歷程、研究流程與創作成果可以被看見與分享。
-                    </li>
-                </ul>
+                <p class="podcast-invite">
+                    🎧 上課前，推薦你先聽這集 Podcast 暖身：
+                    <a
+                        class="podcast-link"
+                        href="https://podcasts.apple.com/hk/podcast/building-portable-ai-workflows-that-you-can-take-anywhere/id1740971373?i=1000768537308"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        >Building Portable AI Workflows That You Can Take Anywhere</a
+                    >
+                </p>
             </section>
 
             <h2 class="section-title">2026 課程地圖</h2>
             <section class="course-map" aria-label="2026 五週課程地圖">
                 <article class="card">
                     <span class="week">W1</span>
-                    <h2>認識 AI Agents</h2>
-                    <p>
-                        把 AI agent
-                        想成一位研究助理：它不只陪你聊天，也能讀懂任務、參考脈絡，並依照步驟協助整理材料。
-                    </p>
+                    <h2>Agentic AI 的五個關鍵概念</h2>
+                    <p>搞懂 <code>AGENTS.md</code>，讓 AI 從「隨機應答」變成你的專屬助理。</p>
                 </article>
                 <article class="card">
                     <span class="week">W2</span>
-                    <h2>認識 tools、CLI、GUI</h2>
-                    <p>
-                        Tools 像研究工具箱；CLI 像直接寫給工具的指令紙條，GUI
-                        則像有抽屜、按鈕與標籤的書桌。
-                    </p>
+                    <h2>給 Agent 一把順手的工具</h2>
+                    <p>工欲善其事，先替你的 AI 打造無障礙工作環境。</p>
                 </article>
                 <article class="card">
                     <span class="week">W3</span>
-                    <h2>認識 AGENTS.md、SKILL.md</h2>
-                    <p>
-                        <code>AGENTS.md</code> 像研究室守則，<code
-                            >SKILL.md</code
-                        >
-                        像方法筆記，幫 AI 記住該用什麼口吻、規則與流程工作。
-                    </p>
+                    <h2>用 SKILL.md 培養 Agent 的專長</h2>
+                    <p>一個檔案，讓 AI 記住你的工作方式，比你想像得快。</p>
                 </article>
                 <article class="card">
                     <span class="week">W4</span>
-                    <h2>認識 MCP</h2>
-                    <p>
-                        MCP 像圖書館的流通櫃台與翻譯員，讓 AI agent
-                        能連接不同資料庫、工具與服務。
-                    </p>
+                    <h2>打通 Agent 與外界的連線</h2>
+                    <p>接上 MCP，讓 AI 伸出手，直接操作各種外部服務。</p>
                 </article>
                 <article class="card">
                     <span class="week">W5</span>
-                    <h2>認識 GitHub Pages</h2>
-                    <p>
-                        GitHub Pages
-                        像線上展覽空間，讓你的學習歷程、研究流程與數位作品有一個可以分享的公開入口。
-                    </p>
+                    <h2>把成果發布到全世界</h2>
+                    <p>用 GitHub Pages 讓你的 AI 工作流程作品，站上公開舞台。</p>
                 </article>
             </section>
 
