@@ -40,6 +40,10 @@ jobs:
               cp "$year_dir/index.html" "build/$year/index.html"
             fi
 
+            if [ -f "$year_dir/README.md" ]; then
+              cp "$year_dir/README.md" "build/$year/README.md"
+            fi
+
             if [ -d "$year_dir/apps" ]; then
               mkdir -p "build/$year/apps"
               chmod 777 "build/$year/apps"
