@@ -112,7 +112,11 @@ print(message)
 
 #### 9. Mermaid圖表
 
-```mermaid
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;align-items:start">
+
+<div>
+
+```
 flowchart TD
     A[Christmas] -->|Get money| B(Go shopping)
     B --> C{Let me think}
@@ -120,6 +124,16 @@ flowchart TD
     C -->|Two| E[iPhone]
     C -->|Three| F[fa:fa-car Car]
 ```
+
+</div>
+
+<div>
+
+[![](https://mermaid.ink/img/pako:eNpVkU1vozAYhP-K9Z66Uj6KHRzMYaUtyebSqpXaU0MOLhhsLdjImG3ThP9em-xWLScz88yrkeYEhSkFpFA15rWQ3Dr0tMk18t-vfSat6l3L-wOaz3-ed8Kh1mhxPKObq51BvTRdp3T948LfBAhlp9uACeSk0n_Gi5VN-Xstzmizv-WdM93hq_P0as5ou1cP0p__7kgrfOr3vuJpxecFtyjj9gAzaIVtuSp99VMI5OCkaEUOqX82qpYuh1yPHuSDM49HXUDq7CBmYM1QS_DXmt7_DV3JndgoXlvefqod15Ce4A3SOcZ4wQiOE0ojFkeMzODoZUqSBSFRvCaYYUqTeJzBuzH-ROTxFSYsWrFrRihO8HTveTIvFWobiv-rI3QpbGYG7SBNAixK5Yy9u-wyzfO_5nZyPls2hvtoKOqOXYBrP5eHC6MrVQd9sI2XpXNdny6XwV7UysnhZVGYdtmrMiwu_zK6pJgmHBNB14THhJTFS8SSCq-iqlxfR5jDOI4fd8mt0w?type=png)](https://mermaid.live/edit#pako:eNpVUU1vmzAY_ivWe9okkoAN5uMwaSVtL502qT015OCCwdbARsa0yxL-e22yVZtPr58vPdJzhlo3HApoe_1WC2YsetpXCrn39VAKIyc7sOmINpsvl3tu0aAVP13Qzad7jSahx1Gq7vNVf-NFqDw_eBlHVkj1c7lS5er_rvgF7Q8PbLR6PP7LPL3pC7o9yB_Cxf_PCMOd6-7QsqJlm5oZVDJzhAAGbgYmG1f97A0VWMEHXkHhzl52wlZQqcUJ2Wz140nVUFgz8wCMnjsBLq2f3G8eG2b5XrLOsOEDHZmC4gy_oNjEUbjNCU5ogtM4TOOUBnDyeJxsCYloSAhJoyzFSwC_tXYZkdPHmORRnIc5oTjDa-DzSl47dMY3_9OHq4abUs_KQpHRJADeSKvNt-sw6z5_e96uzEfNXjNn9U3tafTizu3lxLVWrew8PpvewcLacSp2O09vO2nF_LKt9bCbZOMnF6853VFMM4YJpylhCSFN_RLlWYvjqG3SMMIMlmV5B_cVrfI)](https://mermaid.live/)
+
+</div>
+
+</div>
 
 ---
 
