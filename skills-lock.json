@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "skills": {
+    "find-skills": {
+      "source": "vercel-labs/skills",
+      "sourceType": "github",
+      "skillPath": "skills/find-skills/SKILL.md",
+      "computedHash": "781bd6d3f9b19f8c9af6b53d8d0e4876d0183841b565db34ca7092ffa412d111"
+    },
+    "skill-create": {
+      "source": "skillscatalog/registry",
+      "sourceType": "github",
+      "skillPath": "skills/skill-create/SKILL.md",
+      "computedHash": "bbb5afb33d0226a5bc8eb6441cb13027adbc6ca52a49a8b35e926c677f43ce99"
+    }
+  }
+}
