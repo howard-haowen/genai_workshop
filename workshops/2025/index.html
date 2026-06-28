@@ -258,6 +258,24 @@
                 text-align: center;
                 font-size: 0.95rem;
             }
+            .author-link {
+                position: fixed;
+                top: 16px;
+                right: 20px;
+                padding: 6px 14px;
+                border-radius: 999px;
+                background: var(--panel);
+                border: 1px solid var(--line);
+                color: var(--brand);
+                font-size: 0.85rem;
+                font-weight: 700;
+                text-decoration: none;
+                box-shadow: 0 2px 8px rgba(61, 44, 130, 0.12);
+                z-index: 100;
+            }
+            .author-link:hover {
+                text-decoration: underline;
+            }
             @media (max-width: 860px) {
                 .wrap {
                     padding-top: 36px;
@@ -274,6 +292,13 @@
         </style>
     </head>
     <body>
+        <a
+            class="author-link"
+            href="https://howard-haowen.github.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+            >作者網站</a
+        >
         <main class="wrap">
             <section class="hero" aria-labelledby="page-title">
                 <span class="eyebrow">2025 工作坊</span>
