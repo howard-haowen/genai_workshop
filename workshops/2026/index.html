@@ -505,6 +505,35 @@
   .podcast-link:hover { text-decoration: underline; }
 
   /* ════════════════════════════
+     AUTHOR LINK (top-right)
+  ════════════════════════════ */
+  .author-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--amber);
+    text-decoration: none;
+    letter-spacing: 0.04em;
+    opacity: 0.7;
+    transition: opacity 0.15s;
+    background: var(--surface);
+    border: 1px solid var(--border-hi);
+    padding: 4px 10px;
+    border-radius: 3px;
+  }
+  .author-link-wrap {
+    display: flex;
+    justify-content: flex-end;
+    max-width: 1080px;
+    margin: -40px auto 16px;
+    padding: 0 32px;
+  }
+  .author-link:hover { opacity: 1; text-decoration: underline; }
+
+  /* ════════════════════════════
      BACK LINK
   ════════════════════════════ */
   .back-link {
@@ -636,6 +665,11 @@
   <h1>人文AI創造工作坊</h1>
   <p class="page-subtitle">AI Agents工作流</p>
 </header>
+
+<!-- ════ AUTHOR LINK ════ -->
+<div class="author-link-wrap">
+  <a class="author-link" href="https://howard-haowen.github.io/" target="_blank" rel="noopener noreferrer">作者網站 ↗</a>
+</div>
 
 <!-- ════ INTRO ════ -->
 <div class="intro-block">
