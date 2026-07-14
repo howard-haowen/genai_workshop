@@ -1,0 +1,15 @@
+{
+    "mcpServers": {
+        "apple-books-mcp": {
+            "command": "uvx",
+            "args": [ "apple-books-mcp@latest" ]
+        },
+        "netnewswire": {
+            "command": "npx",
+            "args": ["@jellllly/netnewswire-mcp"]
+        },
+        "excalidraw": {
+            "url": "https://mcp.excalidraw.com"
+        }
+    }
+}
