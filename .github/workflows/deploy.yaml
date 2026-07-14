@@ -20,6 +20,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Set up Node.js for Marp
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install Marp CLI
+        run: npm install -g @marp-team/marp-cli
+
       - name: Prepare build directory
         run: |
           mkdir -p build
@@ -28,37 +36,41 @@ jobs:
       - name: Copy root landing page
         run: cp index.html build/index.html
 
-      - name: Build versioned workshop pages
+      - name: Build 2025 workshop pages (Marp)
         run: |
-          for year_dir in workshops/*; do
-            [ -d "$year_dir" ] || continue
-            year="$(basename "$year_dir")"
-            mkdir -p "build/$year"
-            chmod 777 "build/$year"
+          mkdir -p build/2025
+          chmod 777 build/2025
 
-            if [ -f "$year_dir/index.html" ]; then
-              cp "$year_dir/index.html" "build/$year/index.html"
-            fi
-
-            if [ -f "$year_dir/README.md" ]; then
-              cp "$year_dir/README.md" "build/$year/README.md"
-            fi
-
-            if [ -d "$year_dir/apps" ]; then
-              mkdir -p "build/$year/apps"
-              chmod 777 "build/$year/apps"
-              cp -r "$year_dir/apps/." "build/$year/apps/"
-            fi
-
-            for file in "$year_dir"/*_marp.md; do
-              [ -e "$file" ] || continue
-              base="$(basename "${file%.*}")"
-              docker run --rm -u root:root \
-                -v "$PWD:/home/marp/app" \
-                marpteam/marp-cli:latest \
-                "$file" --html -o "/home/marp/app/build/$year/${base}.html"
-            done
+          # Build HTML from *_marp.md source files using Marp
+          for file in workshops/2025/*_marp.md; do
+            [ -e "$file" ] || continue
+            marp "$file" --output "build/2025/$(basename "${file%.md}.html")"
           done
+
+          # Copy apps/ directory if present
+          if [ -d "workshops/2025/apps" ]; then
+            mkdir -p build/2025/apps
+            chmod 777 build/2025/apps
+            cp -r workshops/2025/apps/. build/2025/apps/
+          fi
+
+      - name: Build 2026 workshop pages
+        run: |
+          mkdir -p build/2026
+          chmod 777 build/2026
+
+          # Copy all *.html files
+          for file in workshops/2026/*.html; do
+            [ -e "$file" ] || continue
+            cp "$file" "build/2026/$(basename "$file")"
+          done
+
+          # Copy haowen-projects/ directory if present
+          if [ -d "workshops/2026/haowen-projects" ]; then
+            mkdir -p build/2026/haowen-projects
+            chmod 777 build/2026/haowen-projects
+            cp -r workshops/2026/haowen-projects/. build/2026/haowen-projects/
+          fi
 
       - name: Deploy preview (PRs)
         if: ${{ github.event_name == 'pull_request' }}
