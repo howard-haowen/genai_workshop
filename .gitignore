@@ -1,3 +1,7 @@
 # Local Marp HTML outputs
 workshops/**/*_marp.html
 draft/
+
+.DS_Store
+workshops/.DS_Store
+workshops/2026/.DS_Store
