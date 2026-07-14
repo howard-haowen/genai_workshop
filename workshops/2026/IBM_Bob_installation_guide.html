@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IBM Bob 帳號建立與軟體安裝指南</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* === CARBON DESIGN SYSTEM TOKENS === */
+    :root {
+      --primary:        #0f62fe;
+      --primary-hover:  #0050e6;
+      --primary-pressed:#002d9c;
+      --ink:            #161616;
+      --ink-muted:      #525252;
+      --ink-subtle:     #8c8c8c;
+      --canvas:         #ffffff;
+      --surface-1:      #f4f4f4;
+      --surface-2:      #e0e0e0;
+      --hairline:       #e0e0e0;
+      --hairline-strong:#161616;
+      --inverse-canvas: #161616;
+      --inverse-ink:    #ffffff;
+      --inverse-muted:  #c6c6c6;
+      --success:        #24a148;
+      --warning:        #f1c21b;
+      --error:          #da1e28;
+      --font: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+      --mono: "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.5;
+      letter-spacing: 0.16px;
+      color: var(--ink);
+      background: var(--canvas);
+    }
+
+    /* === UTILITY BAR === */
+    .utility-bar {
+      background: var(--surface-1);
+      color: var(--ink-muted);
+      font-size: 12px;
+      line-height: 1.33;
+      letter-spacing: 0.32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      border-bottom: 1px solid var(--hairline);
+    }
+
+    /* === TOP NAV === */
+    .top-nav {
+      background: var(--canvas);
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      border-bottom: 1px solid var(--hairline);
+      gap: 32px;
+    }
+    .top-nav .brand {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.16px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .top-nav .eyebrow {
+      font-size: 14px;
+      color: var(--ink-muted);
+      letter-spacing: 0.16px;
+    }
+
+    /* === PAGE LAYOUT === */
+    .page-container {
+      max-width: 1056px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* === HERO === */
+    .hero {
+      background: var(--canvas);
+      border-bottom: 1px solid var(--hairline);
+      padding: 64px 0 48px;
+    }
+    .hero-kicker {
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.16px;
+      color: var(--ink-muted);
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-family: var(--font);
+      font-size: 42px;
+      font-weight: 300;
+      line-height: 1.20;
+      letter-spacing: 0;
+      color: var(--ink);
+      margin-bottom: 24px;
+    }
+    .hero-lead {
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1.50;
+      color: var(--ink-muted);
+      max-width: 640px;
+    }
+
+    /* === SECTION BAND === */
+    .section-band {
+      padding: 48px 0;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .section-band.alt {
+      background: var(--surface-1);
+    }
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .step-tag {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.32px;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+    .section-band h2 {
+      font-size: 32px;
+      font-weight: 400;
+      line-height: 1.25;
+      color: var(--ink);
+    }
+    .section-divider {
+      height: 1px;
+      background: var(--hairline);
+      margin-bottom: 32px;
+    }
+
+    /* === CALLOUT (INFO / WARNING) === */
+    .callout {
+      background: var(--surface-1);
+      border-left: 4px solid var(--primary);
+      padding: 16px 20px;
+      font-size: 14px;
+      line-height: 1.5;
+      letter-spacing: 0.16px;
+      color: var(--ink);
+      margin-bottom: 32px;
+    }
+    .callout strong { font-weight: 600; }
+    .callout.warning { border-left-color: var(--warning); }
+
+    /* === STEPS === */
+    ol.steps {
+      list-style: none;
+      counter-reset: step;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    ol.steps li {
+      counter-increment: step;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      font-size: 16px;
+      line-height: 1.5;
+      letter-spacing: 0.16px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--hairline);
+    }
+    ol.steps li:first-child { border-top: 1px solid var(--hairline); }
+    ol.steps li::before {
+      content: counter(step, decimal-leading-zero);
+      flex-shrink: 0;
+      width: 32px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.32px;
+      color: var(--primary);
+      padding-top: 2px;
+    }
+    ol.steps li ul {
+      margin-top: 8px;
+      padding-left: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    ol.steps li ul li {
+      list-style: disc;
+      font-size: 14px;
+      color: var(--ink-muted);
+      border: none;
+      padding: 0;
+      display: list-item;
+    }
+    ol.steps li ul li::before { display: none; }
+
+    /* === BULLETS === */
+    ul.bullets {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    ul.bullets li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 16px;
+      line-height: 1.5;
+      letter-spacing: 0.16px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--hairline);
+    }
+    ul.bullets li:first-child { border-top: 1px solid var(--hairline); }
+    ul.bullets li::before {
+      content: "—";
+      flex-shrink: 0;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* === OS CARD GRID === */
+    .os-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--hairline);
+      border: 1px solid var(--hairline);
+      margin-bottom: 0;
+    }
+    .os-card {
+      background: var(--canvas);
+      padding: 32px;
+      position: relative;
+    }
+    .os-card.alt { background: var(--surface-1); }
+    .os-card-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.32px;
+      color: var(--canvas);
+      background: var(--ink);
+      padding: 4px 10px;
+      margin-bottom: 20px;
+    }
+    .os-card.macos .os-card-tag { background: var(--primary); }
+    .os-card.windows .os-card-tag { background: var(--ink); }
+    .os-card h3 {
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 1.40;
+      color: var(--ink);
+      margin-bottom: 20px;
+    }
+    .os-card ol.steps { margin-bottom: 0; }
+
+    /* === REQUIREMENTS TABLE === */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      letter-spacing: 0.16px;
+      line-height: 1.29;
+    }
+    thead tr {
+      background: var(--inverse-canvas);
+      color: var(--inverse-ink);
+    }
+    thead th {
+      text-align: left;
+      font-weight: 600;
+      padding: 12px 16px;
+      font-size: 12px;
+      letter-spacing: 0.32px;
+    }
+    tbody tr:nth-child(odd)  { background: var(--canvas); }
+    tbody tr:nth-child(even) { background: var(--surface-1); }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--hairline); }
+
+    /* === CHECKLIST === */
+    ul.checklist {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    ul.checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 16px;
+      line-height: 1.5;
+      letter-spacing: 0.16px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--hairline);
+    }
+    ul.checklist li:first-child { border-top: 1px solid var(--hairline); }
+    ul.checklist li::before {
+      content: "☐";
+      flex-shrink: 0;
+      font-size: 18px;
+      color: var(--ink-muted);
+      line-height: 1.4;
+    }
+
+    /* === FAQ === */
+    .faq-item {
+      border-bottom: 1px solid var(--hairline);
+    }
+    .faq-item:first-of-type { border-top: 1px solid var(--hairline); }
+    .faq-q {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.16px;
+      color: var(--ink);
+      padding: 16px 0 8px;
+    }
+    .faq-a {
+      font-size: 14px;
+      line-height: 1.5;
+      letter-spacing: 0.16px;
+      color: var(--ink-muted);
+      padding-bottom: 16px;
+    }
+    .faq-a ul {
+      padding-left: 16px;
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .faq-a ul li { list-style: disc; }
+
+    /* === TIMELINE === */
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--hairline);
+      border: 1px solid var(--hairline);
+    }
+    .tl-item {
+      background: var(--canvas);
+      padding: 32px;
+    }
+    .tl-item:nth-child(even) { background: var(--surface-1); }
+    .tl-tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.32px;
+      color: var(--canvas);
+      background: var(--primary);
+      padding: 4px 10px;
+      margin-bottom: 16px;
+    }
+    .tl-title {
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 1.40;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .tl-desc {
+      font-size: 14px;
+      line-height: 1.5;
+      letter-spacing: 0.16px;
+      color: var(--ink-muted);
+    }
+
+    /* === LINKS & CODE === */
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { color: var(--primary-hover); text-decoration: underline; }
+    code {
+      font-family: var(--mono);
+      font-size: 13px;
+      background: var(--surface-1);
+      padding: 1px 6px;
+      border: 1px solid var(--hairline);
+      color: var(--ink);
+    }
+
+    /* === FOOTER === */
+    .page-footer {
+      background: var(--inverse-canvas);
+      color: var(--inverse-muted);
+      font-size: 14px;
+      line-height: 1.29;
+      letter-spacing: 0.16px;
+      padding: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--hairline);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .page-footer .footer-brand {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--inverse-ink);
+      letter-spacing: 0.16px;
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 672px) {
+      .page-container { padding: 0 16px; }
+      .hero { padding: 40px 0 32px; }
+      .hero h1 { font-size: 32px; }
+      .os-grid { grid-template-columns: 1fr; }
+      .timeline { grid-template-columns: 1fr; }
+      .utility-bar { display: none; }
+      .top-nav { padding: 0 16px; }
+      .page-footer { padding: 24px 16px; flex-direction: column; align-items: flex-start; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- UTILITY BAR -->
+  <div class="utility-bar">
+    Workshop 前置準備 · AI 創造工作坊
+  </div>
+
+  <!-- TOP NAV -->
+  <nav class="top-nav">
+    <a class="brand" href="#">IBM Bob</a>
+    <span class="eyebrow">帳號建立與軟體安裝指南</span>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="page-container">
+      <p class="hero-kicker">Workshop 前置準備</p>
+      <h1>IBM Bob<br>帳號建立與軟體安裝指南</h1>
+      <p class="hero-lead">本指南協助你在 Workshop 前完成 IBM Bob 帳號建立與軟體安裝，確保當天可以順利參與所有操作練習。</p>
+    </div>
+  </section>
+
+  <!-- NOTICE BANNER -->
+  <section class="section-band">
+    <div class="page-container">
+      <div style="display:flex;align-items:flex-start;gap:16px;padding:16px 20px;background:#fff3cd;border:2px solid #f0a500;border-radius:8px;">
+        <span style="font-size:2rem;flex-shrink:0;line-height:1;">⚠️</span>
+        <div>
+          <p style="font-size:1.1rem;font-weight:700;color:#7a4a00;margin-bottom:8px;">請在 Workshop 前一天完成帳號註冊與軟體下載安裝</p>
+          <p style="font-size:0.95rem;color:#5a3a00;line-height:1.7;">
+            當天網路環境可能不穩定，請務必提前完成所有準備步驟，確保 Workshop 當天可以立即操作。
+          </p>
+          <p style="margin-top:10px;padding:10px 14px;background:#ffe08a;border-radius:6px;font-size:0.92rem;color:#7a4a00;">
+            🕐 <strong>注意：</strong>免費試用帳號有效期限僅 <strong>30 天</strong>，建議在 Workshop 前一天再行註冊，避免試用期在活動結束前到期。
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 01 -->
+  <section class="section-band">
+    <div class="page-container">
+      <div class="section-header">
+        <span class="step-tag">Step 01</span>
+        <h2>建立 IBM Bob 帳號</h2>
+      </div>
+      <div class="section-divider"></div>
+      <div class="callout warning">
+        <strong>必要事項：</strong>請在 Workshop 前先完成註冊與信箱驗證。
+      </div>
+      <ol class="steps">
+        <li>前往 <a href="https://bob.ibm.com" target="_blank">IBM Bob 官網</a></li>
+        <li>點選「取得免費試用」</li>
+        <li>點選表單右上角「使用 Google 開始免費試用」</li>
+        <li>依照畫面完成註冊流程</li>
+        <li>到你的信箱確認是否收到驗證信</li>
+        <li>點擊信中的 <code>Verify Email</code> 完成帳號啟用</li>
+      </ol>
+      <p style="font-size:14px;color:var(--ink-muted);margin-top:24px;margin-bottom:12px;letter-spacing:0.16px;">完成後你應該已經：</p>
+      <ul class="bullets">
+        <li>成功建立 IBM Bob 帳號</li>
+        <li>完成 Email 驗證</li>
+        <li>可以使用該帳號登入 IBM Bob 相關服務</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- STEP 02 -->
+  <section class="section-band alt">
+    <div class="page-container">
+      <div class="section-header">
+        <span class="step-tag">Step 02</span>
+        <h2>確認電腦基本需求</h2>
+      </div>
+      <div class="section-divider"></div>
+      <table>
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th>最低需求</th>
+            <th>建議配置</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>作業系統</td><td>macOS / Windows</td><td>最新版本</td></tr>
+          <tr><td>記憶體</td><td>4 GB RAM</td><td>8 GB RAM 以上</td></tr>
+          <tr><td>硬碟空間</td><td>500 MB</td><td>1 GB 以上</td></tr>
+          <tr><td>網路</td><td>穩定網路連線</td><td>高速網路</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- STEP 03 -->
+  <section class="section-band">
+    <div class="page-container">
+      <div class="section-header">
+        <span class="step-tag">Step 03</span>
+        <h2>安裝 IBM Bob 軟體</h2>
+      </div>
+      <div class="section-divider"></div>
+      <div class="callout warning" style="margin-bottom:32px;">
+        <strong>必要事項：</strong>請在 Workshop 前一天完成下載與安裝。
+      </div>
+      <div class="os-grid">
+        <div class="os-card macos">
+          <div class="os-card-tag">🍎 macOS</div>
+          <h3>macOS 使用者</h3>
+          <ol class="steps">
+            <li>前往 <a href="https://bob.ibm.com/download" target="_blank">IBM Bob 下載頁</a></li>
+            <li>下載 macOS 版本安裝檔</li>
+            <li>開啟下載完成的 <code>.pkg</code> 檔案</li>
+            <li>依照安裝精靈操作：
+              <ul>
+                <li>同意授權條款</li>
+                <li>選擇安裝位置（建議使用預設值）</li>
+                <li>輸入管理員密碼</li>
+                <li>完成安裝</li>
+              </ul>
+            </li>
+            <li>從「應用程式」資料夾啟動 Bob</li>
+          </ol>
+        </div>
+        <div class="os-card windows alt">
+          <div class="os-card-tag">🪟 Windows</div>
+          <h3>Windows 使用者</h3>
+          <ol class="steps">
+            <li>前往 <a href="https://bob.ibm.com/download" target="_blank">IBM Bob 下載頁</a></li>
+            <li>下載 Windows 版本安裝檔</li>
+            <li>執行下載完成的 <code>.exe</code> 安裝程式</li>
+            <li>依照安裝精靈操作：
+              <ul>
+                <li>同意授權條款</li>
+                <li>選擇安裝目錄（建議使用預設值）</li>
+                <li>選擇開始功能表資料夾</li>
+                <li>點擊「完成」</li>
+              </ul>
+            </li>
+            <li>從桌面捷徑或開始功能表啟動 IBM Bob</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 04 -->
+  <section class="section-band alt">
+    <div class="page-container">
+      <div class="section-header">
+        <span class="step-tag">Step 04</span>
+        <h2>第一次使用前建議確認</h2>
+      </div>
+      <div class="section-divider"></div>
+      <ul class="checklist">
+        <li>已完成 <a href="https://bob.ibm.com" target="_blank">IBM Bob 帳號註冊</a></li>
+        <li>已完成 Email 驗證</li>
+        <li>已安裝好 <a href="https://bob.ibm.com/download" target="_blank">IBM Bob 軟體</a></li>
+        <li>可以順利開啟 IBM Bob 軟體介面</li>
+        <li>點選「使用 SSO 登入」後可成功登入，且送出訊息後可成功取得回覆</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- STEP 05 -->
+  <section class="section-band">
+    <div class="page-container">
+      <div class="section-header">
+        <span class="step-tag">Step 05</span>
+        <h2>常見問題</h2>
+      </div>
+      <div class="section-divider"></div>
+      <div class="faq-item">
+        <div class="faq-q">Q：Bob 無法啟動怎麼辦？</div>
+        <div class="faq-a">
+          請依序確認以下項目：
+          <ul>
+            <li>系統需求是否符合</li>
+            <li>重新啟動電腦後再試一次</li>
+            <li>重新安裝 IBM Bob 軟體</li>
+            <li>檢查防毒軟體是否阻擋程式啟動</li>
+          </ul>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Q：無法完成登入或驗證怎麼辦？</div>
+        <div class="faq-a">
+          請依序確認以下項目：
+          <ul>
+            <li>網路是否正常</li>
+            <li>瀏覽器快取是否需要清除</li>
+            <li>改用另一個瀏覽器登入</li>
+            <li>是否已收到驗證信並完成驗證</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="page-footer">
+    <span class="footer-brand">IBM Bob</span>
+    <span>帳號建立與軟體安裝指南 · AI 創造工作坊</span>
+  </footer>
+
+</body>
+</html>
