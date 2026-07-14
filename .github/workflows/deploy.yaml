@@ -41,6 +41,12 @@ jobs:
           mkdir -p build/2025
           chmod 777 build/2025
 
+          # Copy pre-built *.html static files (e.g. index.html)
+          for file in workshops/2025/*.html; do
+            [ -e "$file" ] || continue
+            cp "$file" "build/2025/$(basename "$file")"
+          done
+
           # Build HTML from *_marp.md source files using Marp
           for file in workshops/2025/*_marp.md; do
             [ -e "$file" ] || continue
