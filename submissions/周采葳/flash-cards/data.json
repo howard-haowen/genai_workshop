@@ -1,0 +1,39 @@
+{
+    "cards": [
+        {
+            "front": "狗仔",
+            "back": {
+                "romanization": "káu-á",
+                "definition": "小狗"
+            }
+        },
+        {
+            "front": "貓仔",
+            "back": {
+                "romanization": "niau-á",
+                "definition": "貓"
+            }
+        },
+        {
+            "front": "鳥仔",
+            "back": {
+                "romanization": "tsiáu-á",
+                "definition": "鳥"
+            }
+        },
+        {
+            "front": "魚仔",
+            "back": {
+                "romanization": "hî-á",
+                "definition": "魚"
+            }
+        },
+        {
+            "front": "豬仔",
+            "back": {
+                "romanization": "ti-á",
+                "definition": "小豬"
+            }
+        }
+    ]
+}
