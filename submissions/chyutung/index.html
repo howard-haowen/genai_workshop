@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <title>學習便條-你的智慧複習小幫手</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+    }
+    #noteInput {
+      width: 70%;
+      height: 60px;
+      padding: 10px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      resize: vertical;
+    }
+    #addBtn {
+      padding: 10px 15px;
+      font-size: 16px;
+      margin-left: 10px;
+      cursor: pointer;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+    #notesContainer {
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 15px;
+    }
+    .note {
+      background: #fff;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: transform 0.1s, background-color 0.3s;
+    }
+    .note:hover {
+      transform: translateY(-2px);
+    }
+    .note.overdue {
+      border: 2px solid #f44336;
+    }
+    .note.updated {
+      background-color: #d1ffd1;
+    }
+    .note p {
+      margin: 0 0 10px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      color: #333;
+    }
+    .note small {
+      color: #555;
+      font-size: 12px;
+      display: block;
+      margin-top: 4px;
+    }
+    .buttonContainer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 5px;
+      margin-top: 10px;
+    }
+    .deleteBtn, .reviewBtn, .editBtn {
+      padding: 5px 10px;
+      font-size: 12px;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .deleteBtn {
+      background: #f44336;
+    }
+    .reviewBtn {
+      background: #4CAF50;
+    }
+    .editBtn {
+      background: #2196F3;
+    }
+    textarea {
+      font-family: inherit;
+      font-size: 14px;
+      padding: 5px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+  </style>
+</head>
+<body>
+  <h1>學習便條-你的智慧複習小幫手</h1>
+  <div>
+    <textarea id="noteInput" placeholder="輸入學習重點..."></textarea>
+    <button id="addBtn">新增便條</button>
+  </div>
+  <div id="notesContainer"></div>
+
+  <script>
+    const noteInput = document.getElementById("noteInput");
+    const addBtn = document.getElementById("addBtn");
+    const notesContainer = document.getElementById("notesContainer");
+
+    let notes = JSON.parse(localStorage.getItem("notes")) || [];
+    const reviewIntervals = [1, 2, 4, 7, 14, 30, 60];
+
+    function getNextReviewDate(lastViewed, stage) {
+      const last = new Date(lastViewed);
+      const days = reviewIntervals[Math.min(stage, reviewIntervals.length - 1)];
+      return new Date(Date.UTC(
+        last.getUTCFullYear(),
+        last.getUTCMonth(),
+        last.getUTCDate() + days,
+        last.getUTCHours(),
+        last.getUTCMinutes(),
+        last.getUTCSeconds()
+      ));
+    }
+
+    function formatDate(d) {
+      const y = d.getUTCFullYear();
+      const m = ("0" + (d.getUTCMonth() + 1)).slice(-2);
+      const day = ("0" + d.getUTCDate()).slice(-2);
+      const hh = ("0" + d.getUTCHours()).slice(-2);
+      const mm = ("0" + d.getUTCMinutes()).slice(-2);
+      return `${y}/${m}/${day} ${hh}:${mm}`;
+    }
+
+    function timeAgo(lastViewed) {
+      const now = new Date();
+      const last = new Date(lastViewed);
+      const diffMs = now - last;
+      if (diffMs < 60000) return "剛剛";
+      const diffMinutes = Math.floor(diffMs / (1000 * 60));
+      if (diffMinutes < 60) return `${diffMinutes} 分鐘前`;
+      const diffHours = Math.floor(diffMinutes / 60);
+      if (diffHours < 24) return `${diffHours} 小時前`;
+      const diffDays = Math.floor(diffHours / 24);
+      return `${diffDays} 天前`;
+    }
+
+    function renderNotes() {
+      notesContainer.innerHTML = "";
+      const now = new Date();
+
+      notes.forEach((note, index) => {
+        const noteDiv = document.createElement("div");
+        noteDiv.className = "note";
+
+        const noteText = document.createElement("p");
+        noteText.textContent = note.text;
+
+        const lastViewedDate = new Date(note.lastViewed);
+        const nextReviewDate = getNextReviewDate(note.lastViewed, note.stage);
+
+        if (now > nextReviewDate) noteDiv.classList.add("overdue");
+
+        const info1 = document.createElement("small");
+        info1.textContent = `上次瀏覽：${timeAgo(note.lastViewed)}`;
+
+        const info2 = document.createElement("small");
+        const diffMs = nextReviewDate.getTime() - now.getTime();
+        const diffDays = Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+        info2.textContent = `建議下次複習：${formatDate(nextReviewDate)}（還有 ${diffDays} 天）`;
+
+        const buttonContainer = document.createElement("div");
+        buttonContainer.className = "buttonContainer";
+
+        const reviewBtn = document.createElement("button");
+        reviewBtn.textContent = "我已複習";
+        reviewBtn.className = "reviewBtn";
+        reviewBtn.onclick = () => {
+          note.stage = (note.stage || 0) + 1;
+          note.lastViewed = new Date().toISOString();
+
+          const newNextReview = getNextReviewDate(note.lastViewed, note.stage);
+          const diffMsNew = newNextReview.getTime() - new Date().getTime();
+          const diffDaysNew = Math.max(0, Math.ceil(diffMsNew / (1000*60*60*24)));
+          info2.textContent = `建議下次複習：${formatDate(newNextReview)}（還有 ${diffDaysNew} 天）`;
+
+          info1.textContent = `上次瀏覽：${timeAgo(note.lastViewed)}`;
+
+          saveNotes();
+
+          noteDiv.classList.add("updated");
+          setTimeout(() => noteDiv.classList.remove("updated"), 800);
+        };
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.textContent = "刪除";
+        deleteBtn.className = "deleteBtn";
+        deleteBtn.onclick = () => {
+          notes.splice(index, 1);
+          saveNotes();
+        };
+
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "編輯";
+        editBtn.className = "editBtn";
+        editBtn.onclick = () => {
+          const textarea = document.createElement("textarea");
+          textarea.value = note.text;
+          textarea.style.width = "100%";
+          textarea.style.height = "60px";
+          textarea.style.resize = "vertical";
+
+          noteDiv.replaceChild(textarea, noteText);
+
+          editBtn.textContent = "儲存";
+
+          const saveEdit = () => {
+            note.text = textarea.value.trim() || note.text;
+            saveNotes();
+          };
+
+          editBtn.onclick = saveEdit;
+
+          textarea.addEventListener("keydown", (event) => {
+            // Enter 儲存，Shift+Enter 換行
+            if (event.key === "Enter" && !event.shiftKey) {
+              event.preventDefault();
+              saveEdit();
+            }
+          });
+
+          textarea.focus();
+        };
+
+        buttonContainer.appendChild(reviewBtn);
+        buttonContainer.appendChild(editBtn);
+        buttonContainer.appendChild(deleteBtn);
+
+        noteDiv.appendChild(noteText);
+        noteDiv.appendChild(info1);
+        noteDiv.appendChild(info2);
+        noteDiv.appendChild(buttonContainer);
+
+        notesContainer.appendChild(noteDiv);
+      });
+    }
+
+    function saveNotes() {
+      localStorage.setItem("notes", JSON.stringify(notes));
+      renderNotes();
+    }
+
+    addBtn.onclick = () => {
+      const text = noteInput.value.trim();
+      if (text) {
+        const nowISO = new Date().toISOString();
+        notes.push({
+          text,
+          lastViewed: nowISO,
+          stage: 0
+        });
+        saveNotes();
+        noteInput.value = "";
+      }
+    };
+
+    noteInput.addEventListener("keydown", function(event) {
+      // 新增便條：Enter 儲存，Shift+Enter 換行
+      if (event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        addBtn.click();
+      }
+    });
+
+    renderNotes();
+  </script>
+</body>
+</html>
