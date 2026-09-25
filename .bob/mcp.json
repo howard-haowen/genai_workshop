@@ -10,6 +10,9 @@
         },
         "excalidraw": {
             "url": "https://mcp.excalidraw.com"
+        },
+        "workspacemcp": {
+            "url": "http://localhost:8000/mcp"
         }
     }
 }
