@@ -119,6 +119,7 @@
     white-space: nowrap;
   }
   .nav-link:hover { color: var(--primary); border-bottom-color: var(--primary); }
+  .nav-link.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
 
   /* ════════════════════════════
      HAMBURGER (mobile)
@@ -166,6 +167,7 @@
     border-left: 3px solid transparent;
   }
   .nav-drawer a:hover { color: var(--primary); border-left-color: var(--primary); background: var(--surface-1); }
+  .nav-drawer a.active { color: var(--primary); border-left-color: var(--primary); font-weight: 600; }
 
   @media (max-width: 672px) {
     .top-nav { padding: 0 16px; }
@@ -830,7 +832,7 @@
         <h2 class="section-headline">5 週課程地圖</h2>
       </div>
       <div class="collapse-controls">
-        <span class="ctrl-label">週次：</span>
+        <span class="ctrl-label" id="week-count-label">已展開 0 / 5</span>
         <button class="ctrl-btn" id="btn-collapse-all" type="button">全部收起</button>
         <button class="ctrl-btn" id="btn-expand-all"   type="button">展開所有</button>
       </div>
@@ -1074,6 +1076,16 @@
 (function () {
   var weeks = [2, 3, 4, 5];
 
+  /* ── 週次進度計數 ── */
+  function updateWeekCount() {
+    var open = weeks.filter(function (n) {
+      var el = document.getElementById('week-' + n);
+      return el && !el.classList.contains('collapsed');
+    }).length;
+    var label = document.getElementById('week-count-label');
+    if (label) label.textContent = '已展開 ' + open + ' / 5';
+  }
+
   function setMaxHeight(el) {
     el.style.maxHeight = el.scrollHeight + 'px';
   }
@@ -1090,6 +1102,7 @@
     requestAnimationFrame(function () { setMaxHeight(el); });
     var arrow = document.querySelector('[data-opens="' + weekNum + '"]');
     if (arrow) arrow.classList.remove('collapsed-state');
+    updateWeekCount();
   }
 
   function closeWeek(weekNum) {
@@ -1099,6 +1112,7 @@
     requestAnimationFrame(function () { el.classList.add('collapsed'); });
     var arrow = document.querySelector('[data-opens="' + weekNum + '"]');
     if (arrow) arrow.classList.add('collapsed-state');
+    updateWeekCount();
   }
 
   weeks.forEach(function (n) {
@@ -1121,6 +1135,8 @@
     weeks.forEach(openWeek);
   });
 
+  updateWeekCount();
+
   /* ── 漢堡選單 ── */
   var hamburger = document.getElementById('nav-hamburger');
   var drawer = document.getElementById('nav-drawer');
@@ -1134,6 +1150,34 @@
         drawer.classList.remove('open');
         hamburger.setAttribute('aria-expanded', 'false');
       });
+    });
+  }
+
+  /* ── nav-link active 高亮（IntersectionObserver）── */
+  var sections = ['program-brief', 'journey-map', 'reference-links'];
+  var navLinks = document.querySelectorAll('.nav-link[href^="#"], .nav-drawer a[href^="#"]');
+
+  function setActive(id) {
+    navLinks.forEach(function (link) {
+      var href = link.getAttribute('href');
+      if (href === '#' + id) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
+      }
+    });
+  }
+
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) { setActive(entry.target.id); }
+      });
+    }, { rootMargin: '-48px 0px -60% 0px', threshold: 0 });
+
+    sections.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) observer.observe(el);
     });
   }
 })();
