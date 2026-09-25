@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>參考連結匯總 · 2026人文AI創造工作坊</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+  /* ═══════════════════════════════════════════════
+     THEME: Carbon Design System — IBM Marketing
+     Palette: #ffffff canvas / #f4f4f4 surface-1 / #0f62fe IBM Blue
+     Type: IBM Plex Sans — weight 300 display / 400 body / 600 emphasis
+  ═══════════════════════════════════════════════ */
+  :root {
+    --canvas:        #ffffff;
+    --surface-1:     #f4f4f4;
+    --surface-2:     #e0e0e0;
+    --hairline:      #e0e0e0;
+    --hairline-strong:#161616;
+    --ink:           #161616;
+    --ink-muted:     #525252;
+    --ink-subtle:    #8c8c8c;
+    --primary:       #0f62fe;
+    --primary-hover: #0050e6;
+    --primary-pressed:#002d9c;
+    --inverse-canvas:#161616;
+    --inverse-ink:   #ffffff;
+    --inverse-muted: #c6c6c6;
+    /* category accent colours */
+    --cat-course:    #0f62fe;
+    --cat-ai:        #6929c4;
+    --cat-tools:     #005d5d;
+    --cat-learn:     #9e1d1d;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    background: var(--canvas);
+    color: var(--ink);
+    line-height: 1.50;
+    font-size: 16px;
+    letter-spacing: 0.16px;
+  }
+
+  /* ════════════════════════════
+     UTILITY BAR
+  ════════════════════════════ */
+  .utility-bar {
+    background: var(--surface-1);
+    border-bottom: 1px solid var(--hairline);
+    height: 32px;
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    justify-content: flex-end;
+  }
+  .utility-bar a {
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.32px;
+    color: var(--ink-muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .utility-bar a:hover { color: var(--primary); }
+  @media (max-width: 672px) { .utility-bar { display: none; } }
+
+  /* ════════════════════════════
+     TOP NAV
+  ════════════════════════════ */
+  .top-nav {
+    background: var(--canvas);
+    border-bottom: 1px solid var(--hairline);
+    height: 48px;
+    display: flex;
+    align-items: center;
+    padding: 0 32px;
+    gap: 32px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .nav-brand {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.16px;
+    color: var(--ink);
+    text-decoration: none;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .nav-brand:hover { color: var(--primary); }
+  .nav-eyebrow {
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.32px;
+    color: var(--ink-subtle);
+    flex: 1;
+  }
+  .nav-link {
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.16px;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 0 8px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+  }
+  .nav-link.active { border-bottom-color: var(--primary); color: var(--primary); }
+  .nav-link:hover { color: var(--primary); border-bottom-color: var(--primary); }
+  @media (max-width: 672px) {
+    .top-nav { padding: 0 16px; }
+    .nav-eyebrow, .nav-link { display: none; }
+  }
+
+  /* ════════════════════════════
+     MAIN CONTAINER
+  ════════════════════════════ */
+  .page-wrap {
+    max-width: 1312px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+  @media (max-width: 672px) { .page-wrap { padding: 0 16px; } }
+
+  /* ════════════════════════════
+     HERO
+  ════════════════════════════ */
+  .hero {
+    padding: 80px 0 64px;
+    border-bottom: 1px solid var(--hairline);
+  }
+  .hero-eyebrow {
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.16px;
+    color: var(--ink-muted);
+    margin-bottom: 16px;
+  }
+  .hero h1 {
+    font-size: 42px;
+    font-weight: 300;
+    line-height: 1.20;
+    letter-spacing: 0;
+    color: var(--ink);
+    max-width: 760px;
+    margin-bottom: 16px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--primary);
+  }
+  .hero-subtitle {
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.50;
+    color: var(--ink-muted);
+    max-width: 600px;
+    margin-bottom: 32px;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 32px;
+    flex-wrap: wrap;
+  }
+  .stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .stat-num {
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--primary);
+    line-height: 1;
+  }
+  .stat-label {
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.32px;
+    color: var(--ink-muted);
+  }
+  @media (max-width: 672px) {
+    .hero { padding: 48px 0 40px; }
+    .hero h1 { font-size: 28px; }
+    .hero-subtitle { font-size: 16px; }
+  }
+
+  /* ════════════════════════════
+     FILTER BAR
+  ════════════════════════════ */
+  .filter-bar {
+    padding: 24px 0 0;
+    border-bottom: 1px solid var(--hairline);
+    background: var(--canvas);
+    position: sticky;
+    top: 48px;
+    z-index: 90;
+  }
+  .filter-inner {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding-bottom: 16px;
+  }
+  .filter-label {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.16px;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .filter-input-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 200px;
+    max-width: 480px;
+  }
+  .filter-input-wrap svg {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--ink-muted);
+  }
+  #search-input {
+    width: 100%;
+    height: 40px;
+    padding: 0 12px 0 38px;
+    border: 1px solid var(--hairline-strong);
+    border-radius: 0;
+    background: var(--canvas);
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.1s;
+  }
+  #search-input:focus { border-color: var(--primary); }
+  #search-input::placeholder { color: var(--ink-subtle); }
+  .filter-count {
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.32px;
+    color: var(--ink-subtle);
+    white-space: nowrap;
+  }
+
+  /* ════════════════════════════
+     CATEGORY SECTIONS
+  ════════════════════════════ */
+  .cat-section {
+    padding: 48px 0 0;
+  }
+  .cat-section + .cat-section { padding-top: 48px; }
+
+  .cat-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid currentColor;
+  }
+  .cat-icon {
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+  .cat-title {
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.33;
+    letter-spacing: 0;
+    flex: 1;
+  }
+  .cat-count-badge {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.32px;
+    padding: 2px 8px;
+    background: currentColor;
+  }
+  .cat-count-badge span {
+    color: #ffffff;
+  }
+
+  [data-cat="course"] .cat-header { color: var(--cat-course); }
+  [data-cat="ai"]     .cat-header { color: var(--cat-ai); }
+  [data-cat="tools"]  .cat-header { color: var(--cat-tools); }
+  [data-cat="learn"]  .cat-header { color: var(--cat-learn); }
+
+  /* ════════════════════════════
+     LINK GRID
+  ════════════════════════════ */
+  .link-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1px;
+    background: var(--hairline);
+    border: 1px solid var(--hairline);
+    margin-bottom: 8px;
+  }
+  @media (max-width: 672px) {
+    .link-grid { grid-template-columns: 1fr; }
+  }
+
+  .link-card {
+    background: var(--canvas);
+    padding: 20px 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    transition: background 0.1s;
+    text-decoration: none;
+    color: inherit;
+    border-left: 3px solid transparent;
+  }
+  .link-card:hover {
+    background: var(--surface-1);
+  }
+  [data-cat="course"] .link-card:hover { border-left-color: var(--cat-course); }
+  [data-cat="ai"]     .link-card:hover { border-left-color: var(--cat-ai); }
+  [data-cat="tools"]  .link-card:hover { border-left-color: var(--cat-tools); }
+  [data-cat="learn"]  .link-card:hover { border-left-color: var(--cat-learn); }
+
+  .link-card[data-hidden="true"] { display: none; }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.16px;
+    line-height: 1.29;
+    color: var(--ink);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .card-title svg {
+    flex-shrink: 0;
+    margin-top: 1px;
+    color: var(--ink-subtle);
+  }
+  .card-host {
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.32px;
+    color: var(--ink-subtle);
+    font-family: "IBM Plex Mono", monospace;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .card-desc {
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.16px;
+    color: var(--ink-muted);
+    line-height: 1.38;
+  }
+
+  /* empty state */
+  .empty-state {
+    padding: 48px 0 32px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--ink-subtle);
+    display: none;
+  }
+  .empty-state.visible { display: block; }
+
+  /* ════════════════════════════
+     FOOTER
+  ════════════════════════════ */
+  footer {
+    background: var(--inverse-canvas);
+    margin-top: 64px;
+    padding: 48px 32px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+    border-top: 1px solid #393939;
+  }
+  .footer-brand {
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.16px;
+    color: var(--inverse-muted);
+  }
+  .footer-link {
+    font-size: 14px;
+    font-weight: 400;
+    letter-spacing: 0.16px;
+    color: var(--inverse-muted);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .footer-link:hover { color: var(--inverse-ink); }
+  .footer-made {
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 0.32px;
+    color: #525252;
+    width: 100%;
+    padding-top: 16px;
+    border-top: 1px solid #393939;
+    text-align: center;
+  }
+  @media (max-width: 672px) {
+    footer { padding: 32px 16px 24px; flex-direction: column; }
+  }
+
+  /* last section spacing */
+  .sections-wrap { padding-bottom: 80px; }
+</style>
+</head>
+<body>
+
+<!-- ════ UTILITY BAR ════ -->
+<div class="utility-bar">
+  <a href="index.html">← 回 2026 課程首頁</a>
+</div>
+
+<!-- ════ TOP NAV ════ -->
+<nav class="top-nav">
+  <a class="nav-brand" href="https://howard-haowen.github.io/genai_workshop/">AI創造工作坊</a>
+  <span class="nav-eyebrow">2026 年度課程</span>
+  <a class="nav-link active" href="reference_links.html">參考連結匯總</a>
+  <a class="nav-link" href="https://howard-haowen.github.io/" target="_blank" rel="noopener noreferrer">作者網站 ↗</a>
+</nav>
+
+<!-- ════ HERO ════ -->
+<section class="hero">
+  <div class="page-wrap">
+    <p class="hero-eyebrow">2026 工作坊 · 學習資源</p>
+    <h1>參考連結<em>匯總</em></h1>
+    <p class="hero-subtitle">課程中出現的所有外部連結，依主題分類整理，方便快速查找。</p>
+    <div class="hero-stats">
+      <div class="stat-item">
+        <span class="stat-num" id="stat-total">22</span>
+        <span class="stat-label">連結總數</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">4</span>
+        <span class="stat-label">分類主題</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-num">4</span>
+        <span class="stat-label">來源頁面</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════ FILTER BAR ════ -->
+<div class="filter-bar">
+  <div class="page-wrap">
+    <div class="filter-inner">
+      <span class="filter-label">快速搜尋</span>
+      <div class="filter-input-wrap">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <circle cx="6.5" cy="6.5" r="4.5" stroke="currentColor" stroke-width="1.5"/>
+          <line x1="10" y1="10" x2="14" y2="14" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <input id="search-input" type="search" placeholder="輸入關鍵字篩選連結…" autocomplete="off"/>
+      </div>
+      <span class="filter-count" id="filter-count"></span>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SECTIONS ════ -->
+<div class="sections-wrap">
+  <div class="page-wrap">
+
+    <!-- ══ 課程自身頁面 ══ -->
+    <section class="cat-section" data-cat="course">
+      <div class="cat-header">
+        <span class="cat-icon">🏠</span>
+        <span class="cat-title">課程自身頁面</span>
+        <span class="cat-count-badge"><span>4</span></span>
+      </div>
+      <div class="link-grid">
+
+        <a class="link-card" href="https://howard-haowen.github.io/genai_workshop/" target="_blank" rel="noopener noreferrer"
+           data-search="ai創造工作坊首頁 howard genai workshop">
+          <span class="card-title">
+            AI創造工作坊首頁
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">hw.is-a.dev</span>
+          <span class="card-desc">工作坊年度入口頁面</span>
+        </a>
+
+        <a class="link-card" href="https://howard-haowen.github.io/genai_workshop/2026" target="_blank" rel="noopener noreferrer"
+           data-search="2026課程首頁 howard genai workshop">
+          <span class="card-title">
+            2026 課程首頁
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">hw.is-a.dev</span>
+          <span class="card-desc">2026 年度學習地圖主頁</span>
+        </a>
+
+        <a class="link-card" href="https://hw.is-a.dev/ibm-bobathon/workshops/w05/" target="_blank" rel="noopener noreferrer"
+           data-search="ibm bobathon workshop w05 ai agents 工作流">
+          <span class="card-title">
+            AI Agents 工作流工作坊教材
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">hw.is-a.dev</span>
+          <span class="card-desc">AI 外語自學系統</span>
+        </a>
+
+        <a class="link-card" href="https://hw.is-a.dev" target="_blank" rel="noopener noreferrer"
+           data-search="作者網站 hw is a dev">
+          <span class="card-title">
+            作者網站
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">hw.is-a.dev</span>
+          <span class="card-desc">講師個人網站</span>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ══ AI 工具與平台 ══ -->
+    <section class="cat-section" data-cat="ai">
+      <div class="cat-header">
+        <span class="cat-icon">🤖</span>
+        <span class="cat-title">AI 工具與平台</span>
+        <span class="cat-count-badge"><span>6</span></span>
+      </div>
+      <div class="link-grid">
+
+        <a class="link-card" href="https://bob.ibm.com/" target="_blank" rel="noopener noreferrer"
+           data-search="ibm bob 官網 ai agent">
+          <span class="card-title">
+            IBM Bob 官網
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">bob.ibm.com</span>
+          <span class="card-desc">IBM Bob AI 助理平台官方首頁</span>
+        </a>
+
+        <a class="link-card" href="https://bob.ibm.com/download" target="_blank" rel="noopener noreferrer"
+           data-search="ibm bob 下載 download">
+          <span class="card-title">
+            IBM Bob 下載頁
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">bob.ibm.com</span>
+          <span class="card-desc">macOS 及 Windows 版本下載入口</span>
+        </a>
+
+        <a class="link-card" href="https://www.anthropic.com/claude-code" target="_blank" rel="noopener noreferrer"
+           data-search="anthropic claude code ai">
+          <span class="card-title">
+            Anthropic Claude Code
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">anthropic.com</span>
+          <span class="card-desc">Anthropic 官方 Claude Code 產品頁</span>
+        </a>
+
+        <a class="link-card" href="https://openai.com/codex/" target="_blank" rel="noopener noreferrer"
+           data-search="openai codex ai">
+          <span class="card-title">
+            OpenAI Codex
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">openai.com</span>
+          <span class="card-desc">OpenAI Codex 程式碼生成 AI 平台</span>
+        </a>
+
+        <a class="link-card" href="https://antigravity.google" target="_blank" rel="noopener noreferrer"
+           data-search="google antigravity ai agent">
+          <span class="card-title">
+            Google Antigravity
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">antigravity.google</span>
+          <span class="card-desc">Google 的 AI Agent 平台</span>
+        </a>
+
+        <a class="link-card" href="https://agents.md/" target="_blank" rel="noopener noreferrer"
+           data-search="agents md ai agent context">
+          <span class="card-title">
+            agents.md
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">agents.md</span>
+          <span class="card-desc">AI Agent 協作規範文件標準</span>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ══ 工具安裝與設定 ══ -->
+    <section class="cat-section" data-cat="tools">
+      <div class="cat-header">
+        <span class="cat-icon">🔧</span>
+        <span class="cat-title">工具安裝與設定</span>
+        <span class="cat-count-badge"><span>4</span></span>
+      </div>
+      <div class="link-grid">
+
+        <a class="link-card" href="https://code.visualstudio.com/" target="_blank" rel="noopener noreferrer"
+           data-search="visual studio code vscode editor">
+          <span class="card-title">
+            Visual Studio Code
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">code.visualstudio.com</span>
+          <span class="card-desc">微軟免費開源程式碼編輯器（建議安裝）</span>
+        </a>
+
+        <a class="link-card" href="https://obsidian.md" target="_blank" rel="noopener noreferrer"
+           data-search="obsidian md 筆記 note taking">
+          <span class="card-title">
+            Obsidian 官網
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">obsidian.md</span>
+          <span class="card-desc">Obsidian 知識管理與筆記工具官方網站</span>
+        </a>
+
+        <a class="link-card" href="https://obsidian.md/zh-TW/help/" target="_blank" rel="noopener noreferrer"
+           data-search="obsidian 說明文件 help 繁體中文">
+          <span class="card-title">
+            Obsidian 官方說明文件（繁中）
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">obsidian.md</span>
+          <span class="card-desc">繁體中文版官方使用說明</span>
+        </a>
+
+        <a class="link-card" href="https://learn.microsoft.com/zh-tw/visualstudio/version-control/git-create-github-account?view=visualstudio" target="_blank" rel="noopener noreferrer"
+           data-search="github 帳號 git microsoft learn">
+          <span class="card-title">
+            建立 GitHub 帳號（Microsoft Learn）
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">learn.microsoft.com</span>
+          <span class="card-desc">逐步說明如何建立 GitHub 帳號的官方教學</span>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- ══ 學習資源 ══ -->
+    <section class="cat-section" data-cat="learn">
+      <div class="cat-header">
+        <span class="cat-icon">📚</span>
+        <span class="cat-title">學習資源（文章・Podcast・影片）</span>
+        <span class="cat-count-badge"><span>6</span></span>
+      </div>
+      <div class="link-grid">
+
+        <a class="link-card" href="https://www.anthropic.com/research/claude-code-expertise" target="_blank" rel="noopener noreferrer"
+           data-search="anthropic 研究報告 claude code expertise ai">
+          <span class="card-title">
+            Anthropic 研究：Claude Code Expertise
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">anthropic.com</span>
+          <span class="card-desc">探討有效使用 AI 的使用者模式研究報告</span>
+        </a>
+
+        <a class="link-card" href="https://podcasts.apple.com/hk/podcast/building-portable-ai-workflows-that-you-can-take-anywhere/id1740971373?i=1000768537308" target="_blank" rel="noopener noreferrer"
+           data-search="podcast portable ai workflow apple podcasts">
+          <span class="card-title">
+            Podcast：Building Portable AI Workflows
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">podcasts.apple.com</span>
+          <span class="card-desc">課程推薦課前收聽：打造可攜式 AI 工作流</span>
+        </a>
+
+        <a class="link-card" href="https://www.youtube.com/watch?v=k5jYwyhDMxA" target="_blank" rel="noopener noreferrer"
+           data-search="youtube 影片 video ai agent terms">
+          <span class="card-title">
+            5 AI Agent Terms You Need to Know
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">youtube.com</span>
+          <span class="card-desc">W1 課程推薦觀看：五個必懂的 AI Agent 術語</span>
+        </a>
+
+        <a class="link-card" href="https://www.youtube.com/watch?v=ZC8AI_jFWnU" target="_blank" rel="noopener noreferrer"
+           data-search="youtube 影片 video llm wiki obsidian 筆記 工作流">
+          <span class="card-title">
+            國外瘋傳的 AI 筆記工作流！LLM Wiki 讓你的 Obsidian 筆記升級成能自我進化的第二大腦！
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">youtube.com</span>
+          <span class="card-desc">W1 課程推薦觀看：LLM Wiki 結合 Obsidian 工作流實作</span>
+        </a>
+
+        <a class="link-card" href="https://www.bnext.com.tw/article/84880/obsidian-tutorial-2025" target="_blank" rel="noopener noreferrer"
+           data-search="數位時代 obsidian 教學 2025 繁中">
+          <span class="card-title">
+            數位時代：Obsidian 教學 2025
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">bnext.com.tw</span>
+          <span class="card-desc">中文媒體《數位時代》的 Obsidian 使用教學</span>
+        </a>
+
+        <a class="link-card" href="https://www.cw.com.tw/article/5140637" target="_blank" rel="noopener noreferrer"
+           data-search="天下雜誌 cw ai 文章">
+          <span class="card-title">
+            天下雜誌：AI 相關文章
+            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 2h8v8M10 2L2 10" stroke="currentColor" stroke-width="1.5"/></svg>
+          </span>
+          <span class="card-host">cw.com.tw</span>
+          <span class="card-desc">《天下雜誌》AI 主題報導</span>
+        </a>
+
+      </div>
+    </section>
+
+    <!-- empty state -->
+    <div class="empty-state" id="empty-state">找不到符合「<span id="empty-keyword"></span>」的連結。</div>
+
+  </div><!-- /.page-wrap -->
+</div><!-- /.sections-wrap -->
+
+<!-- ════ FOOTER ════ -->
+<footer>
+  <span class="footer-brand">人文AI創造工作坊 2026</span>
+  <a class="footer-link" href="index.html">← 回 2026 課程首頁</a>
+  <span class="footer-made">Made with IBM Bob</span>
+</footer>
+
+<script>
+(function () {
+  var input = document.getElementById('search-input');
+  var countEl = document.getElementById('filter-count');
+  var emptyEl = document.getElementById('empty-state');
+  var emptyKw = document.getElementById('empty-keyword');
+  var cards = Array.from(document.querySelectorAll('.link-card'));
+  var total = cards.length;
+
+  document.getElementById('stat-total').textContent = total;
+
+  function update() {
+    var kw = input.value.trim().toLowerCase();
+    var visible = 0;
+    cards.forEach(function (card) {
+      var haystack = (card.dataset.search || '') + ' ' + card.textContent;
+      var match = !kw || haystack.toLowerCase().indexOf(kw) !== -1;
+      card.dataset.hidden = match ? 'false' : 'true';
+      if (match) visible++;
+    });
+    if (kw) {
+      countEl.textContent = '顯示 ' + visible + ' / ' + total + ' 個連結';
+      emptyKw.textContent = kw;
+      emptyEl.classList.toggle('visible', visible === 0);
+    } else {
+      countEl.textContent = '';
+      emptyEl.classList.remove('visible');
+    }
+  }
+
+  input.addEventListener('input', update);
+  update();
+})();
+</script>
+</body>
+</html>
