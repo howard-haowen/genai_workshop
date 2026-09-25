@@ -1,0 +1,3532 @@
+<!doctype html>
+<html lang="zh-Hant">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>W1｜Agentic AI 的五個關鍵概念</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700;900&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            /* === DESIGN TOKENS === */
+            :root {
+                --stage-w: 1920;
+                --stage-h: 1080;
+                --paper: #f6ecd4;
+                --paper-2: #ead8b7;
+                --ink: #17211f;
+                --muted: #5d665d;
+                --green: #1e4b3f;
+                --green-2: #0d302a;
+                --cyan: #00b7c7;
+                --amber: #f0a12b;
+                --red: #b54b3d;
+                --line: rgba(23, 33, 31, 0.18);
+                --shadow: 0 28px 70px rgba(7, 18, 16, 0.28);
+                --font-serif: "Noto Serif TC", serif;
+                --font-mono: "IBM Plex Mono", monospace;
+            }
+
+            /* === RESET === */
+            * {
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background: #0b1715;
+            }
+            body {
+                font-family: var(--font-serif);
+                color: var(--ink);
+            }
+            button {
+                font: inherit;
+            }
+
+            /* === FIXED 16:9 VIEWPORT BASE === */
+            .deck-viewport {
+                position: fixed;
+                inset: 0;
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+                background:
+                    radial-gradient(
+                        circle at 15% 15%,
+                        rgba(0, 183, 199, 0.18),
+                        transparent 28%
+                    ),
+                    radial-gradient(
+                        circle at 84% 76%,
+                        rgba(240, 161, 43, 0.16),
+                        transparent 30%
+                    ),
+                    linear-gradient(135deg, #081311, #152420 56%, #091411);
+            }
+            .deck-stage {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: calc(var(--stage-w) * 1px);
+                height: calc(var(--stage-h) * 1px);
+                transform-origin: top left;
+                overflow: hidden;
+                background: var(--paper);
+                box-shadow: 0 40px 120px rgba(0, 0, 0, 0.55);
+                isolation: isolate;
+            }
+            .slide {
+                position: absolute;
+                inset: 0;
+                width: 1920px;
+                height: 1080px;
+                padding: 86px 104px;
+                visibility: hidden;
+                opacity: 0;
+                pointer-events: none;
+                transition:
+                    opacity 520ms ease,
+                    visibility 520ms ease;
+                overflow: hidden;
+                background:
+                    linear-gradient(
+                        rgba(23, 33, 31, 0.045) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(23, 33, 31, 0.045) 1px,
+                        transparent 1px
+                    ),
+                    radial-gradient(
+                        circle at 20% 12%,
+                        rgba(255, 255, 255, 0.58),
+                        transparent 34%
+                    ),
+                    linear-gradient(145deg, var(--paper), #efe0c0 62%, #e2ca9e);
+                background-size:
+                    48px 48px,
+                    48px 48px,
+                    auto,
+                    auto;
+            }
+            .slide.active {
+                visibility: visible;
+                opacity: 1;
+                pointer-events: auto;
+                z-index: 2;
+            }
+
+            /* === ATMOSPHERIC CHROME === */
+            .slide::before {
+                content: "";
+                position: absolute;
+                inset: 28px;
+                border: 1px solid rgba(23, 33, 31, 0.22);
+                border-radius: 28px;
+                pointer-events: none;
+                z-index: 0;
+            }
+            .slide::after {
+                content: "";
+                position: absolute;
+                right: -180px;
+                top: -210px;
+                width: 620px;
+                height: 620px;
+                border-radius: 50%;
+                background: repeating-conic-gradient(
+                    from 12deg,
+                    rgba(0, 183, 199, 0.28) 0 10deg,
+                    transparent 10deg 22deg
+                );
+                opacity: 0.7;
+                z-index: 0;
+            }
+            .grain {
+                position: absolute;
+                inset: 0;
+                background-image: radial-gradient(
+                    rgba(23, 33, 31, 0.12) 0.7px,
+                    transparent 0.7px
+                );
+                background-size: 33px 33px;
+                opacity: 0.25;
+                pointer-events: none;
+                z-index: 1;
+            }
+            .content {
+                position: relative;
+                z-index: 3;
+                height: 100%;
+            }
+
+            /* === TYPOGRAPHY === */
+            .kicker {
+                font-family: var(--font-mono);
+                font-size: 24px;
+                letter-spacing: 0.16em;
+                text-transform: uppercase;
+                color: var(--green);
+                margin-bottom: 24px;
+            }
+            h1,
+            h2,
+            h3,
+            p {
+                margin: 0;
+            }
+            h1 {
+                font-size: 112px;
+                line-height: 1.08;
+                font-weight: 900;
+                letter-spacing: -0.04em;
+                max-width: 1250px;
+            }
+            h2 {
+                font-size: 78px;
+                line-height: 1.12;
+                font-weight: 900;
+                letter-spacing: -0.035em;
+                max-width: 1300px;
+            }
+            h3 {
+                font-size: 42px;
+                line-height: 1.22;
+                font-weight: 900;
+            }
+            .lead {
+                font-size: 42px;
+                line-height: 1.55;
+                color: var(--green-2);
+                max-width: 1220px;
+                margin-top: 34px;
+            }
+            code {
+                font-family: var(--font-mono);
+                background: rgba(30, 75, 63, 0.12);
+                color: #0a3935;
+                border: 1px solid rgba(30, 75, 63, 0.2);
+                padding: 0.08em 0.28em;
+                border-radius: 9px;
+            }
+
+            /* === LAYOUT COMPONENTS === */
+            .title-grid {
+                display: grid;
+                grid-template-columns: 1.03fr 0.74fr;
+                gap: 80px;
+                align-items: center;
+                height: 100%;
+            }
+            .seal {
+                width: 510px;
+                height: 510px;
+                border-radius: 50%;
+                display: grid;
+                place-items: center;
+                background:
+                    radial-gradient(
+                        circle,
+                        rgba(246, 236, 212, 0.88) 0 37%,
+                        transparent 38%
+                    ),
+                    conic-gradient(
+                        from -20deg,
+                        var(--cyan),
+                        transparent 18%,
+                        var(--amber) 35%,
+                        transparent 52%,
+                        var(--red) 68%,
+                        transparent 82%,
+                        var(--cyan)
+                    );
+                box-shadow:
+                    inset 0 0 0 18px rgba(23, 33, 31, 0.09),
+                    var(--shadow);
+                position: relative;
+            }
+            .seal strong {
+                font-size: 132px;
+                font-weight: 900;
+                color: var(--green-2);
+                letter-spacing: -0.08em;
+            }
+            .seal small {
+                position: absolute;
+                bottom: 108px;
+                font-family: var(--font-mono);
+                font-size: 20px;
+                letter-spacing: 0.22em;
+            }
+            .big-question {
+                display: grid;
+                place-items: center;
+                height: 100%;
+                text-align: center;
+            }
+            .quote {
+                font-size: 86px;
+                line-height: 1.26;
+                font-weight: 900;
+                max-width: 1380px;
+                letter-spacing: -0.04em;
+            }
+            .quote mark {
+                background: linear-gradient(
+                    transparent 56%,
+                    rgba(0, 183, 199, 0.38) 56%
+                );
+                color: inherit;
+            }
+            .two-col {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+                margin-top: 44px;
+            }
+            .three-col {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 28px;
+                margin-top: 40px;
+            }
+            .card {
+                background: rgba(255, 248, 232, 0.72);
+                border: 1px solid var(--line);
+                border-radius: 30px;
+                padding: 30px 34px;
+                box-shadow: 0 18px 45px rgba(23, 33, 31, 0.1);
+                min-height: 160px;
+                position: relative;
+                overflow: hidden;
+            }
+            .card::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 10px;
+                background: var(--cyan);
+            }
+            .card.amber::before {
+                background: var(--amber);
+            }
+            .card.red::before {
+                background: var(--red);
+            }
+            .card.green::before {
+                background: var(--green);
+            }
+            .card p {
+                font-size: 28px;
+                line-height: 1.42;
+                margin-top: 14px;
+                color: var(--green-2);
+            }
+            .compare {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 38px;
+                margin-top: 44px;
+            }
+            .panel {
+                min-height: 460px;
+                padding: 38px;
+                border-radius: 34px;
+                border: 1px solid var(--line);
+                background: rgba(255, 248, 232, 0.64);
+                box-shadow: var(--shadow);
+            }
+            .panel.dark {
+                background: linear-gradient(145deg, var(--green-2), #163e35);
+                color: var(--paper);
+            }
+            .bullets {
+                margin: 22px 0 0;
+                padding-left: 0;
+                list-style: none;
+            }
+            .bullets li {
+                font-size: 32px;
+                line-height: 1.42;
+                margin: 16px 0;
+                padding-left: 48px;
+                position: relative;
+            }
+            .bullets li::before {
+                content: "◆";
+                position: absolute;
+                left: 0;
+                color: var(--cyan);
+                font-size: 0.72em;
+            }
+            .term-grid {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 22px;
+                margin-top: 42px;
+            }
+            .term {
+                min-height: 430px;
+                border-radius: 28px;
+                padding: 26px 22px;
+                background: rgba(255, 248, 232, 0.72);
+                border: 1px solid var(--line);
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                gap: 22px;
+            }
+            .term .num {
+                font-family: var(--font-mono);
+                font-size: 22px;
+                color: var(--red);
+            }
+            .term h3 {
+                font-size: 34px;
+                min-height: 82px;
+            }
+            .term p {
+                font-size: 25px;
+                line-height: 1.42;
+                color: var(--green-2);
+            }
+            .flow {
+                display: flex;
+                align-items: stretch;
+                gap: 18px;
+                margin-top: 44px;
+            }
+            .flow-step {
+                flex: 1;
+                min-height: 200px;
+                border-radius: 28px;
+                padding: 28px 26px;
+                background: rgba(255, 248, 232, 0.75);
+                border: 1px solid var(--line);
+                position: relative;
+            }
+            .flow-step h3 {
+                font-size: 32px;
+            }
+            .flow-step p {
+                font-size: 25px;
+                line-height: 1.42;
+                margin-top: 14px;
+            }
+            .path-box,
+            .prompt-box {
+                margin-top: 34px;
+                background: #0d211d;
+                color: #dff6e4;
+                border-radius: 30px;
+                padding: 32px 40px;
+                font-family: var(--font-mono);
+                font-size: 27px;
+                line-height: 1.46;
+                box-shadow: var(--shadow);
+            }
+            .path-box pre,
+            .prompt-box pre {
+                margin: 0;
+                padding: 0;
+                font: inherit;
+                white-space: pre;
+            }
+            .prompt-box {
+                font-size: 24px;
+                max-height: 480px;
+                overflow: hidden;
+            }
+            .agenda {
+                display: grid;
+                grid-template-columns: 290px 1fr;
+                gap: 10px 24px;
+                margin-top: 28px;
+            }
+            .time {
+                font-family: var(--font-mono);
+                color: var(--red);
+                font-size: 24px;
+                padding-top: 5px;
+            }
+            .agenda-card {
+                border-bottom: 1px solid var(--line);
+                padding-bottom: 10px;
+            }
+            .agenda-card h3 {
+                font-size: 30px;
+            }
+            .agenda-card p {
+                margin-top: 6px;
+                font-size: 23px;
+                line-height: 1.35;
+                color: var(--green-2);
+            }
+            .footer {
+                position: absolute;
+                left: 104px;
+                right: 104px;
+                bottom: 54px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-family: var(--font-mono);
+                color: rgba(23, 33, 31, 0.52);
+                font-size: 20px;
+                z-index: 4;
+            }
+
+            /* === NAVIGATION UI === */
+            .nav-ui {
+                position: fixed;
+                right: 18px;
+                bottom: 18px;
+                z-index: 50;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #f6ecd4;
+                font-family: var(--font-mono);
+                font-size: 13px;
+                background: rgba(5, 11, 10, 0.64);
+                border: 1px solid rgba(246, 236, 212, 0.16);
+                border-radius: 999px;
+                padding: 9px 13px;
+                backdrop-filter: blur(10px);
+            }
+            .nav-ui button {
+                border: 0;
+                color: #f6ecd4;
+                background: rgba(246, 236, 212, 0.12);
+                border-radius: 999px;
+                padding: 5px 10px;
+                cursor: pointer;
+            }
+            .edit-pill {
+                position: fixed;
+                left: 18px;
+                top: 18px;
+                z-index: 60;
+                font-family: var(--font-mono);
+                font-size: 13px;
+                color: #f6ecd4;
+                background: rgba(5, 11, 10, 0.64);
+                border: 1px solid rgba(246, 236, 212, 0.16);
+                border-radius: 999px;
+                padding: 9px 13px;
+                opacity: 0.2;
+                transition: opacity 0.2s ease;
+            }
+            .edit-pill:hover,
+            body.editing .edit-pill {
+                opacity: 1;
+            }
+            body.editing [data-editable="true"] {
+                outline: 3px dashed rgba(0, 183, 199, 0.75);
+                outline-offset: 5px;
+                cursor: text;
+            }
+
+            /* === ANIMATIONS === */
+            .active .reveal {
+                animation: riseIn 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+            }
+            .active .reveal:nth-child(2) {
+                animation-delay: 90ms;
+            }
+            .active .reveal:nth-child(3) {
+                animation-delay: 180ms;
+            }
+            .active .reveal:nth-child(4) {
+                animation-delay: 270ms;
+            }
+            .active .seal {
+                animation: rotateSeal 18s linear infinite;
+            }
+            @keyframes riseIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                    filter: blur(8px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                    filter: blur(0);
+                }
+            }
+            @keyframes rotateSeal {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                *,
+                *::before,
+                *::after {
+                    animation: none !important;
+                    transition: none !important;
+                }
+            }
+
+            /* === OUTLINE SLIDE === */
+            .outline-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
+                gap: 32px;
+                margin-top: 48px;
+                height: calc(100% - 200px);
+            }
+            .outline-block {
+                border-radius: 30px;
+                padding: 42px 48px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                position: relative;
+                overflow: hidden;
+                border: 1px solid var(--line);
+                background: rgba(255, 248, 232, 0.68);
+                box-shadow: 0 14px 36px rgba(23, 33, 31, 0.09);
+            }
+            .outline-block::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 12px;
+            }
+            .outline-block.b1::before {
+                background: var(--cyan);
+            }
+            .outline-block.b2::before {
+                background: var(--amber);
+            }
+            .outline-block.b3::before {
+                background: var(--green);
+            }
+            .outline-block.b4::before {
+                background: var(--red);
+            }
+            .outline-block .part-label {
+                font-family: var(--font-mono);
+                font-size: 19px;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                margin-bottom: 14px;
+            }
+            .outline-block.b1 .part-label {
+                color: var(--cyan);
+            }
+            .outline-block.b2 .part-label {
+                color: var(--amber);
+            }
+            .outline-block.b3 .part-label {
+                color: var(--green);
+            }
+            .outline-block.b4 .part-label {
+                color: var(--red);
+            }
+            .outline-block h3 {
+                font-size: 46px;
+                line-height: 1.1;
+                letter-spacing: -0.03em;
+                margin-bottom: 0;
+            }
+            .outline-block ul {
+                margin: 18px 0 0;
+                padding: 0;
+                list-style: none;
+            }
+            .outline-block ul li {
+                font-size: 25px;
+                line-height: 1.5;
+                padding-left: 20px;
+                position: relative;
+                color: var(--green-2);
+            }
+            .outline-block ul li::before {
+                content: "—";
+                position: absolute;
+                left: 0;
+                color: var(--muted);
+                font-size: 0.9em;
+            }
+            /* === COURSE MAP (SLIDE 04) === */
+            .course-map {
+                grid-template-columns: repeat(2, 1fr) !important;
+                height: 700px !important;
+                gap: 16px !important;
+                margin-top: 16px !important;
+            }
+            .course-map .outline-block {
+                padding: 18px 24px !important;
+            }
+            .course-map .outline-block:last-child {
+                grid-column: 1 / -1;
+            }
+            .course-map .outline-block .part-label {
+                margin-bottom: 4px;
+                font-size: 18px;
+            }
+            .course-map .outline-block h3 {
+                font-size: 30px !important;
+                line-height: 1.1;
+            }
+            .course-map .outline-block p {
+                margin-top: 5px !important;
+                font-size: 19px !important;
+                line-height: 1.25 !important;
+            }
+            .course-map .outline-block > div:last-child {
+                font-size: 19px !important;
+                line-height: 1.25 !important;
+            }
+
+            .demo-grid .outline-block ul {
+                list-style: disc;
+                padding-left: 30px;
+            }
+            .demo-grid .outline-block ul li {
+                padding-left: 0;
+            }
+            .demo-grid .outline-block ul li::before {
+                content: none;
+            }
+
+            /* === SECTION DIVIDER === */
+            .section-divider .content {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                height: 100%;
+            }
+            .section-divider .part-tag {
+                font-family: var(--font-mono);
+                font-size: 22px;
+                letter-spacing: 0.18em;
+                text-transform: uppercase;
+                margin-bottom: 28px;
+            }
+            .section-divider h2 {
+                max-width: 1100px;
+            }
+            .section-divider .div-accent {
+                position: absolute;
+                right: 80px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 280px;
+                font-weight: 900;
+                line-height: 1;
+                letter-spacing: -0.06em;
+                opacity: 0.06;
+                font-family: var(--font-mono);
+                color: var(--ink);
+                pointer-events: none;
+                user-select: none;
+            }
+
+            /* === W2 VISUAL SYSTEM === */
+            :root {
+                --paper: #f6f1e7;
+                --paper-2: #fffaf0;
+                --ink: #102a43;
+                --muted: #627d98;
+                --green: #147d82;
+                --green-2: #0d2135;
+                --cyan: #147d82;
+                --amber: #f6c84c;
+                --yellow: #f6c84c;
+                --red: #ed6a3a;
+                --line: #c9bda9;
+                --shadow: 18px 18px 0 #f6c84c;
+                --font-serif: "Noto Sans TC", sans-serif;
+                --font-mono: "DM Mono", monospace;
+            }
+            body { font-family: var(--font-serif); background: #102a43; }
+            .deck-viewport { position: relative; inset: auto; background: #102a43; }
+            .deck-stage { left: 50%; top: 50%; transform-origin: center center; background: var(--paper); box-shadow: 0 28px 80px rgba(0,0,0,.35); }
+            .slide {
+                padding: 0;
+                background: var(--paper);
+                color: var(--ink);
+            }
+            .slide::before {
+                inset: 0;
+                border: 0;
+                border-radius: 0;
+                opacity: .32;
+                background-image: radial-gradient(rgba(16,42,67,.15) .8px, transparent .8px);
+                background-size: 7px 7px;
+            }
+            .slide::after, .grain { display: none; }
+            .content { height: 100%; padding: 100px 132px 86px; }
+            .kicker { font: 500 23px/1 var(--font-mono); letter-spacing: .08em; color: var(--red); margin-bottom: 28px; }
+            h1 { font-size: 104px; line-height: 1.12; font-weight: 700; letter-spacing: -.055em; }
+            h2 { font-size: 70px; line-height: 1.2; font-weight: 700; letter-spacing: -.045em; }
+            h3 { font-size: 31px; line-height: 1.3; font-weight: 700; letter-spacing: -.025em; }
+            p { font-size: 29px; line-height: 1.55; }
+            .lead { max-width: 1080px; margin-top: 30px; font-size: 37px; line-height: 1.48; color: #334e68; }
+            code { border: 0; border-radius: 0; background: rgba(246,200,76,.58); color: inherit; }
+            mark { background: linear-gradient(transparent 48%, var(--yellow) 48%); }
+            .card, .panel, .term, .flow-step, .outline-block {
+                border: 2px solid var(--ink);
+                border-radius: 0;
+                background: var(--paper-2);
+                box-shadow: none;
+            }
+            .card { padding: 31px; }
+            .card::before, .outline-block::before { width: 8px; }
+            .card p, .term p, .agenda-card p { color: #486581; }
+            .panel { padding: 34px 38px; border-left: 12px solid var(--red); }
+            .panel.dark, .path-box, .prompt-box { background: #0d2135; color: #e8f1f2; border-radius: 0; box-shadow: 18px 18px 0 var(--yellow); }
+            .term, .flow-step { border-radius: 0; }
+            .bullets li::before { content: "✓"; color: var(--green); font-family: var(--font-mono); }
+            .outline-block { border-left-width: 12px; }
+            .outline-block .part-label, .term .num, .time { color: var(--red); }
+            .section-divider { background: var(--green); color: var(--paper-2); }
+            .section-divider .part-tag, .section-divider .kicker { color: var(--yellow); }
+            .section-divider .div-accent { color: var(--paper-2); }
+            .footer {
+                left: 132px;
+                right: 132px;
+                bottom: 42px;
+                border-top: 2px solid var(--ink);
+                padding-top: 15px;
+                font: 500 18px/1 var(--font-mono);
+                color: var(--muted);
+            }
+            .slide:first-child { background: var(--ink); color: var(--paper-2); }
+            .slide:first-child .kicker { color: var(--yellow); }
+            .slide:first-child .lead { color: #d9e2ec; }
+            .slide:first-child .footer { border-color: var(--paper-2); color: #d9e2ec; }
+            .slide:first-child .seal {
+                width: 420px;
+                height: 420px;
+                margin-left: auto;
+                border: 4px solid var(--yellow);
+                border-radius: 50%;
+                background: transparent;
+                box-shadow: none;
+                color: var(--yellow);
+            }
+            .slide:first-child .seal strong { font: 500 112px/1 var(--font-mono); color: var(--yellow); }
+            .slide:first-child .seal small {
+                bottom: 76px;
+                width: 100%;
+                padding: 0 34px;
+                text-align: center;
+                font-size: 16px;
+                line-height: 1.35;
+                letter-spacing: 0.12em;
+                color: var(--yellow);
+            }
+            .nav-ui { right: 22px; bottom: 20px; border-radius: 0; padding: 10px; background: rgba(16,42,67,.9); color: var(--paper-2); border: 1px solid rgba(255,255,255,.3); font: 400 15px/1 var(--font-mono); }
+            .nav-ui button { width: 34px; height: 30px; padding: 0; border: 1px solid rgba(255,255,255,.5); border-radius: 0; background: transparent; color: inherit; }
+            .nav-ui button:hover { background: var(--red); }
+            .edit-pill { left: 22px; top: auto; bottom: 20px; border-radius: 0; padding: 11px 14px; background: rgba(16,42,67,.9); color: var(--paper-2); font: 400 13px/1 var(--font-mono); }
+        </style>
+    </head>
+    <body>
+        <main class="deck-viewport" aria-label="W1 課程內容簡報">
+            <section class="deck-stage" id="stage">
+                <article class="slide active">
+                    <div class="grain"></div>
+                    <div class="content title-grid">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                人文AI創造工作坊 2026｜第 1 週
+                            </div>
+                            <h1 class="reveal" data-editable="true">
+                                Agentic AI 的<span
+                                    style="
+                                        font-size: 1.6em;
+                                        font-weight: 800;
+                                        line-height: 1;
+                                        vertical-align: middle;
+                                        color: var(--red);
+                                    "
+                                    >5</span
+                                >個關鍵概念
+                            </h1>
+                            <p class="lead reveal" data-editable="true">
+                                從 <code>Markdown</code>、<code>AGENTS.md</code>
+                                到實作工作流，理解 AI Agent
+                                如何真正成為你的數位助理。
+                            </p>
+                            <div class="reveal" style="margin-top: 48px; display: flex; align-items: center; gap: 20px;">
+                                <div style="width: 3px; height: 48px; background: var(--yellow); flex-shrink: 0;"></div>
+                                <div>
+                                    <div style="font-family: var(--font-mono); font-size: 22px; font-weight: 700; color: var(--paper-2); letter-spacing: 0.04em;" data-editable="true">江豪文（Haowen Jiang）</div>
+                                    <a href="https://hw.is-a.dev" target="_blank" rel="noopener noreferrer" style="font-family: var(--font-mono); font-size: 19px; color: var(--yellow); text-decoration: none; letter-spacing: 0.06em;">hw.is-a.dev ↗</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="seal reveal">
+                            <strong>W1</strong
+                            ><small>MARKDOWN / AGENTS / GIT</small>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Cover</div>
+                        <div>01 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            思考一下
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            在開始之前，先想想：
+                        </h2>
+                        <div
+                            style="
+                                display: grid;
+                                grid-template-columns: 1.08fr 0.92fr;
+                                gap: 42px;
+                                align-items: start;
+                                margin-top: 38px;
+                            "
+                        >
+                            <ul class="bullets" style="margin-top: 0">
+                                <li
+                                    class="reveal"
+                                    data-editable="true"
+                                    style="font-size: 36px; line-height: 1.34"
+                                >
+                                    你是否曾覺得 AI 給的答案總是「差那麼一點」？
+                                </li>
+                                <li
+                                    class="reveal"
+                                    data-editable="true"
+                                    style="font-size: 36px; line-height: 1.34"
+                                >
+                                    你是否常覺得現有AI軟體如果能再加一個功能就完美了？
+                                </li>
+                                <li
+                                    class="reveal"
+                                    data-editable="true"
+                                    style="font-size: 36px; line-height: 1.34"
+                                >
+                                    你是否把工具不好用，歸因於模型或品牌，而不是任務脈絡與工具串接方式？
+                                </li>
+                                <li
+                                    class="reveal"
+                                    data-editable="true"
+                                    style="font-size: 36px; line-height: 1.34"
+                                >
+                                    你是否聽過「Claude 適合寫程式、OpenAI
+                                    適合聊天、Grok 適合研究」？
+                                </li>
+                                <li
+                                    class="reveal"
+                                    data-editable="true"
+                                    style="font-size: 36px; line-height: 1.34"
+                                >
+                                    你是否想過，一但你理解這一切運作的底層邏輯後，這些都不再是問題了？
+                                </li>
+                            </ul>
+                            <div
+                                class="card reveal"
+                                style="padding: 18px; min-height: 0"
+                            >
+                                <img
+                                    src="https://i.redd.it/suxon2inmo7h1.jpeg"
+                                    alt="AI 工具迷因圖"
+                                    style="
+                                        width: 100%;
+                                        height: 520px;
+                                        object-fit: contain;
+                                        border-radius: 20px;
+                                        background: rgba(13, 33, 29, 0.08);
+                                    "
+                                />
+                                <p
+                                    style="
+                                        font-family: var(--font-mono);
+                                        font-size: 18px;
+                                        line-height: 1.4;
+                                        margin-top: 12px;
+                                        color: var(--muted);
+                                    "
+                                >
+                                    圖片來源：<a
+                                        href="https://www.reddit.com/r/Bard/comments/1u7knm1/good_morning/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style="
+                                            color: var(--green);
+                                            text-decoration: none;
+                                        "
+                                        >Reddit / r/Bard</a
+                                    >
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Opening questions</div>
+                        <div>02 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content big-question">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                核心問題
+                            </div>
+                            <p class="quote reveal" data-editable="true">
+                                如何讓 AI
+                                配合自己的閱讀、寫作、研究、翻譯與創作流程，而不是被工具預設的方式牽著走？
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Core question</div>
+                        <div>03 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            程式典範轉移
+                        </div>
+                        <h2 class="reveal" data-editable="true" style="font-size: 58px;">
+                            最熱門的「程式語言」是人類語言
+                        </h2>
+                        <p class="lead reveal" data-editable="true" style="margin-top: 10px; margin-bottom: 0;">
+                            本課程的關鍵核心：<strong>你不需要學習任何傳統程式語言（Python、C++、Java 等）</strong>，AI 已經消弭了人類意圖與機器執行之間的鴻溝。
+                        </p>
+
+                        <div class="two-col" style="margin-top: 28px; gap: 32px;">
+                            <!-- Quote 1: Andrej Karpathy -->
+                            <div class="card reveal" style="padding: 34px 36px; min-height: 480px; display: flex; flex-direction: column; justify-content: space-between; border-left: 10px solid var(--cyan); background: rgba(255,248,232,0.88);">
+                                <div>
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                                        <span style="font-family: var(--font-mono); font-size: 19px; color: var(--cyan); font-weight: 700; letter-spacing: 0.08em;">AI PIONEER</span>
+                                        <span style="font-family: var(--font-mono); font-size: 17px; color: var(--muted);">OpenAI / Tesla</span>
+                                    </div>
+                                    <h3 style="font-size: 34px; font-weight: 900; color: var(--ink); margin-bottom: 8px;" data-editable="true">
+                                        <a href="https://garymarcus.substack.com/p/the-hottest" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none; border-bottom: 2px solid var(--cyan);">Andrej Karpathy</a>
+                                    </h3>
+                                    <div style="font-size: 20px; color: var(--muted); margin-bottom: 24px;" data-editable="true">
+                                        OpenAI 共同創辦人 · 前 Tesla AI 總監
+                                    </div>
+                                    <div style="background: rgba(0, 183, 199, 0.08); border-left: 4px solid var(--cyan); padding: 18px 20px; border-radius: 0 16px 16px 0; margin-bottom: 18px;">
+                                        <p style="font-family: var(--font-serif); font-size: 28px; font-weight: 700; line-height: 1.4; color: var(--green-2); margin: 0;" data-editable="true">
+                                            “The hottest new programming language is English.”
+                                        </p>
+                                    </div>
+                                </div>
+                                <p style="font-size: 21px; line-height: 1.5; color: var(--muted); margin: 0;" data-editable="true">
+                                    Karpathy 於 2023 年掀起自然語言編程的浪潮，指出人類清晰表達意圖的「母語」，就是控制 AI 系統最強大的介面。
+                                </p>
+                            </div>
+
+                            <!-- Quote 2: Jensen Huang -->
+                            <div class="card reveal" style="padding: 34px 36px; min-height: 480px; display: flex; flex-direction: column; justify-content: space-between; border-left: 10px solid var(--amber); background: rgba(255,248,232,0.88);">
+                                <div>
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px;">
+                                        <span style="font-family: var(--font-mono); font-size: 19px; color: var(--amber); font-weight: 700; letter-spacing: 0.08em;">TECH LEADER</span>
+                                        <span style="font-family: var(--font-mono); font-size: 17px; color: var(--muted);">NVIDIA</span>
+                                    </div>
+                                    <h3 style="font-size: 34px; font-weight: 900; color: var(--ink); margin-bottom: 8px;" data-editable="true">
+                                        Jensen Huang（黃仁勳）
+                                    </h3>
+                                    <div style="font-size: 20px; color: var(--muted); margin-bottom: 24px;" data-editable="true">
+                                        NVIDIA 創辦人暨執行長
+                                    </div>
+                                    <div style="background: rgba(240, 161, 43, 0.08); border-left: 4px solid var(--amber); padding: 18px 20px; border-radius: 0 16px 16px 0; margin-bottom: 18px;">
+                                        <p style="font-family: var(--font-serif); font-size: 28px; font-weight: 700; line-height: 1.4; color: var(--green-2); margin: 0;" data-editable="true">
+                                            “English could become the most powerful programming language. Not C++. Not Python. Plain English.”
+                                        </p>
+                                    </div>
+                                </div>
+                                <p style="font-size: 21px; line-height: 1.5; color: var(--muted); margin: 0;" data-editable="true">
+                                    黃仁勳多次強調：AI 時代人人都是工程師，你不需要學習繁複的語法，只要學會清楚定義問題與工作流程。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Natural language as code</div>
+                        <div>04 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display:flex;flex-direction:column;">
+                        <div class="kicker reveal" data-editable="true">
+                            五週課程地圖
+                        </div>
+                        <h2
+                            class="reveal"
+                            data-editable="true"
+                            style="font-size: 62px"
+                        >
+                            從 AI 使用者到 AI 工作流程創造者
+                        </h2>
+                        <div
+                            class="course-map"
+                            style="
+                                display: grid;
+                                grid-template-columns: 1fr;
+                                gap: 14px;
+                                margin-top: 24px;
+                                flex: 1;
+                                min-height: 0;
+                            "
+                        >
+                            <div
+                                class="outline-block b1 reveal"
+                                style="
+                                    padding: 18px 28px;
+                                    display: grid;
+                                    grid-template-columns: 1.16fr 0.84fr;
+                                    gap: 24px;
+                                    min-height: 0;
+                                "
+                            >
+                                <div>
+                                    <div class="part-label">W1 🧠</div>
+                                    <h3
+                                        data-editable="true"
+                                        style="font-size: 30px"
+                                    >
+                                        Agentic AI 的五個關鍵概念
+                                    </h3>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 21px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--muted);
+                                        "
+                                    >
+                                        搞懂 <code>AGENTS.md</code>，讓 AI
+                                        從「隨機應答」變成你的專屬助理。
+                                    </p>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 20px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--green-2);
+                                        "
+                                    >
+                                        <strong>學習成果：</strong>能撰寫
+                                        <code>AGENTS.md</code>，定義 AI
+                                        的角色、規則與邊界
+                                    </p>
+                                </div>
+                                <div
+                                    style="
+                                        font-size: 19px;
+                                        line-height: 1.45;
+                                        color: var(--green-2);
+                                    "
+                                >
+                                    <p data-editable="true">
+                                        <strong>脈絡設計</strong>｜<strong
+                                            >指令工程</strong
+                                        >
+                                    </p>
+                                    <p data-editable="true">
+                                        🔑 Markdown、AGENTS.md、YAML、GIT
+                                    </p>
+                                    <p data-editable="true">
+                                        ⚗️ 建立個人 LLM Wiki、根據 Wiki 產出網頁
+                                    </p>
+                                </div>
+                            </div>
+                            <div
+                                class="outline-block b2 reveal"
+                                style="
+                                    padding: 18px 28px;
+                                    display: grid;
+                                    grid-template-columns: 1.16fr 0.84fr;
+                                    gap: 24px;
+                                    min-height: 0;
+                                "
+                            >
+                                <div>
+                                    <div class="part-label">W2 🛠️</div>
+                                    <h3
+                                        data-editable="true"
+                                        style="font-size: 30px"
+                                    >
+                                        給 Agent 一把順手的工具
+                                    </h3>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 21px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--muted);
+                                        "
+                                    >
+                                        工欲善其事，先替你的 AI
+                                        打造無障礙工作環境。
+                                    </p>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 20px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--green-2);
+                                        "
+                                    >
+                                        <strong>學習成果：</strong
+                                        >能理解不同工具對 AI 的友善程度
+                                    </p>
+                                </div>
+                                <div
+                                    style="
+                                        font-size: 19px;
+                                        line-height: 1.45;
+                                        color: var(--green-2);
+                                    "
+                                >
+                                    <p data-editable="true">
+                                        <strong>工具選擇</strong>｜<strong
+                                            >命令列</strong
+                                        >
+                                    </p>
+                                    <p data-editable="true">
+                                        🔑 API、CLI、GUI、ACI、JSON
+                                    </p>
+                                    <p data-editable="true">
+                                        ⚗️ Openlibrary API、Obsidian CLI
+                                    </p>
+                                </div>
+                            </div>
+                            <div
+                                class="outline-block b3 reveal"
+                                style="
+                                    padding: 18px 28px;
+                                    display: grid;
+                                    grid-template-columns: 1.16fr 0.84fr;
+                                    gap: 24px;
+                                    min-height: 0;
+                                "
+                            >
+                                <div>
+                                    <div class="part-label">W3 🎓</div>
+                                    <h3
+                                        data-editable="true"
+                                        style="font-size: 30px"
+                                    >
+                                        用 SKILL.md 培養 Agent 的專長
+                                    </h3>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 21px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--muted);
+                                        "
+                                    >
+                                        一個檔案，讓 AI
+                                        記住你的工作方式，比你想得還快。
+                                    </p>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 20px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--green-2);
+                                        "
+                                    >
+                                        <strong>學習成果：</strong>能讓 Agent
+                                        學習可重複使用的客製化技能
+                                    </p>
+                                </div>
+                                <div
+                                    style="
+                                        font-size: 19px;
+                                        line-height: 1.45;
+                                        color: var(--green-2);
+                                    "
+                                >
+                                    <p data-editable="true">
+                                        <strong>可攜式工作流</strong>｜<strong
+                                            >客製化技能</strong
+                                        >
+                                    </p>
+                                    <p data-editable="true">
+                                        🔑 SKILL.md、scripts、references
+                                    </p>
+                                    <p data-editable="true">
+                                        ⚗️ find-skills、skill-create
+                                    </p>
+                                </div>
+                            </div>
+                            <div
+                                class="outline-block b4 reveal"
+                                style="
+                                    padding: 18px 28px;
+                                    display: grid;
+                                    grid-template-columns: 1.16fr 0.84fr;
+                                    gap: 24px;
+                                    min-height: 0;
+                                "
+                            >
+                                <div>
+                                    <div class="part-label">W4 🔌</div>
+                                    <h3
+                                        data-editable="true"
+                                        style="font-size: 30px"
+                                    >
+                                        打通 Agent 與外界的連線
+                                    </h3>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 21px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--muted);
+                                        "
+                                    >
+                                        接上 MCP，讓 AI
+                                        伸出手，直接操作各種外部服務。
+                                    </p>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 20px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--green-2);
+                                        "
+                                    >
+                                        <strong>學習成果：</strong>能透過 MCP 為
+                                        Agent 接入真實世界的服務與資料
+                                    </p>
+                                </div>
+                                <div
+                                    style="
+                                        font-size: 19px;
+                                        line-height: 1.45;
+                                        color: var(--green-2);
+                                    "
+                                >
+                                    <p data-editable="true">
+                                        <strong>外部服務整合</strong>｜<strong
+                                            >工具擴充</strong
+                                        >
+                                    </p>
+                                    <p data-editable="true">🔑 MCP、A2A、RSS</p>
+                                    <p data-editable="true">
+                                        ⚗️ NetNewsWire、Excalidraw
+                                    </p>
+                                </div>
+                            </div>
+                            <div
+                                class="outline-block b1 reveal"
+                                style="
+                                    padding: 18px 28px;
+                                    display: grid;
+                                    grid-template-columns: 1.16fr 0.84fr;
+                                    gap: 24px;
+                                    min-height: 0;
+                                "
+                            >
+                                <div>
+                                    <div class="part-label">W5 🌍</div>
+                                    <h3
+                                        data-editable="true"
+                                        style="font-size: 30px"
+                                    >
+                                        把成果發布到全世界
+                                    </h3>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 21px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--muted);
+                                        "
+                                    >
+                                        用 GitHub Pages 讓你的 AI
+                                        工作流程作品，站上公開舞台。
+                                    </p>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 20px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--green-2);
+                                        "
+                                    >
+                                        <strong>學習成果：</strong
+                                        >能將個人數位作品對外展示與分享
+                                    </p>
+                                </div>
+                                <div
+                                    style="
+                                        font-size: 19px;
+                                        line-height: 1.45;
+                                        color: var(--green-2);
+                                    "
+                                >
+                                    <p data-editable="true">
+                                        <strong>成果發布</strong>｜<strong
+                                            >公開分享</strong
+                                        >
+                                    </p>
+                                    <p data-editable="true">
+                                        🔑 deployment、workflow、CI/CD
+                                    </p>
+                                    <p data-editable="true">
+                                        ⚗️ GitHub Pages、GitHub Workflows
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 14px;">
+                            <a href="https://howard-haowen.github.io/genai_workshop/2026" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 12px; padding: 12px 28px; background: var(--green); color: var(--paper-2); font-family: var(--font-mono); font-size: 22px; font-weight: 700; text-decoration: none; border-radius: 0; letter-spacing: 0.06em;">
+                                🌐 課程地圖網站 ↗
+                            </a>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Course map</div>
+                        <div>05 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content big-question">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                課程目標
+                            </div>
+                            <p
+                                class="quote reveal"
+                                data-editable="true"
+                                style="
+                                    font-size: 76px;
+                                    line-height: 1.28;
+                                    max-width: 1460px;
+                                "
+                            >
+                                具備設計個人
+                                <mark>Portable Agentic AI Workflow</mark> 的能力
+                            </p>
+                            <p
+                                class="lead reveal"
+                                data-editable="true"
+                                style="
+                                    font-size: 42px;
+                                    margin-top: 44px;
+                                    text-align: center;
+                                    max-width: 1320px;
+                                "
+                            >
+                                可重複使用 · 隨時調整 · 公開分享
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Course goal</div>
+                        <div>06 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            本週流程
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            今天會依照這個順序往下走
+                        </h2>
+                        <div class="agenda">
+                            <div class="time">01</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">開場與課程定位</h3>
+                                <p data-editable="true">
+                                    封面、反問開場、核心問題、程式典範轉移、五週課程地圖與課程目標。
+                                </p>
+                            </div>
+                            <div class="time">02</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">概念建立</h3>
+                                <p data-editable="true">
+                                    Chatbot vs AI Agent、Agent
+                                    定義、五個關鍵詞（AGENTS.md、SKILL.md、MCP、A2A、Subagents）。
+                                </p>
+                            </div>
+                            <div class="time">03</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">核心工具</h3>
+                                <p data-editable="true">
+                                    Markdown、AGENTS.md 結構與階層邏輯、環境準備（IBM Bob 與 VS Code 外掛）、其他平台介紹、IBM Bob 四步驟使用流程。
+                                </p>
+                            </div>
+                            <div class="time">04</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">Demo 總覽</h3>
+                                <p data-editable="true">
+                                    取得 Demo 專案檔案，以「AI 外語自學系統」四步驟工作流示範 Agent 與工具鏈可以做到什麼。
+                                </p>
+                            </div>
+                            <div class="time">05</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">課堂活動與收尾</h3>
+                                <p data-editable="true">
+                                    活動 1–3（AGENTS.md 測試、建立 LLM Wiki、Wiki 轉 HTML）、發想 Agent 工作流、AI-Ready Data、本週產出、課後活動與下週預告。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>This week</div>
+                        <div>07 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            Chatbot vs AI Agent
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            從「回答問題」到「完成可追蹤工作流程」
+                        </h2>
+                        <div class="compare">
+                            <div class="panel reveal">
+                                <h3 data-editable="true">一般 Chatbot</h3>
+                                <ul class="bullets">
+                                    <li data-editable="true">以對話回覆為主</li>
+                                    <li data-editable="true">
+                                        上下文多半停留在聊天視窗
+                                    </li>
+                                    <li data-editable="true">
+                                        難以知道你的專案規則與檔案狀態
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="panel dark reveal">
+                                <h3 data-editable="true">AI Agent</h3>
+                                <ul class="bullets">
+                                    <li data-editable="true">
+                                        能讀檔、寫檔、執行命令與使用工具
+                                    </li>
+                                    <li data-editable="true">
+                                        能依照專案規則工作
+                                    </li>
+                                    <li data-editable="true">
+                                        能把任務拆成步驟並回報結果
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Chatbot vs Agent</div>
+                        <div>08 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            AI Agent 定義
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            不是只會聊天，而是能完成任務的 AI 工作夥伴
+                        </h2>
+                        <div
+                            class="panel dark reveal"
+                            style="
+                                margin-top: 34px;
+                                min-height: 260px;
+                                padding: 42px 52px;
+                            "
+                        >
+                            <h3
+                                data-editable="true"
+                                style="font-size: 48px; line-height: 1.22"
+                            >
+                                AI Agent = LLM 🧠 + 目標 🎯 + 脈絡 📚 + 工具 🛠️
+                                + 檢查 ✅
+                            </h3>
+                            <p
+                                data-editable="true"
+                                style="
+                                    font-size: 34px;
+                                    line-height: 1.52;
+                                    margin-top: 24px;
+                                    color: var(--paper);
+                                "
+                            >
+                                LLM 是理解與生成的核心；Agent
+                                會用它理解目標、讀取脈絡、使用工具，執行後再檢查結果；像一位會照工作手冊做事、也會回報進度的數位助理。
+                            </p>
+                        </div>
+                        <div class="flow" style="margin-top: 30px">
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">🧠 LLM</h3>
+                                <p data-editable="true">
+                                    負責理解文字、生成內容，提供推理與語言能力。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">🎯 目標</h3>
+                                <p data-editable="true">
+                                    先知道要完成哪一件事，而不只是回答一句話。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">📚 脈絡</h3>
+                                <p data-editable="true">
+                                    讀懂專案規則、檔案內容與使用者偏好。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">🛠️ 工具</h3>
+                                <p data-editable="true">
+                                    能讀寫檔案、呼叫 API、執行 CLI
+                                    或使用外部服務。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">✅ 檢查</h3>
+                                <p data-editable="true">
+                                    完成後回頭確認結果是否符合規則與任務需求。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Agent definition</div>
+                        <div>09 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            五個關鍵詞總覽
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            先記住這五個詞，後面每一個都會回來用到
+                        </h2>
+                        <div class="term-grid">
+                            <div class="term reveal">
+                                <div class="num">01</div>
+                                <h3 data-editable="true">📄 AGENTS.md</h3>
+                                <p data-editable="true">
+                                    寫給 AI Agent 看的專案說明與規則文件。
+                                </p>
+                            </div>
+                            <div class="term reveal">
+                                <div class="num">02</div>
+                                <h3 data-editable="true">🧰 SKILL.md</h3>
+                                <p data-editable="true">
+                                    可按需載入的能力包，封裝重複任務知識。
+                                </p>
+                            </div>
+                            <div class="term reveal">
+                                <div class="num">03</div>
+                                <h3
+                                    data-editable="true"
+                                    style="font-size: 30px"
+                                >
+                                    🔌 MCP (Model Context Protocol)
+                                </h3>
+                                <p data-editable="true">
+                                    讓 Agent
+                                    連接外部工具、資料與服務的標準介面。
+                                </p>
+                            </div>
+                            <div class="term reveal">
+                                <div class="num">04</div>
+                                <h3
+                                    data-editable="true"
+                                    style="font-size: 30px"
+                                >
+                                    🤝 A2A (Agent to Agent)
+                                </h3>
+                                <p data-editable="true">
+                                    Agent 與 Agent
+                                    之間互相溝通、交接任務的協定想像。
+                                </p>
+                            </div>
+                            <div class="term reveal">
+                                <div class="num">05</div>
+                                <h3 data-editable="true">🧩 Subagents</h3>
+                                <p data-editable="true">
+                                    主 Agent 派出的子
+                                    Agent，用來拆解大型或可平行處理的工作。
+                                </p>
+                            </div>
+                        </div>
+                        <a
+                            class="reveal"
+                            href="https://www.youtube.com/watch?v=k5jYwyhDMxA"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="position: absolute; bottom: 92px; display: inline-block; color: var(--green); font-size: 22px; font-weight: 900; text-decoration: none"
+                            >參考閱讀：5 AI Agent Terms You Need to Know (YouTube) →</a
+                        >
+                    </div>
+                    <div class="footer">
+                        <div>Vocabulary</div>
+                        <div>10 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            關鍵詞 1
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            AGENTS.md：像寫給研究助理的工作手冊
+                        </h2>
+                        <div class="three-col">
+                            <div class="card reveal">
+                                <h3 data-editable="true">📋 課堂規則</h3>
+                                <p data-editable="true">
+                                    就像老師先告訴助教：作業格式、評分標準、不能亂改的地方。
+                                </p>
+                            </div>
+                            <div class="card amber reveal">
+                                <h3 data-editable="true">🧭 研究方向</h3>
+                                <p data-editable="true">
+                                    告訴 Agent
+                                    這個專案在做什麼、資料在哪裡、要用哪種語氣與語言。
+                                </p>
+                            </div>
+                            <div class="card red reveal">
+                                <h3 data-editable="true">📍 放在現場</h3>
+                                <p data-editable="true">
+                                    規則可放在專案根目錄；子資料夾也能放更細的在地規則。
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="panel reveal"
+                            style="
+                                min-height: 0;
+                                height: 220px;
+                                padding: 0 56px;
+                                margin-top: 34px;
+                                display: flex;
+                                align-items: center;
+                            "
+                        >
+                            <p
+                                class="lead"
+                                data-editable="true"
+                                style="font-size: 52px; line-height: 1.55; margin: 0; max-width: none;"
+                            >
+                                一句話：先把「怎麼做才算對」寫清楚，Agent
+                                才不會每次都猜。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Keyword 1</div>
+                        <div>11 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            關鍵詞 2
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            SKILL.md：像一張可重複使用的任務食譜
+                        </h2>
+                        <div class="three-col">
+                            <div class="card reveal">
+                                <h3 data-editable="true">🍳 食譜</h3>
+                                <p data-editable="true">
+                                    不用每次重新教，直接寫下材料、步驟、注意事項與完成標準。
+                                </p>
+                            </div>
+                            <div class="card amber reveal">
+                                <h3 data-editable="true">🎒 工具包</h3>
+                                <p data-editable="true">
+                                    可附上腳本、範例、參考資料，讓 Agent
+                                    在需要時拿出來用。
+                                </p>
+                            </div>
+                            <div class="card red reveal">
+                                <h3 data-editable="true">🔁 重複任務</h3>
+                                <p data-editable="true">
+                                    適合整理文獻、製作簡報、轉換格式、產生固定樣式文件。
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="panel reveal"
+                            style="
+                                min-height: 0;
+                                height: 220px;
+                                padding: 0 56px;
+                                margin-top: 34px;
+                                display: flex;
+                                align-items: center;
+                            "
+                        >
+                            <p
+                                class="lead"
+                                data-editable="true"
+                                style="font-size: 52px; line-height: 1.55; margin: 0; max-width: none;"
+                            >
+                                一句話：把你常做的事變成「下次也能照做」的方法。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Keyword 2</div>
+                        <div>12 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            關鍵詞 3
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            MCP（Model Context Protocol）：像萬用轉接頭
+                        </h2>
+                        <div class="three-col">
+                            <div class="card reveal">
+                                <h3 data-editable="true">🔌 轉接頭</h3>
+                                <p data-editable="true">
+                                    不同工具原本插孔不同，MCP 把它們接成 Agent
+                                    聽得懂的形式。
+                                </p>
+                            </div>
+                            <div class="card amber reveal">
+                                <h3 data-editable="true">☎️ 接線員</h3>
+                                <p data-editable="true">
+                                    Agent
+                                    不必懂每個服務的細節，只要透過標準介面提出需求。
+                                </p>
+                            </div>
+                            <div class="card red reveal">
+                                <h3 data-editable="true">📚 圖書館櫃台</h3>
+                                <p data-editable="true">
+                                    它幫 Agent
+                                    查資料、拿資源、操作外部服務，再把結果帶回來。
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="panel reveal"
+                            style="
+                                min-height: 0;
+                                height: 220px;
+                                padding: 0 56px;
+                                margin-top: 34px;
+                                display: flex;
+                                align-items: center;
+                            "
+                        >
+                            <p
+                                class="lead"
+                                data-editable="true"
+                                style="font-size: 52px; line-height: 1.55; margin: 0; max-width: none;"
+                            >
+                                一句話：MCP 讓 Agent
+                                可以安全、標準化地連到外部工具與資料。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Keyword 3</div>
+                        <div>13 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            關鍵詞 4
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            A2A（Agent to Agent）：像跨組別的任務交接
+                        </h2>
+                        <div class="three-col">
+                            <div class="card reveal">
+                                <h3 data-editable="true">🤝 分組合作</h3>
+                                <p data-editable="true">
+                                    一個 Agent
+                                    不必什麼都會，可以把工作交給更適合的 Agent。
+                                </p>
+                            </div>
+                            <div class="card amber reveal">
+                                <h3 data-editable="true">🪪 名片</h3>
+                                <p data-editable="true">
+                                    Agent card
+                                    像名片，說明自己會做什麼、怎麼被呼叫。
+                                </p>
+                            </div>
+                            <div class="card red reveal">
+                                <h3 data-editable="true">📝 交接單</h3>
+                                <p data-editable="true">
+                                    委派任務時，把需求、輸入、成果格式交代清楚，避免雞同鴨講。
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="panel reveal"
+                            style="
+                                min-height: 0;
+                                height: 220px;
+                                padding: 0 56px;
+                                margin-top: 34px;
+                                display: flex;
+                                align-items: center;
+                            "
+                        >
+                            <p
+                                class="lead"
+                                data-editable="true"
+                                style="font-size: 52px; line-height: 1.55; margin: 0; max-width: none;"
+                            >
+                                一句話：A2A 讓不同專長的 Agent 能彼此委派與協作。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Keyword 4</div>
+                        <div>14 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            關鍵詞 5
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            Subagents：像專題報告裡的小組分工
+                        </h2>
+                        <div class="three-col">
+                            <div class="card reveal">
+                                <h3 data-editable="true">🔎 搜尋組</h3>
+                                <p data-editable="true">
+                                    資料太多時，派子 Agent
+                                    先找資料、比對來源、整理候選內容。
+                                </p>
+                            </div>
+                            <div class="card amber reveal">
+                                <h3 data-editable="true">🧹 整理組</h3>
+                                <p data-editable="true">
+                                    子 Agent 可負責摘要、分類、檢查格式，主
+                                    Agent 保留大方向。
+                                </p>
+                            </div>
+                            <div class="card red reveal">
+                                <h3 data-editable="true">📣 回報組</h3>
+                                <p data-editable="true">
+                                    完成後只回報重點與證據，讓主 Agent
+                                    整合成最後成果。
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="panel reveal"
+                            style="
+                                min-height: 0;
+                                height: 220px;
+                                padding: 0 56px;
+                                margin-top: 34px;
+                                display: flex;
+                                align-items: center;
+                            "
+                        >
+                            <p
+                                class="lead"
+                                data-editable="true"
+                                style="font-size: 52px; line-height: 1.55; margin: 0; max-width: none;"
+                            >
+                                一句話：把大任務拆小，讓主 Agent 不被細節塞爆。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Keyword 5</div>
+                        <div>15 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            Markdown 語法簡介
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            人看得懂，AI 也容易處理的工作格式
+                        </h2>
+                        <div
+                            class="panel reveal"
+                            style="
+                                min-height: 0;
+                                height: 220px;
+                                padding: 0 56px;
+                                margin-top: 24px;
+                                display: flex;
+                                align-items: center;
+                            "
+                        >
+                            <p
+                                class="lead"
+                                data-editable="true"
+                                style="font-size: 52px; line-height: 1.55; margin: 0; max-width: none;"
+                            >
+                                純文字加上簡單標記，就能表達標題、清單、表格、連結與
+                                code block；非常適合拿來做人與 AI 共用的工作文件。
+                            </p>
+                        </div>
+                        <div
+                            class="compare"
+                            style="
+                                margin-top: 28px;
+                                gap: 24px;
+                                align-items: start;
+                                grid-template-columns: 1fr auto 1fr;
+                            "
+                        >
+                            <div
+                                class="panel reveal"
+                                style="
+                                    min-height: 0;
+                                    padding: 24px 30px;
+                                    font-family: var(--font-mono);
+                                    font-size: 22px;
+                                    line-height: 1.42;
+                                    background: #0d211d;
+                                    color: #dff6e4;
+                                    border-radius: 24px;
+                                    overflow: hidden;
+                                "
+                            >
+                                <pre style="margin: 0; font: inherit; white-space: pre-wrap; word-break: break-all; overflow: hidden;">
+# LLM Wiki 主題
+
+- 研究主題：地方感
+- 今日任務：整理素材
+- 待確認：引用來源
+
+| 類型 | 檔案 |
+|------|------|
+| Wiki | overview.md |</pre>
+                            </div>
+                            <div
+                                style="
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    justify-content: center;
+                                    gap: 8px;
+                                    padding-top: 130px;
+                                "
+                            >
+                                <span
+                                    style="font-size: 52px; color: var(--cyan)"
+                                    >→</span
+                                >
+                                <span
+                                    style="
+                                        font-family: var(--font-mono);
+                                        font-size: 18px;
+                                        color: var(--muted);
+                                    "
+                                    >rendering</span
+                                >
+                            </div>
+                            <div
+                                class="panel reveal"
+                                style="
+                                    min-height: 0;
+                                    padding: 24px 30px;
+                                    border-radius: 24px;
+                                "
+                            >
+                                <h3
+                                    style="font-size: 30px; margin-bottom: 10px"
+                                    data-editable="true"
+                                >
+                                    LLM Wiki 主題
+                                </h3>
+                                <ul
+                                    style="
+                                        margin: 0 0 12px;
+                                        padding-left: 28px;
+                                        font-size: 24px;
+                                        line-height: 1.45;
+                                    "
+                                >
+                                    <li>研究主題：地方感</li>
+                                    <li>今日任務：整理素材</li>
+                                    <li>待確認：引用來源</li>
+                                </ul>
+                                <table
+                                    style="
+                                        width: 100%;
+                                        border-collapse: collapse;
+                                        font-size: 22px;
+                                    "
+                                >
+                                    <thead>
+                                        <tr
+                                            style="
+                                                border-bottom: 2px solid
+                                                    var(--line);
+                                            "
+                                        >
+                                            <th
+                                                style="
+                                                    text-align: left;
+                                                    padding: 5px 10px;
+                                                "
+                                            >
+                                                類型
+                                            </th>
+                                            <th
+                                                style="
+                                                    text-align: left;
+                                                    padding: 5px 10px;
+                                                "
+                                            >
+                                                檔案
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td style="padding: 5px 10px">
+                                                Wiki
+                                            </td>
+                                            <td style="padding: 5px 10px">
+                                                <em>overview.md</em>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <a
+                            class="reveal"
+                            href="https://howard-haowen.github.io/genai_workshop/2025/markdown_basics_marp.html"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="position: absolute; bottom: 92px; display: inline-block; color: var(--green); font-size: 22px; font-weight: 900; text-decoration: none"
+                            >參考閱讀：Markdown Basics 投影片 →</a
+                        >
+                    </div>
+                    <div class="footer">
+                        <div>Markdown</div>
+                        <div>16 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            為什麼需要 AGENTS.md
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            README.md 給人快速上手；AGENTS.md 給 Agent 正確做事
+                        </h2>
+                        <p
+                            class="reveal"
+                            data-editable="true"
+                            style="
+                                margin-top: 12px;
+                                font-family: var(--font-mono);
+                                font-size: 20px;
+                                line-height: 1.45;
+                                color: var(--muted);
+                            "
+                        >
+                            註：在其他平台，同樣的檔案可能會有不同名稱，例如 Claude Code 用
+                            <code>CLAUDE.md</code>、Gemini CLI 用
+                            <code>GEMINI.md</code>。
+                        </p>
+                        <div
+                            class="two-col"
+                            style="grid-auto-rows: 220px; margin-top: 36px"
+                        >
+                            <div class="card green reveal" style="height: 100%">
+                                <h3 data-editable="true">📍 固定入口</h3>
+                                <p data-editable="true">
+                                    Agent
+                                    有一個可預期的位置讀取指令，不必每次從對話中重新猜專案規則。
+                                </p>
+                            </div>
+                            <div class="card reveal" style="height: 100%">
+                                <h3 data-editable="true">🧾 README 保持乾淨</h3>
+                                <p data-editable="true">
+                                    README
+                                    保留給人看的介紹與快速開始；細節指令放到
+                                    AGENTS.md。
+                                </p>
+                            </div>
+                            <div class="card amber reveal" style="height: 100%">
+                                <h3 data-editable="true">🛠️ 補上工作細節</h3>
+                                <p data-editable="true">
+                                    把 build、test、程式風格、安全注意事項與 PR
+                                    規則寫清楚，讓 Agent 照流程檢查。
+                                </p>
+                            </div>
+                            <div class="card red reveal" style="height: 100%">
+                                <h3 data-editable="true">🌐 跨工具、可巢狀</h3>
+                                <p data-editable="true">
+                                    同一份 Markdown 可被多種 Agent
+                                    使用；大型專案也能在子資料夾放更具體的規則。
+                                </p>
+                            </div>
+                        </div>
+                        <a
+                            class="reveal"
+                            href="https://agents.md"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="position: absolute; bottom: 92px; display: inline-block; color: var(--green); font-size: 22px; font-weight: 900; text-decoration: none"
+                            >參考閱讀：agents.md →</a
+                        >
+                    </div>
+                    <div class="footer">
+                        <div>Why AGENTS.md</div>
+                        <div>17 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            AGENTS.md 內容解析
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            一份實用的 AGENTS.md 至少要回答三件事
+                        </h2>
+                        <div class="three-col">
+                            <div class="card reveal">
+                                <h3 data-editable="true">專案概述</h3>
+                                <p data-editable="true">
+                                    這是什麼專案、目標是什麼、重要資料在哪裡。
+                                </p>
+                            </div>
+                            <div class="card amber reveal">
+                                <h3 data-editable="true">規則與限制</h3>
+                                <p data-editable="true">
+                                    語言、資料來源、隱私邊界、不可編造的內容與操作限制。
+                                </p>
+                            </div>
+                            <div class="card red reveal">
+                                <h3 data-editable="true">檢查方式</h3>
+                                <p data-editable="true">
+                                    完成後要跑什麼驗證、怎麼確認產出是否合格。
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="prompt-box reveal"
+                            data-editable="true"
+                            style="
+                                font-size: 22px;
+                                line-height: 1.44;
+                                margin-top: 24px;
+                                padding: 26px 36px;
+                                max-height: 370px;
+                            "
+                        >
+                            <pre>
+# AGENTS.md
+
+## 專案概述
+這是一個個人 LLM Wiki 專案，用來整理閱讀筆記與研究素材。
+
+## 規則與限制
+- 輸出語言：繁體中文
+- 不可編造引用內容
+- 原始素材放在 raw/，不可直接公開
+
+## 檢查方式
+- 確認 wiki/index.md 與 wiki/overview.md 已更新
+- 需要公開的內容才輸出到 artifacts/webpages/
+- 不確定之處標記「需確認」</pre>
+                        </div>
+                        <a
+                            class="reveal"
+                            href="https://agents.md/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="position: absolute; bottom: 92px; display: inline-block; color: var(--green); font-size: 22px; font-weight: 900; text-decoration: none"
+                            >參考閱讀：agents.md →</a
+                        >
+                    </div>
+                    <div class="footer">
+                        <div>AGENTS.md structure</div>
+                        <div>18 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            AGENTS.md 的階層邏輯
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            把 AGENTS.md 放在哪，規則就作用在哪
+                        </h2>
+                        <div class="flow">
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">📁 專案根目錄</h3>
+                                <p data-editable="true">
+                                    整個 repo 的共用規則，所有子目錄都適用。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">📂 子目錄</h3>
+                                <p data-editable="true">
+                                    可新增針對該功能模組的規則，覆蓋上層設定。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">📂 第二層子目錄</h3>
+                                <p data-editable="true">
+                                    最靠近任務的規則最具體，優先影響 Agent 行為。
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="path-box reveal"
+                            data-editable="true"
+                            style="margin-top: 24px"
+                        >
+                            <pre>
+repo/AGENTS.md
+  ↓
+repo/src/AGENTS.md
+  ↓
+repo/src/components/AGENTS.md</pre>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Instruction hierarchy</div>
+                        <div>19 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            環境準備
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            先把工具準備好，後面才會順
+                        </h2>
+                        <div
+                            class="two-col"
+                            style="
+                                grid-template-columns: 1.08fr 0.92fr;
+                                gap: 34px;
+                                margin-top: 40px;
+                            "
+                        >
+                            <div
+                                class="panel dark reveal"
+                                style="min-height: 560px"
+                            >
+                                <h3
+                                    data-editable="true"
+                                    style="font-size: 44px"
+                                >
+                                    AI Agent 平台：IBM Bob
+                                </h3>
+                                <p
+                                    data-editable="true"
+                                    style="
+                                        font-size: 28px;
+                                        line-height: 1.48;
+                                        margin-top: 22px;
+                                    "
+                                >
+                                    本課程統一使用
+                                    <a
+                                        href="https://bob.ibm.com/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style="
+                                            color: var(--amber);
+                                            text-decoration: none;
+                                        "
+                                        >IBM Bob</a
+                                    >，以桌面應用程式或本機專案整合為主要操作情境。
+                                </p>
+                                <ul class="bullets" style="margin-top: 24px">
+                                    <li
+                                        data-editable="true"
+                                        style="font-size: 26px"
+                                    >
+                                        工具選用原則：免費試用、操作容易、跨作業系統。
+                                    </li>
+                                    <li
+                                        data-editable="true"
+                                        style="font-size: 26px"
+                                    >
+                                        工具只是練習 portable agent skills
+                                        的載體，不是唯一選擇。
+                                    </li>
+                                    <li
+                                        data-editable="true"
+                                        style="font-size: 26px"
+                                    >
+                                        本課程學到的任務拆解、規則撰寫、工具串接與成果檢查方法，仍適用於其他平台。
+                                    </li>
+                                </ul>
+                                <a
+                                    href="IBM_Bob_installation_guide.html"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style="
+                                        display: inline-block;
+                                        margin-top: 22px;
+                                        color: var(--amber);
+                                        font-size: 26px;
+                                        font-weight: 900;
+                                        text-decoration: none;
+                                    "
+                                    >IBM Bob 安裝指南 →</a
+                                >
+                            </div>
+                            <div class="panel reveal" style="min-height: 560px">
+                                <h3
+                                    data-editable="true"
+                                    style="font-size: 44px"
+                                >
+                                    VS Code 外掛
+                                </h3>
+                                <p
+                                    data-editable="true"
+                                    style="
+                                        font-size: 26px;
+                                        line-height: 1.45;
+                                        margin-top: 16px;
+                                        color: var(--green-2);
+                                    "
+                                >
+                                    按 <code>Cmd+Shift+X</code> 搜尋並安裝：
+                                </p>
+                                <div
+                                    style="
+                                        display: grid;
+                                        gap: 20px;
+                                        margin-top: 28px;
+                                    "
+                                >
+                                    <div
+                                        class="card reveal"
+                                        style="
+                                            min-height: 112px;
+                                            padding: 24px 28px;
+                                        "
+                                    >
+                                        <h3
+                                            data-editable="true"
+                                            style="font-size: 32px"
+                                        >
+                                            🌏 Chinese (Traditional) Language
+                                            Pack
+                                        </h3>
+                                        <p
+                                            data-editable="true"
+                                            style="font-size: 24px"
+                                        >
+                                            將 VS Code 介面切換為繁體中文。
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="card amber reveal"
+                                        style="
+                                            min-height: 112px;
+                                            padding: 24px 28px;
+                                        "
+                                    >
+                                        <h3
+                                            data-editable="true"
+                                            style="font-size: 32px"
+                                        >
+                                            📝 Markdown All in One
+                                        </h3>
+                                        <p
+                                            data-editable="true"
+                                            style="font-size: 24px"
+                                        >
+                                            支援 Markdown
+                                            快捷鍵、預覽、目錄生成等功能。
+                                        </p>
+                                    </div>
+                                    <div
+                                        class="card red reveal"
+                                        style="
+                                            min-height: 112px;
+                                            padding: 24px 28px;
+                                        "
+                                    >
+                                        <h3
+                                            data-editable="true"
+                                            style="font-size: 32px"
+                                        >
+                                            ✏️ Excalidraw Editor
+                                        </h3>
+                                        <p
+                                            data-editable="true"
+                                            style="font-size: 24px"
+                                        >
+                                            在 VS Code 中直接編輯 Excalidraw
+                                            圖解。
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Setup</div>
+                        <div>20 / 32</div>
+                    </div>
+                </article>
+
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            其他可替代的 AI Agent 平台
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            如果今天使用的不是同一套工具，也能跟上課程
+                        </h2>
+                        <div
+                            class="panel reveal"
+                            style="
+                                margin-top: 34px;
+                                min-height: auto;
+                                padding: 28px 32px;
+                            "
+                        >
+                            <table
+                                style="
+                                    width: 100%;
+                                    border-collapse: collapse;
+                                    font-size: 24px;
+                                    line-height: 1.5;
+                                "
+                            >
+                                <thead>
+                                    <tr
+                                        style="
+                                            border-bottom: 2px solid var(--line);
+                                        "
+                                    >
+                                        <th
+                                            style="
+                                                text-align: left;
+                                                padding: 14px 12px;
+                                            "
+                                        >
+                                            工具
+                                        </th>
+                                        <th
+                                            style="
+                                                text-align: left;
+                                                padding: 14px 12px;
+                                            "
+                                        >
+                                            網址
+                                        </th>
+                                        <th
+                                            style="
+                                                text-align: left;
+                                                padding: 14px 12px;
+                                            "
+                                        >
+                                            需要訂閱？
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr
+                                        style="
+                                            border-bottom: 1px solid var(--line);
+                                        "
+                                    >
+                                        <td style="padding: 14px 12px">
+                                            Anthropic Claude Code
+                                        </td>
+                                        <td style="padding: 14px 12px">
+                                            <a
+                                                href="https://www.anthropic.com/claude-code"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style="
+                                                    color: var(--green);
+                                                    text-decoration: none;
+                                                "
+                                                >https://www.anthropic.com/claude-code</a
+                                            >
+                                        </td>
+                                        <td style="padding: 14px 12px">
+                                            是（需 Anthropic 帳號與訂閱方案）
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        style="
+                                            border-bottom: 1px solid var(--line);
+                                        "
+                                    >
+                                        <td style="padding: 14px 12px">
+                                            OpenAI Codex
+                                        </td>
+                                        <td style="padding: 14px 12px">
+                                            <a
+                                                href="https://openai.com/codex/"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style="
+                                                    color: var(--green);
+                                                    text-decoration: none;
+                                                "
+                                                >https://openai.com/codex/</a
+                                            >
+                                        </td>
+                                        <td style="padding: 14px 12px">
+                                            是（需 OpenAI 帳號與訂閱或 API
+                                            額度）
+                                        </td>
+                                    </tr>
+                                    <tr
+                                        style="
+                                            border-bottom: 1px solid var(--line);
+                                        "
+                                    >
+                                        <td style="padding: 14px 12px">
+                                            Google Antigravity
+                                        </td>
+                                        <td style="padding: 14px 12px">
+                                            <a
+                                                href="https://antigravity.google"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style="
+                                                    color: var(--green);
+                                                    text-decoration: none;
+                                                "
+                                                >https://antigravity.google</a
+                                            >
+                                        </td>
+                                        <td style="padding: 14px 12px">
+                                            是（需 Google 帳號與付費方案）
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 14px 12px">
+                                            VS Code + GitHub Copilot
+                                        </td>
+                                        <td style="padding: 14px 12px">
+                                            <a
+                                                href="https://code.visualstudio.com/"
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                style="
+                                                    color: var(--green);
+                                                    text-decoration: none;
+                                                "
+                                                >https://code.visualstudio.com/</a
+                                            >
+                                        </td>
+                                        <td style="padding: 14px 12px">
+                                            是（需 GitHub Copilot
+                                            訂閱，或符合免費資格）
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Alternative platforms</div>
+                        <div>21 / 32</div>
+                    </div>
+                </article>
+
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display:flex;flex-direction:column;">
+                        <div class="kicker reveal" data-editable="true">
+                            使用流程
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            與 IBM Bob 互動的四個步驟
+                        </h2>
+                        <p class="reveal" style="font-size:28px;color:var(--muted);margin-top:12px;margin-bottom:0;" data-editable="true">從登入到 Agent 執行，整個流程只需幾分鐘</p>
+
+                        <!-- 四步驟 Z 形排列 -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:24px;margin-top:32px;flex:1;min-height:0;">
+
+                            <!-- Step 1 -->
+                            <div class="flow-step reveal" style="border-left:10px solid var(--cyan);background:rgba(255,248,232,0.82);border-radius:28px;padding:28px 34px;display:flex;flex-direction:column;justify-content:flex-start;gap:10px;">
+                                <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px;">
+                                    <span style="font-family:var(--font-mono);font-size:18px;color:var(--cyan);letter-spacing:0.14em;font-weight:700;">STEP 01</span>
+                                    <span style="font-size:30px;">🌐</span>
+                                </div>
+                                <h3 style="font-size:38px;font-weight:900;color:var(--green-2);" data-editable="true">登入 Bob</h3>
+                                <ul class="bullets" style="margin-top:8px;">
+                                    <li style="font-size:26px;" data-editable="true">開啟 IBM Bob</li>
+                                    <li style="font-size:26px;" data-editable="true">使用 SSO 登入</li>
+                                    <li style="font-size:26px;" data-editable="true">進入 Bob 工作區</li>
+                                </ul>
+                            </div>
+
+                            <!-- Step 2 -->
+                            <div class="flow-step reveal" style="border-left:10px solid var(--amber);background:rgba(255,248,232,0.82);border-radius:28px;padding:28px 34px;display:flex;flex-direction:column;justify-content:flex-start;gap:10px;">
+                                <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px;">
+                                    <span style="font-family:var(--font-mono);font-size:18px;color:var(--amber);letter-spacing:0.14em;font-weight:700;">STEP 02</span>
+                                    <span style="font-size:30px;">📁</span>
+                                </div>
+                                <h3 style="font-size:38px;font-weight:900;color:var(--green-2);" data-editable="true">開啟專案資料夾</h3>
+                                <ul class="bullets" style="margin-top:8px;">
+                                    <li style="font-size:26px;" data-editable="true">在 Bob 中開啟或建立專案程式碼資料夾</li>
+                                    <li style="font-size:26px;" data-editable="true">Bob 自動掃描並理解程式碼</li>
+                                </ul>
+                            </div>
+
+                            <!-- Step 3 -->
+                            <div class="flow-step reveal" style="border-left:10px solid var(--green);background:linear-gradient(145deg,var(--green-2),#163e35);border-radius:28px;padding:28px 34px;display:flex;flex-direction:column;justify-content:flex-start;gap:10px;">
+                                <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px;">
+                                    <span style="font-family:var(--font-mono);font-size:18px;color:var(--cyan);letter-spacing:0.14em;font-weight:700;">STEP 03</span>
+                                    <span style="background:var(--green);color:var(--paper);font-family:var(--font-mono);font-size:18px;padding:4px 14px;border-radius:99px;font-weight:700;">📋 Plan Mode</span>
+                                </div>
+                                <h3 style="font-size:38px;font-weight:900;color:var(--paper);" data-editable="true">規劃 Plan</h3>
+                                <ul class="bullets" style="margin-top:8px;">
+                                    <li style="font-size:26px;color:rgba(246,236,212,0.9);" data-editable="true">輸入任務需求描述</li>
+                                    <li style="font-size:26px;color:rgba(246,236,212,0.9);" data-editable="true">Bob 在 Plan Mode 下自動拆解步驟、生成執行計畫</li>
+                                    <li style="font-size:26px;color:rgba(246,236,212,0.9);" data-editable="true">使用者確認後才進入下一步</li>
+                                </ul>
+                            </div>
+
+                            <!-- Step 4 -->
+                            <div class="flow-step reveal" style="border-left:10px solid var(--red);background:linear-gradient(145deg,#0d211d,var(--green-2));border-radius:28px;padding:28px 34px;display:flex;flex-direction:column;justify-content:flex-start;gap:10px;">
+                                <div style="display:flex;align-items:center;gap:14px;margin-bottom:6px;">
+                                    <span style="font-family:var(--font-mono);font-size:18px;color:var(--amber);letter-spacing:0.14em;font-weight:700;">STEP 04</span>
+                                    <span style="background:var(--cyan);color:var(--green-2);font-family:var(--font-mono);font-size:18px;padding:4px 14px;border-radius:99px;font-weight:700;">🤖 Agent Mode</span>
+                                </div>
+                                <h3 style="font-size:38px;font-weight:900;color:var(--paper);" data-editable="true">執行 Agent</h3>
+                                <ul class="bullets" style="margin-top:8px;">
+                                    <li style="font-size:26px;color:rgba(246,236,212,0.9);" data-editable="true">確認計畫後切換 Agent Mode</li>
+                                    <li style="font-size:26px;color:rgba(246,236,212,0.9);" data-editable="true">Bob 自動執行所有步驟，檔案修改、測試、提交一氣呵成</li>
+                                    <li style="font-size:26px;color:rgba(246,236,212,0.9);" data-editable="true">全程可隨時暫停或介入</li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>IBM Bob workflow</div>
+                        <div>22 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display: flex; flex-direction: column; gap: 48px;">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                Demo 專案與工作流
+                            </div>
+                            <h2 class="reveal" data-editable="true">
+                                取得 Demo 專案檔案與 Workflow 範例
+                            </h2>
+                            <p class="lead reveal" data-editable="true" style="margin-top: 14px; margin-bottom: 0;">
+                                示範「AI 外語自學系統」4 步驟完整工作流，請前往專屬教材網頁取得完整範例：
+                            </p>
+
+                            <!-- 獨立突出的網址連結區塊 (Light Theme) -->
+                            <div class="reveal" style="margin-top: 28px;">
+                                <a
+                                    href="https://hw.is-a.dev/ibm-bobathon/workshops/w05/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    style="
+                                        display: inline-flex;
+                                        align-items: center;
+                                        gap: 18px;
+                                        padding: 16px 32px;
+                                        background: rgba(255, 248, 232, 0.95);
+                                        border: 2px solid var(--green);
+                                        border-radius: 99px;
+                                        text-decoration: none;
+                                        box-shadow: 0 10px 28px rgba(23, 33, 31, 0.08);
+                                    "
+                                >
+                                    <span style="font-size: 24px;">🌐</span>
+                                    <span style="font-family: var(--font-mono); font-size: 28px; font-weight: 700; color: var(--green-2); letter-spacing: 0.02em;">
+                                        https://hw.is-a.dev/ibm-bobathon/workshops/w05/
+                                    </span>
+                                    <span style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--paper); background: var(--green); padding: 6px 18px; border-radius: 99px;">
+                                        開啟教材 ↗
+                                    </span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- 4-Step Workflow Flow Cards (Only Step Title, Light Theme, Well-spaced) -->
+                        <div class="flow reveal" style="margin-top: 0; gap: 28px;">
+                            <div class="flow-step" style="padding: 48px 32px; border-left: 12px solid var(--cyan); background: rgba(255,248,232,0.85); min-height: 220px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 12px 30px rgba(23, 33, 31, 0.06);">
+                                <div style="font-family: var(--font-mono); font-size: 20px; color: var(--cyan); font-weight: 700; margin-bottom: 12px; letter-spacing: 0.12em;">STEP 01</div>
+                                <h3 style="font-size: 38px; font-weight: 900; color: var(--ink); margin: 0;" data-editable="true">語料獲取</h3>
+                            </div>
+                            <div class="flow-step" style="padding: 48px 32px; border-left: 12px solid var(--amber); background: rgba(255,248,232,0.85); min-height: 220px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 12px 30px rgba(23, 33, 31, 0.06);">
+                                <div style="font-family: var(--font-mono); font-size: 20px; color: var(--amber); font-weight: 700; margin-bottom: 12px; letter-spacing: 0.12em;">STEP 02</div>
+                                <h3 style="font-size: 38px; font-weight: 900; color: var(--ink); margin: 0;" data-editable="true">語言分析</h3>
+                            </div>
+                            <div class="flow-step" style="padding: 48px 32px; border-left: 12px solid var(--green); background: rgba(255,248,232,0.85); min-height: 220px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 12px 30px rgba(23, 33, 31, 0.06);">
+                                <div style="font-family: var(--font-mono); font-size: 20px; color: var(--green); font-weight: 700; margin-bottom: 12px; letter-spacing: 0.12em;">STEP 03</div>
+                                <h3 style="font-size: 38px; font-weight: 900; color: var(--ink); margin: 0;" data-editable="true">知識庫寫入</h3>
+                            </div>
+                            <div class="flow-step" style="padding: 48px 32px; border-left: 12px solid var(--red); background: rgba(255,248,232,0.85); min-height: 220px; display: flex; flex-direction: column; justify-content: center; box-shadow: 0 12px 30px rgba(23, 33, 31, 0.06);">
+                                <div style="font-family: var(--font-mono); font-size: 20px; color: var(--red); font-weight: 700; margin-bottom: 12px; letter-spacing: 0.12em;">STEP 04</div>
+                                <h3 style="font-size: 38px; font-weight: 900; color: var(--ink); margin: 0;" data-editable="true">網頁發佈</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Demo project &amp; workflow</div>
+                        <div>23 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            活動 1
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            測試 AGENTS.md 產生效用
+                        </h2>
+                        <p class="lead reveal" data-editable="true">
+                            先用一個很小、很明確的規則，觀察 Agent
+                            的回答是否真的被專案說明文件改變。
+                        </p>
+                        <div class="two-col" style="margin-top: 36px">
+                            <div class="card reveal" style="min-height: 360px">
+                                <h3 data-editable="true">任務</h3>
+                                <p data-editable="true">
+                                    撰寫一份 <code>AGENTS.md</code>，要求 AI
+                                    每次回答問題時都講一個笑話。
+                                </p>
+                                <p data-editable="true">
+                                    接著問同一個問題，比較有規則前後的差異。
+                                </p>
+                            </div>
+                            <div
+                                class="prompt-box reveal"
+                                data-editable="true"
+                                style="
+                                    margin-top: 0;
+                                    min-height: 360px;
+                                    font-size: 24px;
+                                "
+                            >
+                                <pre>
+# AGENTS.md
+
+回答任何問題時：
+1. 先用繁體中文直接回答
+2. 最後補上一個短笑話</pre>
+                            </div>
+                        </div>
+                        <div class="reveal" style="margin-top: 28px; padding: 16px 22px; background: #fff7ed; border-left: 5px solid #f97316; border-radius: 8px; display: flex; align-items: flex-start; gap: 12px;">
+                            <span style="font-size: 22px; line-height: 1;">⚠️</span>
+                            <p style="margin: 0; font-size: 20px; font-weight: 600; color: #9a3412;" data-editable="true">
+                                請在<strong>新的專案資料夾</strong>下操作，避免覆寫 page 23 的 Demo 專案檔案。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Activity 1</div>
+                        <div>24 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            概念補充
+                        </div>
+                        <h2 class="reveal" data-editable="true" style="font-size: 52px">
+                            Andrej Karpathy 的 LLM Wiki：讓 AI 成為知識編譯器
+                        </h2>
+                        <div
+                            class="card reveal"
+                            style="display: grid; grid-template-columns: 0.36fr 1fr; align-items: center; gap: 34px; min-height: 170px; margin-top: 24px"
+                        >
+                            <div>
+                                <div class="part-label">01 / 人物</div>
+                                <h3 data-editable="true">Andrej Karpathy</h3>
+                            </div>
+                            <p data-editable="true" style="font-size: 26px; line-height: 1.45">
+                                電腦科學研究者與 AI 工程師，曾任 Tesla AI 總監，也曾在 OpenAI 工作；以深入淺出的技術解說與實作觀點聞名。
+                            </p>
+                        </div>
+                        <div class="two-col" style="margin-top: 18px; gap: 30px">
+                            <div class="card reveal" style="min-height: 230px">
+                                <div class="part-label">02 / 原始素材</div>
+                                <h3 data-editable="true"><code>raw/</code></h3>
+                                <p data-editable="true" style="margin-top: 16px; font-size: 25px; line-height: 1.45">
+                                    原始文章、筆記與資料的保存區。素材一旦放入，原則上不修改，保留來源與可追溯性。
+                                </p>
+                            </div>
+                            <div class="card amber reveal" style="min-height: 230px">
+                                <div class="part-label">02 / 編譯知識</div>
+                                <h3 data-editable="true"><code>wiki/</code></h3>
+                                <p data-editable="true" style="margin-top: 16px; font-size: 25px; line-height: 1.45">
+                                    Agent 整理、連結與更新的知識頁面。它從 raw/ 取材，產出可閱讀、可查詢的內容。
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="panel reveal"
+                            style="display: grid; align-content: center; min-height: 180px; margin-top: 18px; padding: 26px 32px"
+                        >
+                            <div class="part-label">03 / 價值主張</div>
+                            <p data-editable="true" style="margin-top: 10px; font-size: 29px; line-height: 1.4">
+                                維護結構化知識庫的初期成本，會在成熟後帶來巨大的回報。
+                            </p>
+                        </div>
+                        <a
+                            class="reveal"
+                            href="https://www.cw.com.tw/article/5140637"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="position: absolute; bottom: 92px; display: inline-block; color: var(--green); font-size: 22px; font-weight: 900; text-decoration: none"
+                            >參考閱讀：天下雜誌／Andrej Karpathy 的 LLM Wiki →</a
+                        >
+                    </div>
+                    <div class="footer">
+                        <div>LLM Wiki concept</div>
+                        <div>25 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display:flex;flex-direction:column;">
+                        <div class="kicker reveal" data-editable="true">
+                            活動 2
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            建構個人 LLM Wiki
+                        </h2>
+                        <div
+                            class="reveal"
+                            style="display: flex; gap: 24px; align-items: center; margin-top: 18px"
+                        >
+                            <button
+                                id="copy-wiki-prompt"
+                                type="button"
+                                style="border: 2px solid var(--ink); background: var(--yellow); color: var(--ink); padding: 12px 20px; font: 700 21px/1 var(--font-serif); cursor: pointer"
+                            >
+                                複製AGENTS.md
+                            </button>
+                        </div>
+                        <div
+                            class="two-col"
+                            style="margin-top: 34px; gap: 34px; flex: 1; min-height: 0;"
+                        >
+                            <div class="card reveal" style="min-height: 0; overflow: auto;">
+                                <h3 data-editable="true">操作順序</h3>
+                                <ul class="bullets" style="margin-top: 20px">
+                                    <li
+                                        data-editable="true"
+                                        style="font-size: 25px"
+                                    >
+                                        建立
+                                        <code>llm-wiki/</code>，並在裡面新增
+                                        <code>raw/</code
+                                        >、<code>wiki/</code>、<code>artifacts/</code>。
+                                    </li>
+                                    <li
+                                        data-editable="true"
+                                        style="font-size: 25px"
+                                    >
+                                        複製
+                                        <code
+                                            >AGENTS.md</code
+                                        >
+                                        到自己的 <code>llm-wiki/</code> 根目錄。
+                                    </li>
+                                    <li
+                                        data-editable="true"
+                                        style="font-size: 25px"
+                                    >
+                                        在
+                                        <code>raw/</code>
+                                        放入感興趣的文章或任何文字素材。
+                                    </li>
+                                    <li
+                                        data-editable="true"
+                                        style="font-size: 25px"
+                                    >
+                                        請 Agent 更新 <code>wiki/</code>。
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="reveal" style="overflow:auto;">
+                                <div
+                                    class="prompt-box"
+                                    data-editable="true"
+                                    style="
+                                        margin-top: 0;
+                                        min-height: 0;
+                                        font-size: 28px;
+                                        height: 100%;
+                                    "
+                                >
+                                    <pre>
+└── llm-wiki/
+    # 複製 AGENTS.md
+    ├── AGENTS.md
+    # 把你的文字素材放在這裡
+    ├── raw/
+    # AI產生的知識庫會放在這裡
+    ├── wiki/
+    # 把衍生的成果放在這裡
+    └── artifacts/</pre>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="reveal" style="margin-top: 20px; padding: 16px 22px; background: #fff7ed; border-left: 5px solid #f97316; border-radius: 8px; display: flex; align-items: flex-start; gap: 12px;">
+                            <span style="font-size: 22px; line-height: 1;">⚠️</span>
+                            <p style="margin: 0; font-size: 20px; font-weight: 600; color: #9a3412;" data-editable="true">
+                                請在<strong>新的專案資料夾</strong>下操作，避免覆寫 page 23 的 Demo 專案檔案。
+                            </p>
+                        </div>
+                        <a
+                            class="reveal"
+                            href="https://www.youtube.com/watch?v=ZC8AI_jFWnU"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="display: inline-block; margin-top: 18px; color: var(--green); font-size: 24px; font-weight: 900; text-decoration: none"
+                            >LLM Wiki 參考影片 →</a
+                        >
+                    </div>
+                    <div class="footer">
+                        <div>Activity 2</div>
+                        <div>26 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            活動 3
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            Wiki 頁面 → HTML
+                        </h2>
+                        <p class="lead reveal" data-editable="true">
+                            最後把整理好的 Wiki
+                            內容轉成一個可以打開、檢查、分享的 HTML 頁面。
+                        </p>
+                        <div class="flow" style="margin-top: 44px">
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">選一頁</h3>
+                                <p data-editable="true">
+                                    從 Wiki 中挑一個已整理的主題頁。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">下指令</h3>
+                                <p data-editable="true">
+                                    請 Agent 轉成單檔
+                                    HTML，保留標題、清單、表格與來源註記。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">檢查</h3>
+                                <p data-editable="true">
+                                    確認沒有編造內容、沒有漏掉待確認標記，並使用瀏覽器開啟生成的
+                                    HTML 實際檢視畫面。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">分享</h3>
+                                <p data-editable="true">
+                                    放到
+                                    <code>artifacts/</code
+                                    >，作為後續部署素材。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Activity 3</div>
+                        <div>27 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            本週產出
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            離開教室前，至少要有這些成果
+                        </h2>
+                        <ul class="bullets">
+                            <li class="reveal" data-editable="true">
+                                對五個 Agentic AI 關鍵詞有自己的筆記與理解。
+                            </li>
+                            <li class="reveal" data-editable="true">
+                                <code>AGENTS.md</code>：至少完成一份能影響 Agent
+                                行為的規則文件。
+                            </li>
+                            <li class="reveal" data-editable="true">
+                                初步建立個人 LLM Wiki 的資料夾與內容骨架。
+                            </li>
+                            <li class="reveal" data-editable="true">
+                                至少嘗試一次把 Wiki 頁面轉成 HTML。
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="footer">
+                        <div>Deliverables</div>
+                        <div>28 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            課後活動
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            用 Markdown 寫一份影片摘要與觀看心得
+                        </h2>
+                        <div class="three-col" style="margin-top: 44px">
+                            <div class="card reveal">
+                                <h3 data-editable="true">觀看影片</h3>
+                                <p data-editable="true">
+                                    5 AI Agent Terms You Need to Know
+                                </p>
+                                <p
+                                    style="
+                                        font-size: 22px;
+                                        line-height: 1.5;
+                                        margin-top: 18px;
+                                        color: var(--muted);
+                                    "
+                                >
+                                    <a
+                                        href="https://www.youtube.com/watch?v=k5jYwyhDMxA"
+                                        target="_blank"
+                                        rel="noopener"
+                                        data-editable="true"
+                                        style="color: inherit"
+                                        >https://www.youtube.com/watch?v=k5jYwyhDMxA</a
+                                    >
+                                </p>
+                            </div>
+                            <div class="card amber reveal">
+                                <h3 data-editable="true">產出格式</h3>
+                                <p data-editable="true">
+                                    使用 Markdown
+                                    撰寫內容摘要、你學到的三個重點，以及一段自己的觀看心得。
+                                </p>
+                            </div>
+                            <div class="card red reveal">
+                                <h3 data-editable="true">進階挑戰</h3>
+                                <p data-editable="true">
+                                    思考如何寫一份
+                                    <code>AGENTS.md</code>，讓 AI
+                                    能接手這個流程——貼上影片連結，就自動幫你產出觀看心得。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>After class</div>
+                        <div>29 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display: flex; flex-direction: column; gap: 28px;">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">發想你的 Agent 工作流</div>
+                            <h2 class="reveal" data-editable="true">
+                                好的 Agent 工作流，不只是看起來聰明
+                            </h2>
+                        </div>
+                        <div class="three-col reveal">
+                            <div class="card">
+                                <h3 data-editable="true">可重複</h3>
+                                <p data-editable="true">
+                                    同一類任務下次可以照著流程再做一次。
+                                </p>
+                            </div>
+                            <div class="card amber">
+                                <h3 data-editable="true">可檢查</h3>
+                                <p data-editable="true">
+                                    來源、限制與待確認之處有被明確標示。
+                                </p>
+                            </div>
+                            <div class="card red">
+                                <h3 data-editable="true">可改良</h3>
+                                <p data-editable="true">
+                                    流程、規則與 prompt 能根據結果持續修正。
+                                </p>
+                            </div>
+                        </div>
+                        <div class="reveal" style="background: rgba(240, 161, 43, 0.12); border-radius: 20px; padding: 24px 36px; border: 2px solid rgba(240, 161, 43, 0.4); display: flex; align-items: flex-start; gap: 24px;">
+                            <span style="font-size: 36px; flex-shrink: 0;">✏️</span>
+                            <div>
+                                <p style="font-size: 24px; font-weight: 900; color: var(--green-2); margin: 0 0 10px;" data-editable="true">現在輪到你了</p>
+                                <p style="font-size: 22px; font-weight: 500; color: var(--ink); margin: 0; line-height: 1.6;" data-editable="true">
+                                    想想你工作或學習中<strong>重複最多次的一件事</strong>——它符合「可重複／可檢查／可改良」嗎？這就是你 Agent 工作流的起點。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>發想工作流</div>
+                        <div>30 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display: flex; flex-direction: column; gap: 16px;">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">發想你的 Agent 工作流</div>
+                            <h2 class="reveal" data-editable="true" style="margin-bottom: 0;">
+                                好的 Agent 工作流，需要AI-ready data
+                            </h2>
+                        </div>
+                        <div class="reveal" style="flex: 1; background: rgba(255,248,232,0.85); border-radius: 24px; padding: 20px; border: 2px solid var(--line); min-height: 0; display: flex; align-items: center; justify-content: center;">
+                            <img
+                                src="img/ai_data_ready_diagram.svg"
+                                alt="Make Data AI-Ready: Convert to Markdown First"
+                                style="width: 92%; height: auto; display: block; border-radius: 8px;"
+                            />
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>AI-Ready Data</div>
+                        <div>31 / 32</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display: flex; flex-direction: column; gap: 28px;">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                結語與下週預告
+                            </div>
+                            <h2 class="reveal" data-editable="true" style="font-size: 56px; margin-bottom: 0;">
+                                AI 就像魔法：先能想像，才能實現
+                            </h2>
+                        </div>
+
+                        <!-- 左右雙欄：只有 Quote 與 圖片 -->
+                        <div class="two-col reveal" style="margin-top: 0; gap: 36px; align-items: stretch;">
+                            <!-- Left: Quotes -->
+                            <div style="display: flex; flex-direction: column; gap: 20px; justify-content: space-between;">
+                                <div class="card" style="padding: 34px 36px; border-left: 10px solid var(--cyan); background: rgba(255, 248, 232, 0.9); flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                    <p style="font-family: var(--font-serif); font-size: 27px; font-weight: 700; line-height: 1.45; color: var(--green-2); margin: 0;" data-editable="true">
+                                        「魔法というのはイメージの世界だ。イメージできないものは魔法では実現できない。」
+                                    </p>
+                                    <p style="font-size: 22px; font-weight: 500; color: var(--muted); margin-top: 12px; margin-bottom: 0;" data-editable="true">
+                                        （魔法是想像的世界。想像不到的東西，就沒辦法用魔法實現。）
+                                    </p>
+                                </div>
+
+                                <div class="card" style="padding: 34px 36px; border-left: 10px solid var(--amber); background: rgba(255, 248, 232, 0.9); flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                    <p style="font-family: var(--font-serif); font-size: 27px; font-weight: 700; line-height: 1.45; color: var(--green-2); margin: 0;" data-editable="true">
+                                        「魔法は探し求めている時が一番楽しいんだよ」
+                                    </p>
+                                    <p style="font-size: 22px; font-weight: 500; color: var(--muted); margin-top: 12px; margin-bottom: 0;" data-editable="true">
+                                        （探究魔法的過程，才是最有趣的了！）
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Right: Image with Source Attribution -->
+                            <div class="card" style="padding: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(255, 248, 232, 0.9);">
+                                <img
+                                    src="https://img.vocus.cc/2GN_J3hFigOZ5Yycuk4MZ7201G6uF-zFXJQ5c7yKR9M/w:740/f:webp/plain/https://images.vocus.cc/faad7f4b-3fed-4f3a-ba7d-d72d2f800e06.jpg"
+                                    alt="《葬送的芙莉蓮》魔法想像"
+                                    style="
+                                        width: 100%;
+                                        height: 400px;
+                                        object-fit: cover;
+                                        border-radius: 20px;
+                                    "
+                                />
+                                <p style="font-family: var(--font-mono); font-size: 16px; line-height: 1.4; margin-top: 8px; margin-bottom: 0; color: var(--muted);">
+                                    來源出處：《葬送的芙莉蓮》（葬送のフリーレン）
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 貫穿整頁寬度（跨雙欄）的下週預告區塊（放大強化版） -->
+                        <div class="reveal" style="background: rgba(0, 183, 199, 0.12); border-radius: 24px; padding: 28px 40px; border: 2px solid rgba(0, 183, 199, 0.38); display: flex; align-items: center; gap: 28px; box-shadow: 0 14px 36px rgba(23, 33, 31, 0.08);">
+                            <span style="font-family: var(--font-mono); font-size: 26px; color: var(--paper); background: var(--green); padding: 8px 22px; border-radius: 99px; font-weight: 900; white-space: nowrap; letter-spacing: 0.04em;">🔮 下週預告</span>
+                            <p style="font-size: 30px; font-weight: 700; line-height: 1.4; color: var(--ink); margin: 0;" data-editable="true">
+                                W2 進入 <mark style="background: linear-gradient(transparent 50%, rgba(0, 183, 199, 0.45) 50%);">API / CLI / GUI / ACI / JSON</mark>：理解不同工具型態如何擴充 AI 的魔法能力。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Next week &amp; Closing</div>
+                        <div>32 / 32</div>
+                    </div>
+                </article>
+            </section>
+        </main>
+
+        <nav class="nav-ui" aria-label="簡報導覽">
+            <button id="prev" type="button">←</button>
+            <div id="counter">1 / 32</div>
+            <button id="next" type="button">→</button>
+        </nav>
+
+        <script id="wiki-prompt-data" type="text/plain">IyBMTE0gV2lraSDmk43kvZzopo/nr4QKCuacrCByZXBvc2l0b3J5IOaOoeeUqCAqKkthcnBhdGh5LXN0eWxlIExMTSBXaWtpKiog5p625qeL44CCCgrmnKzmlofku7blrprnvqkgQUkgQWdlbnQg5aaC5L2V6K6A5Y+W5L6G5rqQ44CB5bu656uL5oyB5LmF5YyW55+l6K2Y44CB5pu05pawIFdpa2njgIHlm57nrZTllY/poYzvvIzku6Xlj4rntq3mjIHnn6XorZjluqvlhafpg6jnmoTkuIDoh7TmgKfjgIIKCldpa2kg5LiN5piv6Ieo5pmC55qEIHNjcmF0Y2hwYWTvvIzkuZ/kuI3lj6rmmK8gUkFHIGluZGV444CCCgrlroPmmK/kuIDlgIsqKuaMgee6jOe0r+epjeOAgeacg+eUoueUn+ikh+WIqeaViOaHieeahOefpeitmOWxpO+8iHBlcnNpc3RlbnQsIGNvbXBvdW5kaW5nIGtub3dsZWRnZSBsYXllcu+8iSoq44CCCgrmr4/kuIDmrKHmnInlg7nlgLznmoTos4fmlpnljK/lhaXvvIzpg73mh4noqbLorpPmnKrkvobnmoTllY/poYzmm7TlrrnmmJPlm57nrZTvvIzkuKbnlZnkuIvvvJoKCiog5oyB5LmF5YyW5pGY6KaBCiog5piO56K655qEIGVudGl0aWVzCiog5piO56K655qEIGNvbmNlcHRzCiog5Lqk5Y+J5byV55SoCiog57Sv56mN5oCn55qEIHN5bnRoZXNpcwoqIOW3suiomOmMhOeahOS4jeeiuuWumuaAp+iIh+efm+ebvgoqIOabtOaWsOW+jOeahCBpbmRleAoqIGFwcGVuZC1vbmx5IOeahOaTjeS9nOe0gOmMhAoKQUkgQWdlbnQg5pivIGB3aWtpL2Ag55qE5Li76KaB57at6K236ICF44CCCgotLS0KCiMgMS4g5p625qeLCgrmnKwgcmVwb3NpdG9yeSDmjqHnlKjkuInlsaTpgo/ovK/mnrbmp4vvvJoKCmBgYHRleHQKcmF3LyAgICAgICAgICAgICAgICAgICAg5Y6f5aeL6LOH5paZ5L6G5rqQ77yIU291cmNlIG9mIFRydXRo77yJCiAg4pSCCiAg4pSCIOWUr+iugAogIOKWvAp3aWtpLyAgICAgICAgICAgICAgICAgICAg57eo6K2v77yP57at6K235b6M55qE55+l6K2Y5bGkCiAg4pSCCiAg4pSCIEFnZW50IOafpeipouiIh+abtOaWsAogIOKWvApBR0VOVFMubWQgICAgICAgICAgICAgICBBZ2VudCDnmoTmk43kvZzopo/nr4QKYGBgCgojIyAxLjEgUmF3IExheWVyCgpgcmF3L2Ag5a2Y5pS+5Y6f5aeL5L6G5rqQ6LOH5paZ44CCCgrkvovlpoLvvJoKCiog5paH56ugCiog6KuW5paHCiog5pu457GNCiogdHJhbnNjcmlwdAoqIOethuiomAoqIGRhdGFzZXQKKiBzb3VyY2UgY29kZQoqIGRvY3VtZW50YXRpb24KKiDmiKrlnJYKKiDntrLpoIHmk7flj5blhaflrrkKKiDljK/lh7rnmoTmlofku7YKClJhdyBzb3VyY2VzIOaYr+itieaTmuOAggoK5Zyo5LiA6IisIFdpa2kg57at6K236YGO56iL5Lit77yMQWdlbnQgKirlv4XpoIjlsIcgYHJhdy9gIOimlueCuuS4jeWPr+iuiuizh+aWmSoq77yM6Zmk6Z2e5L2/55So6ICF5piO56K66KaB5rGC6YCy6KGMIHNvdXJjZS1tYW5hZ2VtZW50IOW3peS9nOOAggoKQWdlbnQgKirkuI3lvpfpu5jpu5jmlLnlr6vmiJbjgIzmlbTnkIbjgI1yYXcgc291cmNlKirjgIIKCuWmguaenOS+hua6kOacrOi6q+WtmOWcqOmMr+iqpOOAgeatp+e+qeOAgeS4jeWQjOingOm7nuaIluefm+ebvu+8jOaHieS/neeVmeWOn+Wni+S+hua6kO+8jOS4puWcqOefpeitmOWxpOihqOmBlOmAmeS6m+WVj+mhjOOAggoKLS0tCgojIDIuIFdpa2kgTGF5ZXIKCmB3aWtpL2Ag5piv5oyB57qM57at6K2355qE55+l6K2Y5bGk44CCCgrlv4XopoHntZDmp4vvvJoKCmBgYHRleHQKd2lraS8K4pSc4pSA4pSAIGNvbmNlcHRzLwrilJzilIDilIAgZW50aXRpZXMvCuKUnOKUgOKUgCBzb3VyY2VzLwrilJzilIDilIAgc3ludGhlc2lzLwrilJzilIDilIAgaW5kZXgubWQK4pSU4pSA4pSAIGxvZy5tZApgYGAKCiMjIGB3aWtpL3NvdXJjZXMvYAoK5q+P5YCL6YeN6KaBIHJhdyBzb3VyY2Ug5bCN5oeJ5LiA5YCLIHNvdXJjZSBwYWdl44CCCgpTb3VyY2UgcGFnZSDoqqrmmI7oqbLkvobmupDlsI0gV2lraSDosqLnjbvkuobku4DpurzjgIIKCuaHieWMheWQq++8mgoKKiBzb3VyY2UgaWRlbnRpdHkKKiBzb3VyY2UgcGF0aAoqIHNvdXJjZSB0eXBlCiogcHVibGljYXRpb24gZGF0ZSDmiJYgY3JlYXRpb24gZGF0Ze+8iOiLpeW3suefpe+8iQoqIGluZ2VzdGlvbiBkYXRlCiogc3VtbWFyeQoqIGltcG9ydGFudCBjbGFpbXMKKiBpbXBvcnRhbnQgZW50aXRpZXMKKiBpbXBvcnRhbnQgY29uY2VwdHMKKiBsaW1pdGF0aW9ucwoqIOiIh+aXouacieefpeitmOeahOefm+ebvgoqIOWPl+WIsOW9semfv+eahCBXaWtpIHBhZ2VzCgpTb3VyY2UgcGFnZSDmmK8qKuitieaTmueahOe1kOani+WMluihqOekuioq77yM5LiN5piv5Y6f5aeL5L6G5rqQ55qE5pu/5Luj5ZOB44CCCgotLS0KCiMjIGB3aWtpL2VudGl0aWVzL2AKCkVudGl0eSBwYWdlIOeUqOS+huihqOekuuaMgeS5heWtmOWcqOeahOOAjOWRveWQjeWwjeixoeOAjeOAggoK5L6L5aaC77yaCgoqIOS6ugoqIOe1hOe5lAoqIOWFrOWPuAoqIHByb2R1Y3QKKiBtb2RlbAoqIGRhdGFzZXQKKiB0ZWNobm9sb2d5CiogcHJvamVjdAoqIGJvb2sKKiBwYXBlcgoqIHBsYWNlCiogcHJvdG9jb2wKCueVtuS4gOWAiyBlbnRpdHkg5b6I5Y+v6IO96KKr5aSa5YCL5L6G5rqQ5byV55So77yM5oiW6L+96Lmk5a6D55qE5ryU6K6K5YW35pyJ5oyB5LmF5YO55YC85pmC77yM5oeJ6Kmy5bu656uLIGVudGl0eSBwYWdl44CCCgrkuI3opoHlm6Dngrrmn5DlgIvlkI3lrZflj6rlh7rnj77kuIDmrKHvvIzlsLHlu7rnq4sgZW50aXR5IHBhZ2XjgIIKCuWEquWFiOe2reittyoq5Zau5LiAIGNhbm9uaWNhbCBlbnRpdHkgcGFnZSoq77yM6YG/5YWN6YeN6KSH44CCCgotLS0KCiMjIGB3aWtpL2NvbmNlcHRzL2AKCkNvbmNlcHQgcGFnZSDnlKjkvobooajnpLrjgIzmpoLlv7XjgI3vvIzogIzkuI3mmK/lkb3lkI3lsI3osaHjgIIKCuS+i+Wmgu+8mgoKKiDmlrnms5UKKiDnkIboq5YKKiDmqZ/liLYKKiBhcmNoaXRlY3R1cmUgcGF0dGVybgoqIOWOn+WJhwoqIOihk+iqngoqIHJlY3VycmluZyB0aGVtZXMKKiBkZWJhdGUKKiBoeXBvdGhlc2lzCgpDb25jZXB0IHBhZ2Ug5oeJ6Kmy6Zqo6JGX5paw55qE5L6G5rqQ6KKr5Yqg5YWl6ICM5oyB57qM5ryU5YyW44CCCgpDb25jZXB0IHBhZ2Ug5oeJ5Y2A5YiG77yaCgoxLiDlrprnvqkKMi4g6K2J5pOaCjMuIOS4jeWQjOino+iugAo0LiDnq7bniK3mgKfop4Dpu54KNS4g5bCa5pyq6Kej5rG655qE5ZWP6aGMCgrkuI3opoHmiorllq7kuIDkvobmupDnmoTop6PoroDnm7TmjqXnlbbmiJDmma7pgY3nnJ/nkIbjgIIKCi0tLQoKIyMgYHdpa2kvc3ludGhlc2lzL2AKClN5bnRoZXNpcyBwYWdlIOeUqOS+huS/neWtmOW+nuWkmuWAiyBzb3VyY2Vz44CBY29uY2VwdHPjgIFlbnRpdGllcyDmiJbml6LmnInnoJTnqbbkuK3nlKLnlJ/nmoTmjIHkuYXmgKfntZDoq5bjgIIKClN5bnRoZXNpcyAqKuS4jeaYryBzb3VyY2Ugc3VtbWFyeSoq44CCCgrlroPmh4noqbLlm57nrZTvvJoKCiog5aSa5YCL5L6G5rqQ5ZCI5Zyo5LiA6LW35Luj6KGo5LuA6bq877yfCiog5ZOq5Lqb5Zyw5pa55b285q2k5LiA6Ie077yfCiog5ZOq5Lqb5Zyw5pa55LqS55u455+b55u+77yfCiog5ZOq5Lqb5qmf5Yi25Y+v5Lul6Kej6YeL6KeA5a+f5Yiw55qE54++6LGh77yfCiog5ZOq5Lqb57WQ6KuW5LuN54S25YW35pyJ5LiN56K65a6a5oCn77yfCiog5LuA6bq86K2J5pOa5Y+v6IO95pS56K6K55uu5YmN55qE57WQ6KuW77yfCgpTeW50aGVzaXMg5b+F6aCI6YCj57WQ5Zue5bqV5bGk6K2J5pOa44CCCgpTeW50aGVzaXMgKirkuI3lvpfngrrkuobnlKLnlJ/mm7Tkub7mt6jnmoTmlZjkuovogIzpmrHol4/liIbmracqKuOAggoKLS0tCgojIyBgd2lraS9pbmRleC5tZGAKCmBpbmRleC5tZGAg5piv55+l6K2Y5bqr55qE5Li76KaB5bCO6Iiq5YWl5Y+j44CCCgrlroPmh4noqbLkv53mjIHnsr7nsKHkuJTlrrnmmJPmjoPoroDjgIIKCuW/hemgiOaPkOS+m+mHjeimge+8mgoKKiBzb3VyY2UgcGFnZXMKKiBlbnRpdHkgcGFnZXMKKiBjb25jZXB0IHBhZ2VzCiogc3ludGhlc2lzIHBhZ2VzCgrnmoTpgKPntZDjgIIKCuS+nemhnuWei+e1hOe5lCBlbnRyaWVz44CCCgrkuI3opoHmioogYGluZGV4Lm1kYCDorormiJDmlbTlgIsgV2lraSDnmoTlrozmlbTlia/mnKzjgIIKCi0tLQoKIyMgYHdpa2kvbG9nLm1kYAoKYGxvZy5tZGAg5pivICoqYXBwZW5kLW9ubHkqKuOAggoK5q+P5qyh5pyJ5oSP576p55qEIFdpa2kg5pON5L2c6YO95oeJ55WZ5LiL57SA6YyE44CCCgrkvovlpoLvvJoKCmBgYG1hcmtkb3duCiMjIFsyMDI2LTA5LTE2XSBpbmdlc3QgfCBUcmFuc2Zvcm1lciBBcmNoaXRlY3R1cmUKCi0g5paw5aKeIHNvdXJjZSBzdW1tYXJ544CCCi0g5pu05pawIGVudGl0aWVz77yaW1tlbnRpdGllcy90cmFuc2Zvcm1lcl1dCi0g5pu05pawIGNvbmNlcHRz77yaW1tjb25jZXB0cy9zZWxmLWF0dGVudGlvbl1d44CBW1tjb25jZXB0cy90cmFuc2Zvcm1lci1hcmNoaXRlY3R1cmVdXQotIOaWsOWiniBzeW50aGVzaXPvvJpbW3N5bnRoZXNpcy90cmFuc2Zvcm1lci1zY2FsaW5nXV0KYGBgCgrkuI3opoHlj6rmmK/ngrrkuoborpPmoLzlvI/nnIvotbfkvobmm7TmvILkuq7vvIzlsLHmlLnlr6vmrbflj7IgbG9nIGVudHJpZXPjgIIKCi0tLQoKIyAzLiDmoLjlv4Pljp/liYcKCiMjIDMuMSDnn6XorZjlv4XpoIjnlKLnlJ/opIfliKkKCuS4jeimgeavj+asoemDveW+niByYXcgZG9jdW1lbnRzIOmHjeaWsOeZvOePvuebuOWQjOeahOefpeitmOOAggoK55W25paw6K2J5pOa6IiH5pei5pyJ55+l6K2Y6YeN55aK5pmC77yaCgoxLiDmib7liLDml6LmnIkgcGFnZQoyLiDlsIfmlrDorYnmk5roiIfml6LmnIkgY2xhaW1zIOavlOi8gwozLiDmm7TmlrDml6LmnIkgcGFnZQo0LiDkv53nlZnph43opoHliIbmracKNS4g5Yqg5YWlIGNyb3NzLWxpbmtzCjYuIOW/heimgeaZguabtOaWsCBzeW50aGVzaXMKCuWEquWFiOaOoeeUqCoq57Sv56mN5byPIHJlZmluZW1lbnQqKu+8jOiAjOS4jeaYr+W7uueri+W5s+ihjOeahOmHjeikh+mggemdouOAggoKLS0tCgojIyAzLjIgRXZpZGVuY2Ug6IiHIFN5bnRoZXNpcyDlv4XpoIjliIbplosKCuWni+e1guWNgOWIhu+8mgoKYGBgdGV4dApTb3VyY2UKICDihpMKRXZpZGVuY2UKICDihpMKSW50ZXJwcmV0YXRpb24KICDihpMKU3ludGhlc2lzCmBgYAoK5pyJIHNvdXJjZSDmlK/mjIHnmoTkuovlr6bvvIzkuI3mh4noqbLlm6DngrrkvobmupDmj5Dlh7rkuobmn5DlgIvoq5bpu57vvIzlsLHooqvmj4/ov7DmiJDnjajnq4vmiJDnq4vnmoTntZDoq5bjgIIKCumBqeeVtuaZgu+8jOaYjueiuuaomeiomO+8mgoKKiBgRmFjdGAKKiBgQ2xhaW1gCiogYEludGVycHJldGF0aW9uYAoqIGBJbmZlcmVuY2VgCiogYFVuY2VydGFpbnR5YAoqIGBDb250cmFkaWN0aW9uYAoqIGBPcGVuIFF1ZXN0aW9uYAoKLS0tCgojIyAzLjMg5L+d55WZ5LiN56K65a6a5oCnCgrmsLjpgaDkuI3opoHoo73pgKDomZvlgYfnmoTnorrlrprmgKfjgIIKCuWmguaenOitieaTmuS4jeWujOaVtO+8jOWwseaYjueiuuaMh+WHuuOAggoK5aaC5p6c5YWp5YCL5Y+v5L+h5L6G5rqQ5LqS55u455+b55u+77yM5bCx5L+d55WZ6YCZ5YCL55+b55u+44CCCgrlpoLmnpzntZDoq5bkvp3os7Tmn5DlgIvlgYfoqK3vvIzlsLHmjIflh7roqbLlgYfoqK3jgIIKCuWEquWFiOWvq++8mgoKPiDorYnmk5rpoa/npLogWO+8jOS9huS+hua6kCBBIOiIh+S+hua6kCBCIOWwjSBZIOacieS4jeWQjOaPj+i/sOOAggoK6ICM5LiN5piv77yaCgo+IFgg5piv55yf55qE44CCCgrpmaTpnZ7orYnmk5rnorrlr6botrPku6XmlK/mjIHmm7TlvLfnmoTooajov7DjgIIKCi0tLQoKIyMgMy40IOWEquWFiOabtOaWsO+8jOiAjOS4jeaYr+mHjeikh+W7uueriwoK5bu656uL5pawIHBhZ2Ug5LmL5YmN77yaCgoxLiDmkJzlsIsgYHdpa2kvaW5kZXgubWRgCjIuIOaQnOWwi+ebuOmXnOebrumMhAozLiDmqqLmn6Xlj6/og73lt7LlrZjlnKjnmoQgcGFnZXMKNC4g5Yik5pa35paw6LOH6KiK5piv5ZCm5oeJ6Kmy5pS+6YCy5pei5pyJIHBhZ2UKCuWPquacieeVtuaWsOWFp+WuueS7o+ihqOS4gOWAi+ecn+ato+S4jeWQjOeahCBrbm93bGVkZ2Ugb2JqZWN0IOaZgu+8jOaJjeW7uueri+aWsCBwYWdl44CCCgotLS0KCiMgNC4gUGFnZSDmoLzlvI8KCuWFt+WvpuizquWFp+WuueeahCBwYWdlcyAqKuaHieipsuS9v+eUqCBZQU1MIGZyb250bWF0dGVyKirjgIIKCuW7uuitsOagvOW8j++8mgoKYGBgeWFtbAotLS0KdGl0bGU6IEV4YW1wbGUgQ29uY2VwdAp0eXBlOiBjb25jZXB0CmNyZWF0ZWQ6IDIwMjYtMDktMTYKdXBkYXRlZDogMjAyNi0wOS0xNgpzb3VyY2VzOgogIC0gcmF3L2V4YW1wbGUubWQKdGFnczoKICAtIGV4YW1wbGUKc3RhdHVzOiBhY3RpdmUKLS0tCmBgYAoK5pyJ5pWI55qEIHBhZ2UgdHlwZXPvvJoKCmBgYHRleHQKc291cmNlCmVudGl0eQpjb25jZXB0CnN5bnRoZXNpcwpgYGAKCi0tLQoKIyA0LjEgU291cmNlIFBhZ2VzCgrlu7rorbDntZDmp4vvvJoKCmBgYG1hcmtkb3duCi0tLQp0aXRsZTogRXhhbXBsZSBTb3VyY2UKdHlwZTogc291cmNlCmNyZWF0ZWQ6IFlZWVktTU0tREQKdXBkYXRlZDogWVlZWS1NTS1ERApzb3VyY2VzOgogIC0gcmF3L3BhdGgvdG8vc291cmNlLm1kCnN0YXR1czogYWN0aXZlCi0tLQoKIyBFeGFtcGxlIFNvdXJjZQoKIyMg5pGY6KaBCgouLi4KCiMjIOmHjeimgSBDbGFpbXMKCi0gLi4uCgojIyBFbnRpdGllcwoKLSBbWy4uL2VudGl0aWVzL2V4YW1wbGVdXQoKIyMgQ29uY2VwdHMKCi0gW1suLi9jb25jZXB0cy9leGFtcGxlXV0KCiMjIOitieaTmu+8j+ethuiomAoKLi4uCgojIyDpmZDliLYKCi4uLgoKIyMg55u46ZecIFBhZ2VzCgotIFtbLi4vY29uY2VwdHMvZXhhbXBsZV1dCi0gW1suLi9zeW50aGVzaXMvZXhhbXBsZV1dCmBgYAoKLS0tCgojIDQuMiBFbnRpdHkgUGFnZXMKCuW7uuitsOe1kOani++8mgoKYGBgbWFya2Rvd24KLS0tCnRpdGxlOiBFeGFtcGxlIEVudGl0eQp0eXBlOiBlbnRpdHkKY3JlYXRlZDogWVlZWS1NTS1ERAp1cGRhdGVkOiBZWVlZLU1NLURECnNvdXJjZXM6CiAgLSByYXcvZXhhbXBsZS5tZApzdGF0dXM6IGFjdGl2ZQotLS0KCiMgRXhhbXBsZSBFbnRpdHkKCiMjIOaRmOimgQoKLi4uCgojIyBJZGVudGl0eQoKLi4uCgojIyDph43opoHkuovlr6YKCi0gLi4uCgojIyBSZWxhdGlvbnNoaXBzCgotIFtbLi4vZW50aXRpZXMvcmVsYXRlZC1lbnRpdHldXQotIFtbLi4vY29uY2VwdHMvcmVsYXRlZC1jb25jZXB0XV0KCiMjIOitieaTmgoKLi4uCgojIyBPcGVuIFF1ZXN0aW9ucwoKLi4uCmBgYAoKLS0tCgojIDQuMyBDb25jZXB0IFBhZ2VzCgrlu7rorbDntZDmp4vvvJoKCmBgYG1hcmtkb3duCi0tLQp0aXRsZTogRXhhbXBsZSBDb25jZXB0CnR5cGU6IGNvbmNlcHQKY3JlYXRlZDogWVlZWS1NTS1ERAp1cGRhdGVkOiBZWVlZLU1NLURECnNvdXJjZXM6CiAgLSByYXcvZXhhbXBsZS5tZApzdGF0dXM6IGFjdGl2ZQotLS0KCiMgRXhhbXBsZSBDb25jZXB0CgojIyDlrprnvqkKCi4uLgoKIyMg5qC45b+D5qaC5b+1CgotIC4uLgoKIyMg5qmf5Yi2CgouLi4KCiMjIOitieaTmgoKLi4uCgojIyDkuI3lkIzop6PoroAKCi4uLgoKIyMgUmVsYXRlZCBDb25jZXB0cwoKLSBbWy4vcmVsYXRlZC1jb25jZXB0XV0KCiMjIFJlbGF0ZWQgRW50aXRpZXMKCi0gW1suLi9lbnRpdGllcy9leGFtcGxlXV0KCiMjIE9wZW4gUXVlc3Rpb25zCgouLi4KYGBgCgotLS0KCiMgNC40IFN5bnRoZXNpcyBQYWdlcwoK5bu66K2w57WQ5qeL77yaCgpgYGBtYXJrZG93bgotLS0KdGl0bGU6IEV4YW1wbGUgU3ludGhlc2lzCnR5cGU6IHN5bnRoZXNpcwpjcmVhdGVkOiBZWVlZLU1NLURECnVwZGF0ZWQ6IFlZWVktTU0tREQKc291cmNlczoKICAtIHJhdy9zb3VyY2UtYS5tZAogIC0gcmF3L3NvdXJjZS1iLm1kCnN0YXR1czogYWN0aXZlCi0tLQoKIyBFeGFtcGxlIFN5bnRoZXNpcwoKIyMg5qC45b+D6KuW6bueCgouLi4KCiMjIOitieaTmgoKIyMjIFNvdXJjZSBBCgouLi4KCiMjIyBTb3VyY2UgQgoKLi4uCgojIyDntpzlkIjliIbmnpAKCi4uLgoKIyMg5LiA6Ie05LmL6JmVCgotIC4uLgoKIyMg5YiG5q2n5LmL6JmVCgotIC4uLgoKIyMg5LiN56K65a6a5oCnCgouLi4KCiMjIEltcGxpY2F0aW9ucwoKLi4uCgojIyBSZWxhdGVkIENvbmNlcHRzCgotIFtbLi4vY29uY2VwdHMvZXhhbXBsZV1dCgojIyBSZWxhdGVkIEVudGl0aWVzCgotIFtbLi4vZW50aXRpZXMvZXhhbXBsZV1dCmBgYAoKLS0tCgojIDUuIOaTjeS9nAoKQWdlbnQg5Li76KaB5Z+36KGM5Zub56iuIHdvcmtmbG9377yaCgpgYGB0ZXh0CklOR0VTVApRVUVSWQpTWU5USEVTSVpFCkxJTlQKYGBgCgotLS0KCiMgNi4gSU5HRVNUIFdvcmtmbG93Cgrnlbbkvb/nlKjogIXopoHmsYLljK/lhaXkuIDlgIsgc291cmNlIOaZgu+8mgoKIyMgU3RlcCAxIOKAlCDlrprkvY0gU291cmNlCgrmib7liLAgYHJhdy9gIOS4i+ebuOmXnOaqlOahiOOAggoK5aaC5p6cIHNvdXJjZSDkuI3lrZjlnKjmlrzmnKzmqZ/vvIzogIzkvb/nlKjogIXmj5DkvpsgVVJM77yM5Y+q5pyJ5Zyo6YGp55W25LiU5YWB6Kix55qE5oOF5rOB5LiL5omN5Y+W5b6X44CCCgrntZXlsI3kuI3opoHmjY/pgKAgc291cmNlIGNvbnRlbnRz44CCCgotLS0KCiMjIFN0ZXAgMiDigJQg5YWI6K6A5YaN5a+rCgrlhYjoroDlj5botrPlpKDnmoQgc291cmNlIOWFp+Wuue+8jOS7peeQhuino++8mgoKKiDkuLvopoEgY2xhaW1zCiog6YeN6KaB57Sw56+ACiogZW50aXRpZXMKKiBjb25jZXB0cwoqIGV2aWRlbmNlCiogdW5jZXJ0YWludHkKKiBjb250cmFkaWN0aW9ucwoK5LiN6KaB5Y+q5qC55pOaIGZpbGVuYW1lIOaIliBtZXRhZGF0YSDlu7rnq4sgV2lraSBwYWdlc+OAggoKLS0tCgojIyBTdGVwIDMg4oCUIOaQnOWwi+aXouacieefpeitmAoK5bu656uLIHBhZ2VzIOWJje+8jOaqouafpe+8mgoKYGBgdGV4dAp3aWtpL2luZGV4Lm1kCndpa2kvc291cmNlcy8Kd2lraS9lbnRpdGllcy8Kd2lraS9jb25jZXB0cy8Kd2lraS9zeW50aGVzaXMvCmBgYAoK5bCL5om+6IiH5pawIHNvdXJjZSDph43nlornmoTml6LmnIkgcGFnZXPjgIIKCi0tLQoKIyMgU3RlcCA0IOKAlCDlu7rnq4vmiJbmm7TmlrAgU291cmNlIFBhZ2UKCuW7uueri+aIluabtOaWsO+8mgoKYGBgdGV4dAp3aWtpL3NvdXJjZXMvPHNvdXJjZS1zbHVnPi5tZApgYGAKCuipsiBwYWdlIOaHieipsuaRmOimgSBzb3VyY2XvvIzkuKbpgKPntZDliLDlroPmiYDlvbHpn7/nmoTnn6XorZjjgIIKCi0tLQoKIyMgU3RlcCA1IOKAlCDmm7TmlrAgRW50aXRpZXMKCuWwjeavj+S4gOWAi+eZvOePvueahOaMgeS5heaApyBlbnRpdHnvvJoKCjEuIOaJvuePvuaciSBwYWdlCjIuIOWmguaenOWtmOWcqOWJh+abtOaWsAozLiDlpoLmnpzkuI3lrZjlnKjliYflu7rnq4sKCuS4jeimgeW7uueri+mHjeikhyBlbnRpdHnjgIIKCi0tLQoKIyMgU3RlcCA2IOKAlCDmm7TmlrAgQ29uY2VwdHMKCuWwjeavj+S4gOWAi+aMgeS5heaApyBjb25jZXB077yaCgoxLiDmib7nj77mnIkgY29uY2VwdCBwYWdlCjIuIOavlOi8g+aWsOitieaTmgozLiDmm7TmlrAgcGFnZQo0LiDkv53nlZnliIbmracKNS4g5Y+q5pyJ5b+F6KaB5pmC5omN5bu656uL5pawIHBhZ2UKCi0tLQoKIyMgU3RlcCA3IOKAlCDmm7TmlrAgU3ludGhlc2lzCgrlpoLmnpzmlrAgc291cmNlIOWvpuizquaUueiuiuaXouaciSBzeW50aGVzaXPvvJoKCiog5pu05pawIHN5bnRoZXNpcwoqIOWKoOWFpeaWsOitieaTmgoqIOS/ruato+mBjuaZgueahOe1kOirlgoqIOWcqOebuOmXnOaDheazgeS4i+S/neeVmeWOn+acrOeahOS4jeeiuuWumuaApwoK5aaC5p6c5L6G5rqQ57WE5ZCI55Si55Sf5paw55qE5oyB5LmF5oCn57WQ6KuW77yM5YmH5bu656uL5paw55qEIHN5bnRoZXNpc+OAggoKLS0tCgojIyBTdGVwIDgg4oCUIOabtOaWsCBJbmRleAoK5Lu75L2V5paw5bu656uL55qE5oyB5LmF5oCnIHBhZ2UgKirpg73lv4XpoIjog73lvp4gYHdpa2kvaW5kZXgubWRgIOiiq+aJvuWIsCoq44CCCgotLS0KCiMjIFN0ZXAgOSDigJQgQXBwZW5kIExvZwoK5bCHIGVudHJ5IGFwcGVuZCDliLDvvJoKCmBgYHRleHQKd2lraS9sb2cubWQKYGBgCgpMb2cg5oeJ5oyH5Ye677yaCgoqIG9wZXJhdGlvbgoqIHNvdXJjZQoqIHBhZ2VzIGNyZWF0ZWQKKiBwYWdlcyB1cGRhdGVkCiog6YeN6KaB6K6K5pu0CgotLS0KCiMgNy4gUVVFUlkgV29ya2Zsb3cKCuWbnuetlOefpeitmOW6q+ebuOmXnOWVj+mhjOaZgu+8mgoKIyMgU3RlcCAxCgrlhYjoroDvvJoKCmBgYHRleHQKd2lraS9pbmRleC5tZApgYGAKCiMjIFN0ZXAgMgoK5om+5Ye655u46Zec77yaCgpgYGB0ZXh0CmNvbmNlcHRzLwplbnRpdGllcy8Kc291cmNlcy8Kc3ludGhlc2lzLwpgYGAKCiMjIFN0ZXAgMwoK5YSq5YWI5L2/55SoIFdpa2kg5Lit5bey57aTIHN5bnRoZXNpcyDpgY7nmoTnn6XorZjvvIzogIzkuI3mmK/mr4/mrKHpg73lvp4gcmF3IHNvdXJjZXMg6YeN5paw5bu656uL562U5qGI44CCCgojIyBTdGVwIDQKCuWwh+mHjeimgSBjbGFpbXMg6L+95rqv5ZueIHNvdXJjZSBwYWdlc+OAggoKIyMgU3RlcCA1CgrlpoLmnpzlrZjlnKggdW5jZXJ0YWludHkg5oiWIGRpc2FncmVlbWVudO+8jOW/hemgiOaYjueiuuaMh+WHuuOAggoKIyMgU3RlcCA2CgrlpoLmnpznrZTmoYjkuK3nlKLnlJ/kuobmnKrkvobku43mnInlg7nlgLznmoQgZHVyYWJsZSBrbm93bGVkZ2XvvIzlj6/ku6XogIPmha7kv53lrZjngrrvvJoKCmBgYHRleHQKd2lraS9zeW50aGVzaXMvPHNsdWc+Lm1kCmBgYAoK5Lim5pu05paw77yaCgpgYGB0ZXh0Cndpa2kvaW5kZXgubWQKd2lraS9sb2cubWQKYGBgCgotLS0KCiMgOC4gU1lOVEhFU0lTIFdvcmtmbG93CgpTeW50aGVzaXMg5pivIFdpa2kg55Si55Sf6KSH5Yip5pWI5oeJ55qE5qC45b+D44CCCgrkuIDmrKEgc3ludGhlc2lzIG9wZXJhdGlvbiDmh4noqbLvvJoKCjEuIOaJvuWHuuebuOmXnCBzb3VyY2VzCjIuIOaJvuWHuuaXouaciSBjb25jZXB0cwozLiDmib7lh7rnm7jpl5wgZW50aXRpZXMKNC4g5q+U6LyDIGNsYWltcwo1LiDmib7lh7rkuIDoh7TkuYvomZUKNi4g5om+5Ye655+b55u+CjcuIOaJvuWHuue8uuWkseeahOitieaTmgo4LiDnlKLnlJ8gZHVyYWJsZSBjb25jbHVzaW9uCjkuIOWwhyBjb25jbHVzaW9uIOmAo+WbnuitieaTmgoK5LiN6KaB5Y+q5piv54K65LqG6K6TIFdpa2kg6K6K5aSn6ICM5bu656uLIHN5bnRoZXNpc+OAggoK55uu5qiZ5piv77yaCgoqKuefpeitmOWvhuW6pu+8iGtub3dsZWRnZSBkZW5zaXR577yJ77yM6ICM5LiN5pivIHBhZ2Ug5pW46YeP44CCKioKCi0tLQoKIyA5LiBMSU5UIFdvcmtmbG93Cgrnlbbkvb/nlKjogIXopoHmsYLmqqLmn6XmiJbmlbTnkIYgV2lraSDmmYLvvJoKCuaqouafpeS7peS4i+mgheebruOAggoKIyMg57WQ5qeL5ZWP6aGMCgoqIOaYr+WQpue8uuWwkSBgd2lraS9pbmRleC5tZGAKKiDmmK/lkKbnvLrlsJEgYHdpa2kvbG9nLm1kYAoqIHBhZ2UgdHlwZSDmmK/lkKbmnInmlYgKKiDmmK/lkKbnvLrlsJEgZnJvbnRtYXR0ZXIKKiBNYXJrZG93biDmmK/lkKbmoLzlvI/pjK/oqqQKCiMjIOefpeitmOWVj+mhjAoKKiBkdXBsaWNhdGUgZW50aXRpZXMKKiBkdXBsaWNhdGUgY29uY2VwdHMKKiBvcnBoYW4gcGFnZXMKKiDmspLmnInooqsgaW5kZXgg5byV55So55qEIHBhZ2VzCiog6YGO5pmC55qEIHN5bnRoZXNpcwoqIOaykuacieitieaTmuaUr+aMgeeahCBjbGFpbXMKKiBjb250cmFkaWN0b3J5IGNsYWltcwoqIHdlYWtseSBzb3VyY2VkIHBhZ2VzCgojIyBMaW5rIOWVj+mhjAoKKiBicm9rZW4gcmVsYXRpdmUgbGlua3MKKiDmjIflkJHkuI3lrZjlnKggcGFnZXMg55qEIHJlZmVyZW5jZXMKKiDmjIflkJHlt7Lph43mlrDlkb3lkI3mqpTmoYjnmoQgbGlua3MKKiDlkIzkuIAgb2JqZWN0IOeahOmHjeikhyByZXByZXNlbnRhdGlvbgoKIyMg5ZOB6LOq5ZWP6aGMCgoqIOmBjuW6pumHjeikhwoqIOikh+ijvSBzb3VyY2UgY29udGVudCDogIzpnZ7mkZjopoEKKiDmspLmnIkgZXZpZGVuY2Ug5bCx55u05o6l55Si55SfIGNvbmNsdXNpb24KKiDpmrHol48gdW5jZXJ0YWludHkKKiBzeW50aGVzaXMg5rKS5pyJ5oyH5Ye65YW2IGV2aWRlbmNlCgpMaW50IOaHieipsueUoueUn+WPr+aqouafpeeahOe1kOaenO+8m+W/heimgeaZgu+8jOWcqO+8mgoKYGBgdGV4dAp3aWtpL2xvZy5tZApgYGAKCui/veWKoCBgbGludGAgZW50cnnjgIIKCi0tLQoKIyAxMC4g5ZG95ZCN6KaP5YmHCgrmqpTlkI3kvb/nlKggbG93ZXJjYXNlIGtlYmFiLWNhc2XjgIIKCuWlveeahOS+i+WtkO+8mgoKYGBgdGV4dAp3aWtpL2NvbmNlcHRzL3NlbGYtYXR0ZW50aW9uLm1kCndpa2kvY29uY2VwdHMva25vd2xlZGdlLWNvbXBvdW5kaW5nLm1kCndpa2kvZW50aXRpZXMvYW5kcmVqLWthcnBhdGh5Lm1kCndpa2kvc291cmNlcy9hdHRlbnRpb24taXMtYWxsLXlvdS1uZWVkLm1kCndpa2kvc3ludGhlc2lzL3JhZy12cy1wZXJzaXN0ZW50LXdpa2kubWQKYGBgCgrpgb/lhY3vvJoKCmBgYHRleHQKU2VsZkF0dGVudGlvbi5tZApNeSBDb29sIENvbmNlcHQubWQKZmluYWwyLm1kCm5vdGVzLW5ldy5tZApgYGAKCuS9v+eUqOaYjueiuuOAgeacieiqnuaEj+eahOWQjeeoseOAggoKLS0tCgojIDExLiBMaW5raW5nIOimj+WJhwoK5YSq5YWI5L2/55SoIHJlbGF0aXZlIE1hcmtkb3duIGxpbmtz44CCCgrkvovlpoLvvJoKCmBgYG1hcmtkb3duCltbLi4vY29uY2VwdHMvc2VsZi1hdHRlbnRpb25dXQpgYGAKCuaIluaomea6liBNYXJrZG93bu+8mgoKYGBgbWFya2Rvd24KW1NlbGYgQXR0ZW50aW9uXSguLi9jb25jZXB0cy9zZWxmLWF0dGVudGlvbi5tZCkKYGBgCgrlpoLmnpznm67liY3nkrDlooPmlK/mj7QgT2JzaWRpYW4tc3R5bGUgd2lraWxpbmtz77yM5YSq5YWI5L2/55SoIHdpa2lsaW5rc++8jOWboOeCuuWug+WAkeiDveabtOaYjueiuuihqOmBlCBrbm93bGVkZ2Ugb2JqZWN0cyDkuYvplpPnmoTpl5zkv4LjgIIKCuaHieipsuepjealteW7uueriyBjcm9zcy1saW5rc++8jOS9huWPquacieWcqOmXnOS/guWFt+acieaEj+e+qeaZguaJjeW7uueri+OAggoKLS0tCgojIDEyLiBTb3VyY2UgVHJhY2VhYmlsaXR5Cgrmr4/kuIDlgIvlr6bos6ogY2xhaW0g6YO95oeJ6Kmy5Y+v5Lul6L+95rqv44CCCgrmjqjolqbnmoTov73muq/pj4jvvJoKCmBgYHRleHQKc3ludGhlc2lzCiAgICDihpMKY29uY2VwdCAvIGVudGl0eQogICAg4oaTCnNvdXJjZSBzdW1tYXJ5CiAgICDihpMKcmF3IHNvdXJjZQpgYGAKClBhZ2Ug5LiN5oeJ6Kmy6IiH5YW2IGV2aWRlbmNlIOiEq+evgOOAggoK5aaC5p6c5p+Q5YCLIGNsYWltIOaykuacieW3suefpSBzb3VyY2XvvIzmmI7norrmqJnoqJjvvJoKCmBgYHRleHQKU291cmNlOiB1bmtub3duCmBgYAoK5oiW77yaCgpgYGB0ZXh0CkV2aWRlbmNlOiBpbmZlcmVuY2UgZnJvbSBleGlzdGluZyB3aWtpIHBhZ2VzCmBgYAoK5LiN6KaB5o2P6YCgIGNpdGF0aW9uc+OAggoKLS0tCgojIDEzLiBDb250cmFkaWN0aW9ucwoK55+b55u+5pys6Lqr5bCx5piv55+l6K2Y44CCCgrnlbYgc291cmNlcyDkupLnm7jnn5vnm77mmYLvvJoKCjEuIOS4jeimgem7mOm7mOmBuOWFtuS4reS4gOWAiwoyLiDoqJjpjITpm5nmlrkgY2xhaW1zCjMuIOaMh+WHuuWQhOiHqueahCBzb3VyY2VzCjQuIOino+mHi+W3rueVsAo1LiDliKTmlrfpgJnmmK8gZmFjdHVhbOOAgWRlZmluaXRpb25hbOOAgXRlbXBvcmFs44CBbWV0aG9kb2xvZ2ljYWwg6YKE5pivIGludGVycHJldGl2ZSBkaXNhZ3JlZW1lbnQKNi4g5L+d55WZIHVuY2VydGFpbnR5CgrkvovlpoLvvJoKCmBgYG1hcmtkb3duCiMjIENvbnRyYWRpY3Rpb24KClNvdXJjZSBBIHJlcG9ydHMgWC4KClNvdXJjZSBCIHJlcG9ydHMgWS4KCumAmeWAi+W3rueVsOWPr+iDveS+huiHquS4jeWQjOeahCBtZWFzdXJlbWVudCBwZXJpb2Rz44CCCgpDdXJyZW50IHN0YXR1czogdW5yZXNvbHZlZC4KYGBgCgrlpoLmnpzlvoznuozorYnmk5rop6PmsbrkuobpgJnlgIvnn5vnm77vvIzmm7TmlrDnm7jpl5wgcGFnZXPvvIzkuKblnKggYHdpa2kvbG9nLm1kYCDoqJjpjIQgcmVzb2x1dGlvbuOAggoKLS0tCgojIDE0LiBUZW1wb3JhbCBLbm93bGVkZ2UKCuefpeitmOWPr+iDvemaqOaZgumWk+aUueiuiuOAggoK55W2IGNsYWltIOWFt+acieaZgumWk+aVj+aEn+aAp+aZgu+8jOWKoOWFpeaXpeacn+OAggoK5YSq5YWI5a+r77yaCgo+IOaIquiHsyAyMDI2LTA5LTE277yMU291cmNlIEEg5aCx5ZGKIFjjgIIKCuiAjOS4jeaYr++8mgoKPiBYIOaYr+ecn+eahOOAggoK5LiN6KaB5Zug54K65paw55qE6LOH6KiK5Ye654++77yM5bCx55u05o6l6KaG6JOL5q235Y+y55+l6K2Y44CCCgrmh4nkv53nlZnmrbflj7IgY2xhaW3vvIzkuKbliqDlhaXmlrDnmoQgc3RhdGXjgIIKCi0tLQoKIyAxNS4gRWRpdGluZyBSdWxlcwoK5L+u5pS55pei5pyJIHBhZ2Ug5pmC77yaCgoxLiDkv53nlZnmnInlg7nlgLznmoTml6LmnInos4foqIoKMi4g56e76Zmk6YeN6KSH5YWn5a65CjMuIOW/heimgeaZguaUueWWhOe1kOaniwo0LiDmm7TmlrAgYHVwZGF0ZWRgCjUuIOS/neeVmSBzb3VyY2UgcmVmZXJlbmNlcwo2LiDkv53nlZnmnInmhI/nvqnnmoQgdW5jZXJ0YWludHkKNy4g5aaC5p6cIHBhZ2Ug55qE6Kqe5oSP55m855Sf6K6K5YyW77yM5pu05paw55u46ZecIGJhY2tsaW5rcwoK5LiN6KaB5Y+q5piv5qmf5qKw5byP5ZywIGFwcGVuZCDos4foqIrjgIIKCuWmguaenOmHjeaWsOaVtOeQhuaVtOWAiyBwYWdlIOiDveeUoueUn+abtOWlveeahCBrbm93bGVkZ2UgYXJ0aWZhY3TvvIzlj6/ku6Xph43lr6sgcGFnZeOAggoKLS0tCgojIDE2LiBBZ2VudCDkuI3lvpflgZrnmoTkuovmg4UKCkFnZW50ICoq5LiN5b6XKirvvJoKCiog5Zyo5LiA6IisIFdpa2kg57at6K236YGO56iL5Lit5L+u5pS5IGByYXcvYAoqIOaNj+mAoCBldmlkZW5jZQoqIOaNj+mAoCBjaXRhdGlvbnMKKiDoo73pgKDomZvlgYfnmoQgY2VydGFpbnR5Ciog5LiN5b+F6KaB5Zyw5bu656uLIGR1cGxpY2F0ZSBwYWdlcwoqIOaykuacieeQhueUseWcsOWIqumZpOacieWDueWAvOeahOatt+WPsuefpeitmAoqIOmaseiXjyBjb250cmFkaWN0aW9ucwoqIOWwhyBzb3VyY2Ugb3BpbmlvbnMg55W25oiQIGZhY3RzCiog5bCH5pW05Lu9IHNvdXJjZSBkb2N1bWVudCDopIfoo73pgLIgV2lraSBwYWdlcwoqIOWPquaYr+eCuuS6huWinuWKoCBwYWdlIOaVuOiAjOW7uueriyBwYWdlcwoqIOeVmeS4iyBuZXdseSBjcmVhdGVkIG9ycGhhbiBwYWdlcwoqIOaykuacieaqouafpSBsaW5rcyDmmK/lkKbmnInmlYjlsLHmm7TmlrAgYGluZGV4Lm1kYAoqIOaUueWvqyBgbG9nLm1kYCDnmoTmrbflj7LntIDpjIQKKiDlsIcgV2lraSDoppbngrogZGlzcG9zYWJsZSBjaGF0IG91dHB1dAoKLS0tCgojIDE3LiBTb3VyY2UgUHJpb3JpdHkKCueVtuizh+ioiuS6kuebuOihneeqgeaZgu+8jOS+neeFpyBjb250ZXh0IOWIpOaWtyBldmlkZW5jZeOAggoK5LiA6Iis6ICM6KiA77yM5Y+v5Lul6ICD5oWu77yaCgoxLiBwcmltYXJ5IHNvdXJjZQoyLiBkaXJlY3Qgb2JzZXJ2YXRpb24gLyBvcmlnaW5hbCBkYXRhCjMuIGF1dGhvcml0YXRpdmUgZG9jdW1lbnRhdGlvbgo0LiBoaWdoLXF1YWxpdHkgc2Vjb25kYXJ5IHNvdXJjZQo1LiBleHBlcnQgYW5hbHlzaXMKNi4gaW5mb3JtYWwgY29tbWVudGFyeQoK6YCZ5LiN5piv57WV5bCN55qE5o6S5ZCN44CCCgrpganlkIjnmoQgc291cmNlIOWPluaxuuaWvOato+WcqOipleS8sOeahCBjbGFpbeOAggoK5aeL57WC5L+d55WZIHByb3ZlbmFuY2XjgIIKCi0tLQoKIyAxOC4gTWluaW1hbGl0eSBQcmluY2lwbGUKCldpa2kg5oeJ6Kmy5L2/55SoKirmnIDlsJHnmoQgcGFnZXMqKu+8jOS+huihqOmBlOWujOaVtOS4lOaMgeS5heeahOefpeitmOe1kOani+OAggoK5YSq5YWI77yaCgpgYGB0ZXh0CuS4gOWAi+W8t+iAjOa4healmueahCBjb25jZXB0IHBhZ2UKYGBgCgrogIzkuI3mmK/vvJoKCmBgYHRleHQK5LqU5YCL5beu55Ww5LiN5piO56K655qEIGNvbmNlcHQgcGFnZXMKYGBgCgrlhKrlhYjmm7TmlrDvvJoKCmBgYHRleHQKd2lraS9jb25jZXB0cy9leGFtcGxlLm1kCmBgYAoK6ICM5LiN5piv5bu656uL77yaCgpgYGB0ZXh0Cndpa2kvY29uY2VwdHMvZXhhbXBsZS1uZXcubWQKd2lraS9jb25jZXB0cy9leGFtcGxlLXYyLm1kCndpa2kvY29uY2VwdHMvZXhhbXBsZS1maW5hbC5tZApgYGAKCldpa2kg5oeJ6Kmy6K6K5b6X77yaCgoqKuabtOWvhumbhuOAgeabtOmAo+e1kOOAgeabtOaciee1kOaniyoqCgrogIzkuI3lj6rmmK/vvJoKCioq5pu05aSn44CCKioKCi0tLQoKIyAxOS4gRGVmaW5pdGlvbiBvZiBEb25lCgojIyBJbmdlc3Qg5a6M5oiQ5qKd5Lu2CgrkuIDmrKEgaW5nZXN0IOWPquacieWcqOS7peS4i+aineS7tuWFqOmDqOa7v+i2s+W+jOaJjeeul+WujOaIkO+8mgoKKiBbIF0gc291cmNlIOW3suiugOWPlgoqIFsgXSBzb3VyY2UgcGFnZSDlt7Llu7rnq4vmiJbmm7TmlrAKKiBbIF0g55u46ZecIGVudGl0aWVzIOW3suW7uueri+aIluabtOaWsAoqIFsgXSDnm7jpl5wgY29uY2VwdHMg5bey5bu656uL5oiW5pu05pawCiogWyBdIOW3suipleS8sOebuOmXnCBzeW50aGVzaXMKKiBbIF0gY29udHJhZGljdGlvbnMg5bey5L+d55WZCiogWyBdIHVuY2VydGFpbnR5IOW3suiomOmMhAoqIFsgXSBjcm9zcy1saW5rcyDlt7Llu7rnq4sKKiBbIF0gYHdpa2kvaW5kZXgubWRgIOW3suWcqOW/heimgeaZguabtOaWsAoqIFsgXSBgd2lraS9sb2cubWRgIOW3siBhcHBlbmQKKiBbIF0g5rKS5pyJ5piO6aGv5byV5YWlIGR1cGxpY2F0ZSBwYWdlcwoqIFsgXSDmspLmnInkv67mlLkgcmF3IHNvdXJjZQoKIyMgUXVlcnkg5a6M5oiQ5qKd5Lu2CgrkuIDmrKEgcXVlcnkg5Y+q5pyJ5Zyo5Lul5LiL5qKd5Lu25ru/6Laz5pmC5omN566X5a6M5oiQ77yaCgoqIFsgXSDlt7Lmn6XplrEgYHdpa2kvaW5kZXgubWRgCiogWyBdIOW3suaqouafpeebuOmXnCBXaWtpIHBhZ2VzCiogWyBdIOmHjeimgSBjbGFpbXMg5Y+v5Lul6L+95rqvCiogWyBdIHVuY2VydGFpbnR5IOW3suWRiOePvgoqIFsgXSDlv4XopoHmmYLlt7LlsIcgZHVyYWJsZSBrbm93bGVkZ2Ug5L+d5a2YCgojIyBMaW50IOWujOaIkOaineS7tgoK5LiA5qyhIGxpbnQgcGFzcyDmh4nmqqLmn6XvvJoKCiogWyBdIHN0cnVjdHVyYWwgaXNzdWVzCiogWyBdIGJyb2tlbiBsaW5rcwoqIFsgXSBvcnBoYW4gcGFnZXMKKiBbIF0gZHVwbGljYXRlIGNvbmNlcHRzL2VudGl0aWVzCiogWyBdIHN0YWxlIGNsYWltcwoqIFsgXSBjb250cmFkaWN0b3J5IGNsYWltcwoqIFsgXSDlv4XopoHmmYLlsIcgZmluZGluZ3Mg6KiY6YyE5YiwIGB3aWtpL2xvZy5tZGAKCi0tLQoKIyAyMC4g5oyH5bCO5Y6f5YmHCgrnm67mqJnkuI3mmK/lu7rnq4vkuIDloIbnnIvotbfkvoblvojljrLlrrPnmoQgTWFya2Rvd24gZmlsZXPjgIIKCuebruaomeaYr+W7uueri+S4gOWAi+acgyoq5oyB57qM55Si55Sf6KSH5Yip5pWI5oeJ55qE55+l6K2Y5bqrKirjgIIKCuavj+S4gOWAiyBzb3VyY2Ug6YO95oeJ6Kmy6K6T5LiL5LiA5YCL5ZWP6aGM5pu05a655piT5Zue562U44CCCgrmr4/kuIDlgIsgc3ludGhlc2lzIOmDveaHieipsua4m+WwkeacquS+humHjeaWsOeglOeptueahOaIkOacrOOAggoK5q+P5LiA5YCLIGNyb3NzLWxpbmsg6YO95oeJ6Kmy6K6T55+l6K2Y5LmL6ZaT55qE6Zec5L+C6K6K5b6X5piO56K644CCCgrmr4/kuIDlgIsgY29udHJhZGljdGlvbiDpg73mh4noqbLorpMgdW5jZXJ0YWludHkg5Y+v6KaL44CCCgrmr4/kuIDmrKEgdXBkYXRlIOmDveaHieipsuiukyBXaWtpIOavlOabtOaWsOS5i+WJjeabtOWKoOS4gOiHtOOAggoK5pyA57WC55qEIGFydGlmYWN0IOS4jeaYr+afkOS4gOWAiyBwYWdl44CCCgrmnIDntYLnmoQgYXJ0aWZhY3Qg5piv6YCZ5YCL77yaCgoqKuS4gOWAi+W9vOatpOmAo+e1kOOAgeaMgee6jOa8lOWMlueahOefpeitmOmrlOezu+OAgioqCg==</script>
+        <script>
+            /* === STAGE SCALING === */
+            var stage = document.getElementById("stage");
+            function scaleStage() {
+                var viewport = window.visualViewport || window;
+                var scale = Math.min(
+                    viewport.width / 1920,
+                    viewport.height / 1080,
+                );
+                stage.style.transform =
+                    "translate(-50%, -50%) scale(" + scale + ")";
+            }
+            window.addEventListener("resize", scaleStage);
+            scaleStage();
+
+            /* === SLIDE NAVIGATION === */
+            var slides = Array.prototype.slice.call(
+                document.querySelectorAll(".slide"),
+            );
+            var counter = document.getElementById("counter");
+            var current = 0;
+            function showSlide(index) {
+                current = Math.max(0, Math.min(slides.length - 1, index));
+                slides.forEach(function (slide, i) {
+                    if (i === current) slide.classList.add("active");
+                    else slide.classList.remove("active");
+                });
+                counter.textContent = current + 1 + " / " + slides.length;
+                if (history.replaceState)
+                    history.replaceState(
+                        null,
+                        "",
+                        "#" + String(current + 1).padStart(2, "0"),
+                    );
+            }
+            function nextSlide() {
+                showSlide(current + 1);
+            }
+            function prevSlide() {
+                showSlide(current - 1);
+            }
+            document
+                .getElementById("next")
+                .addEventListener("click", nextSlide);
+            document
+                .getElementById("prev")
+                .addEventListener("click", prevSlide);
+            document.addEventListener("keydown", function (event) {
+                var key = event.key;
+                var editing = document.body.classList.contains("editing");
+                if (
+                    editing &&
+                    key.length === 1 &&
+                    !event.ctrlKey &&
+                    !event.metaKey
+                )
+                    return;
+                if (key === "ArrowRight" || key === "PageDown" || key === " ")
+                    nextSlide();
+                if (key === "ArrowLeft" || key === "PageUp") prevSlide();
+                if (key === "Home") showSlide(0);
+                if (key === "End") showSlide(slides.length - 1);
+                if (key.toLowerCase && key.toLowerCase() === "e")
+                    toggleEditing();
+                if (
+                    (event.ctrlKey || event.metaKey) &&
+                    key.toLowerCase &&
+                    key.toLowerCase() === "s"
+                ) {
+                    event.preventDefault();
+                    saveEdits();
+                }
+            });
+
+            /* === TOUCH NAVIGATION === */
+            var touchStartX = 0;
+            stage.addEventListener(
+                "touchstart",
+                function (event) {
+                    touchStartX = event.changedTouches[0].clientX;
+                },
+                { passive: true },
+            );
+            stage.addEventListener(
+                "touchend",
+                function (event) {
+                    var delta = event.changedTouches[0].clientX - touchStartX;
+                    if (Math.abs(delta) > 48) {
+                        if (delta < 0) nextSlide();
+                        else prevSlide();
+                    }
+                },
+                { passive: true },
+            );
+
+            /* === INLINE EDITING === */
+            var editableNodes = Array.prototype.slice.call(
+                document.querySelectorAll('[data-editable="true"]'),
+            );
+            function toggleEditing() {
+                var enabled = !document.body.classList.contains("editing");
+                if (enabled) document.body.classList.add("editing");
+                else document.body.classList.remove("editing");
+                editableNodes.forEach(function (node) {
+                    node.contentEditable = enabled ? "true" : "false";
+                });
+            }
+            function storageKey(index) {
+                return "w1-frontend-slides-edit-v20-" + index;
+            }
+            editableNodes.forEach(function (node, index) {
+                var saved = localStorage.getItem(storageKey(index));
+                if (saved !== null) node.innerHTML = saved;
+                node.addEventListener("input", function () {
+                    localStorage.setItem(storageKey(index), node.innerHTML);
+                });
+            });
+            function saveEdits() {
+                editableNodes.forEach(function (node, index) {
+                    localStorage.setItem(storageKey(index), node.innerHTML);
+                });
+                counter.textContent = "edits saved";
+                setTimeout(function () {
+                    counter.textContent = current + 1 + " / " + slides.length;
+                }, 900);
+            }
+
+            /* === COPY LLM WIKI PROMPT === */
+            var copyWikiPromptButton = document.getElementById("copy-wiki-prompt");
+            var wikiPromptData = document.getElementById("wiki-prompt-data").textContent.trim();
+            var wikiPrompt = new TextDecoder().decode(
+                Uint8Array.from(atob(wikiPromptData), function (character) {
+                    return character.charCodeAt(0);
+                }),
+            );
+            function copyText(text) {
+                if (navigator.clipboard && window.isSecureContext)
+                    return navigator.clipboard.writeText(text);
+                var textarea = document.createElement("textarea");
+                textarea.value = text;
+                textarea.style.position = "fixed";
+                textarea.style.opacity = "0";
+                document.body.appendChild(textarea);
+                textarea.select();
+                var copied = document.execCommand("copy");
+                textarea.remove();
+                return copied ? Promise.resolve() : Promise.reject();
+            }
+            copyWikiPromptButton.addEventListener("click", function () {
+                var originalLabel = copyWikiPromptButton.textContent.trim();
+                copyText(wikiPrompt)
+                    .then(function () {
+                        copyWikiPromptButton.textContent = "已複製！";
+                    })
+                    .catch(function () {
+                        copyWikiPromptButton.textContent = "複製失敗，請再試一次";
+                    })
+                    .then(function () {
+                        setTimeout(function () {
+                            copyWikiPromptButton.textContent = originalLabel;
+                        }, 1600);
+                    });
+            });
+
+            /* === DEEP LINK SUPPORT === */
+            var hashIndex = Number(location.hash.replace("#", ""));
+            if (hashIndex >= 1 && hashIndex <= slides.length)
+                showSlide(hashIndex - 1);
+        </script>
+    </body>
+</html>
