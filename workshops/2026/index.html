@@ -119,9 +119,58 @@
     white-space: nowrap;
   }
   .nav-link:hover { color: var(--primary); border-bottom-color: var(--primary); }
+
+  /* ════════════════════════════
+     HAMBURGER (mobile)
+  ════════════════════════════ */
+  .nav-hamburger {
+    display: none;
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .nav-hamburger span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--ink);
+    transition: background 0.1s;
+  }
+  .nav-hamburger:hover span { background: var(--primary); }
+
+  .nav-drawer {
+    display: none;
+    position: fixed;
+    top: 48px;
+    left: 0;
+    right: 0;
+    background: var(--canvas);
+    border-bottom: 1px solid var(--hairline);
+    z-index: 99;
+    flex-direction: column;
+    padding: 8px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .nav-drawer.open { display: flex; }
+  .nav-drawer a {
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0.16px;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 12px 24px;
+    border-left: 3px solid transparent;
+  }
+  .nav-drawer a:hover { color: var(--primary); border-left-color: var(--primary); background: var(--surface-1); }
+
   @media (max-width: 672px) {
     .top-nav { padding: 0 16px; }
     .nav-eyebrow, .nav-link { display: none; }
+    .nav-hamburger { display: flex; }
   }
 
   /* ════════════════════════════
@@ -703,7 +752,16 @@
   <a class="nav-link" href="#journey-map">課程地圖</a>
   <a class="nav-link" href="#reference-links">參考連結</a>
   <a class="nav-link" href="https://howard-haowen.github.io/" target="_blank" rel="noopener noreferrer">作者網站 ↗</a>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="開啟選單" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+<div class="nav-drawer" id="nav-drawer" role="navigation" aria-label="行動版選單">
+  <a href="#program-brief">課程介紹</a>
+  <a href="#journey-map">課程地圖</a>
+  <a href="#reference-links">參考連結</a>
+  <a href="https://howard-haowen.github.io/" target="_blank" rel="noopener noreferrer">作者網站 ↗</a>
+</div>
 
 <!-- ════ HERO ════ -->
 <section class="hero">
@@ -1062,6 +1120,22 @@
   document.getElementById('btn-expand-all').addEventListener('click', function () {
     weeks.forEach(openWeek);
   });
+
+  /* ── 漢堡選單 ── */
+  var hamburger = document.getElementById('nav-hamburger');
+  var drawer = document.getElementById('nav-drawer');
+  if (hamburger && drawer) {
+    hamburger.addEventListener('click', function () {
+      var isOpen = drawer.classList.toggle('open');
+      hamburger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+    drawer.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () {
+        drawer.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
 })();
 </script>
 </body>
