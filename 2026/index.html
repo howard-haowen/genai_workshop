@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>2026人文AI創造工作坊・學習地圖</title>
+<meta name="description" content="2026 人文 AI 創造工作坊五週課程地圖，帶你從 AI 使用者成為工作流程設計者，打造屬於自己的 Portable Agentic AI Workflow。"/>
+<title>2026 人文 AI 創造工作坊・學習地圖</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600&family=IBM+Plex+Sans+JP:wght@300;400;600&display=swap" rel="stylesheet"/>
@@ -33,6 +34,8 @@
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation: none !important; transition: none !important; }
   }
+
+  html { scroll-behavior: smooth; scroll-padding-top: 48px; }
 
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -116,9 +119,60 @@
     white-space: nowrap;
   }
   .nav-link:hover { color: var(--primary); border-bottom-color: var(--primary); }
+  .nav-link.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+
+  /* ════════════════════════════
+     HAMBURGER (mobile)
+  ════════════════════════════ */
+  .nav-hamburger {
+    display: none;
+    margin-left: auto;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .nav-hamburger span {
+    display: block;
+    width: 22px;
+    height: 2px;
+    background: var(--ink);
+    transition: background 0.1s;
+  }
+  .nav-hamburger:hover span { background: var(--primary); }
+
+  .nav-drawer {
+    display: none;
+    position: fixed;
+    top: 48px;
+    left: 0;
+    right: 0;
+    background: var(--canvas);
+    border-bottom: 1px solid var(--hairline);
+    z-index: 99;
+    flex-direction: column;
+    padding: 8px 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  }
+  .nav-drawer.open { display: flex; }
+  .nav-drawer a {
+    font-size: 15px;
+    font-weight: 400;
+    letter-spacing: 0.16px;
+    color: var(--ink);
+    text-decoration: none;
+    padding: 12px 24px;
+    border-left: 3px solid transparent;
+  }
+  .nav-drawer a:hover { color: var(--primary); border-left-color: var(--primary); background: var(--surface-1); }
+  .nav-drawer a.active { color: var(--primary); border-left-color: var(--primary); font-weight: 600; }
+
   @media (max-width: 672px) {
     .top-nav { padding: 0 16px; }
     .nav-eyebrow, .nav-link { display: none; }
+    .nav-hamburger { display: flex; }
   }
 
   /* ════════════════════════════
@@ -696,8 +750,20 @@
 <nav class="top-nav">
   <a class="nav-brand" href="https://howard-haowen.github.io/genai_workshop/">AI創造工作坊</a>
   <span class="nav-eyebrow">2026 年度課程</span>
+  <a class="nav-link" href="#program-brief">課程介紹</a>
+  <a class="nav-link" href="#journey-map">課程地圖</a>
+  <a class="nav-link" href="#reference-links">參考連結</a>
   <a class="nav-link" href="https://howard-haowen.github.io/" target="_blank" rel="noopener noreferrer">作者網站 ↗</a>
+  <button class="nav-hamburger" id="nav-hamburger" aria-label="開啟選單" aria-expanded="false">
+    <span></span><span></span><span></span>
+  </button>
 </nav>
+<div class="nav-drawer" id="nav-drawer" role="navigation" aria-label="行動版選單">
+  <a href="#program-brief">課程介紹</a>
+  <a href="#journey-map">課程地圖</a>
+  <a href="#reference-links">參考連結</a>
+  <a href="https://howard-haowen.github.io/" target="_blank" rel="noopener noreferrer">作者網站 ↗</a>
+</div>
 
 <!-- ════ HERO ════ -->
 <section class="hero">
@@ -706,8 +772,9 @@
     <h1>人文AI<em>創造</em>工作坊</h1>
     <p class="hero-subtitle">AI Agents 工作流 — 從使用者到工作流程設計者</p>
     <div class="hero-actions">
-      <a class="btn-primary" href="#journey-map">查看課程地圖 →</a>
       <a class="btn-tertiary" href="#program-brief">課程介紹</a>
+      <a class="btn-primary" href="#journey-map">課程地圖 →</a>
+      <a class="btn-tertiary" href="#reference-links">參考連結</a>
     </div>
   </div>
 </section>
@@ -765,7 +832,7 @@
         <h2 class="section-headline">5 週課程地圖</h2>
       </div>
       <div class="collapse-controls">
-        <span class="ctrl-label">週次：</span>
+        <span class="ctrl-label" id="week-count-label">已展開 0 / 5</span>
         <button class="ctrl-btn" id="btn-collapse-all" type="button">全部收起</button>
         <button class="ctrl-btn" id="btn-expand-all"   type="button">展開所有</button>
       </div>
@@ -967,6 +1034,22 @@
   </div><!-- /.page-wrap -->
 </section>
 
+<!-- ════ REFERENCE LINKS ════ -->
+<section class="program-section" id="reference-links">
+  <div class="page-wrap">
+    <p class="section-eyebrow">學習資源</p>
+    <h2 class="section-headline">參考連結匯總</h2>
+    <p class="program-body" style="margin-bottom: 20px;">以下收錄課程中提及的工具、文件與延伸閱讀，涵蓋 AI Agent、Markdown、GitHub 及相關生態系資源，方便課後查閱與深入探索。</p>
+    <ul class="example-list">
+      <li><a href="IBM_Bob_installation_guide.html">IBM Bob 安裝指南</a></li>
+      <li><a href="Obsidian_installation_guide.html">Obsidian 安裝指南</a></li>
+      <li><a href="https://www.anthropic.com/research/claude-code-expertise" target="_blank" rel="noopener noreferrer">Anthropic 研究：有效使用 AI 的關鍵 ↗</a></li>
+      <li><a href="https://learn.microsoft.com/zh-tw/visualstudio/version-control/git-create-github-account?view=visualstudio" target="_blank" rel="noopener noreferrer">建立 GitHub 帳號（Microsoft Learn）↗</a></li>
+      <li><a href="reference_links.html">查看完整參考連結 →</a></li>
+    </ul>
+  </div>
+</section>
+
 <!-- ════ DESTINATION / CTA BANNER ════ -->
 <div class="dest-arrow">
   <svg width="16" height="32" viewBox="0 0 16 32" fill="none">
@@ -993,6 +1076,16 @@
 (function () {
   var weeks = [2, 3, 4, 5];
 
+  /* ── 週次進度計數 ── */
+  function updateWeekCount() {
+    var open = weeks.filter(function (n) {
+      var el = document.getElementById('week-' + n);
+      return el && !el.classList.contains('collapsed');
+    }).length;
+    var label = document.getElementById('week-count-label');
+    if (label) label.textContent = '已展開 ' + open + ' / 5';
+  }
+
   function setMaxHeight(el) {
     el.style.maxHeight = el.scrollHeight + 'px';
   }
@@ -1009,6 +1102,7 @@
     requestAnimationFrame(function () { setMaxHeight(el); });
     var arrow = document.querySelector('[data-opens="' + weekNum + '"]');
     if (arrow) arrow.classList.remove('collapsed-state');
+    updateWeekCount();
   }
 
   function closeWeek(weekNum) {
@@ -1018,6 +1112,7 @@
     requestAnimationFrame(function () { el.classList.add('collapsed'); });
     var arrow = document.querySelector('[data-opens="' + weekNum + '"]');
     if (arrow) arrow.classList.add('collapsed-state');
+    updateWeekCount();
   }
 
   weeks.forEach(function (n) {
@@ -1039,6 +1134,52 @@
   document.getElementById('btn-expand-all').addEventListener('click', function () {
     weeks.forEach(openWeek);
   });
+
+  updateWeekCount();
+
+  /* ── 漢堡選單 ── */
+  var hamburger = document.getElementById('nav-hamburger');
+  var drawer = document.getElementById('nav-drawer');
+  if (hamburger && drawer) {
+    hamburger.addEventListener('click', function () {
+      var isOpen = drawer.classList.toggle('open');
+      hamburger.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+    drawer.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () {
+        drawer.classList.remove('open');
+        hamburger.setAttribute('aria-expanded', 'false');
+      });
+    });
+  }
+
+  /* ── nav-link active 高亮（IntersectionObserver）── */
+  var sections = ['program-brief', 'journey-map', 'reference-links'];
+  var navLinks = document.querySelectorAll('.nav-link[href^="#"], .nav-drawer a[href^="#"]');
+
+  function setActive(id) {
+    navLinks.forEach(function (link) {
+      var href = link.getAttribute('href');
+      if (href === '#' + id) {
+        link.classList.add('active');
+      } else {
+        link.classList.remove('active');
+      }
+    });
+  }
+
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) { setActive(entry.target.id); }
+      });
+    }, { rootMargin: '-48px 0px -60% 0px', threshold: 0 });
+
+    sections.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+  }
 })();
 </script>
 </body>
