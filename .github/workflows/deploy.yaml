@@ -71,6 +71,13 @@ jobs:
             cp "$file" "build/2026/$(basename "$file")"
           done
 
+          # Copy img/ directory if present
+          if [ -d "workshops/2026/img" ]; then
+            mkdir -p build/2026/img
+            chmod 777 build/2026/img
+            cp -r workshops/2026/img/. build/2026/img/
+          fi
+
           # Copy haowen-projects/ directory if present
           if [ -d "workshops/2026/haowen-projects" ]; then
             mkdir -p build/2026/haowen-projects
