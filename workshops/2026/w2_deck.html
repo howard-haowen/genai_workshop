@@ -1345,35 +1345,34 @@
                             </div>
                             <div class="time">02</div>
                             <div class="agenda-card">
-                                <h3 data-editable="true">三種介面</h3>
+                                <h3 data-editable="true">工具的三個層次</h3>
                                 <p data-editable="true">
-                                    API、CLI、GUI 是什麼，各自適合什麼任務。
+                                    從內建工具、Skills 到 MCP Servers，認識 Agent 可用的工具層次。
                                 </p>
                             </div>
                             <div class="time">03</div>
                             <div class="agenda-card">
-                                <h3 data-editable="true">深入 API</h3>
+                                <h3 data-editable="true">五個關鍵詞：JSON、API、CLI、GUI、ACI</h3>
                                 <p data-editable="true">
-                                    Open Library Search API、JSON 資料格式。
+                                    認識三種介面的特性與差異，並以比較表與比喻加深印象。
                                 </p>
                             </div>
                             <div class="time">04</div>
                             <div class="agenda-card">
                                 <h3 data-editable="true">
-                                    深入 CLI 與安裝實作
+                                    開啟 Terminal
                                 </h3>
                                 <p data-editable="true">
-                                    Agent 協助安裝與驗證 Git 的標準流程。
+                                    在 macOS 與 Windows 上開啟終端機，準備進行課堂活動。
                                 </p>
                             </div>
                             <div class="time">05</div>
                             <div class="agenda-card">
                                 <h3 data-editable="true">
-                                    GUI／ACI 與課堂活動
+                                    三站式課堂活動
                                 </h3>
                                 <p data-editable="true">
-                                    Obsidian 分工、tool-interfaces.md
-                                    活動與下週預告。
+                                    Open Library API、Obsidian CLI、yt-dlp &amp; ImageMagick，各站先手動再讓 Bob 接手。
                                 </p>
                             </div>
                         </div>
@@ -1702,37 +1701,37 @@
                 <!-- ── Slide 13: 三種介面比較表 ── -->
                 <article class="slide">
                     <div class="grain"></div>
-                    <div class="content" style="padding-bottom: 80px;">
+                    <div class="content" style="padding-bottom: 40px;">
                         <div class="kicker reveal" data-editable="true">三種介面並排比較</div>
-                        <h2 class="reveal" data-editable="true">
+                        <h2 class="reveal" style="margin-bottom: 6px;" data-editable="true">
                             介面在演進，<mark>從執行轉向思考</mark>
                         </h2>
                         <!-- 副標 -->
-                        <p class="reveal" data-editable="true" style="font-size: 26px; color: var(--muted); margin: 8px 0 24px; line-height: 1.5;">
+                        <p class="reveal" data-editable="true" style="font-size: 24px; color: var(--muted); margin: 0 0 16px; line-height: 1.4;">
                             介面越進步，人花在「執行」的力氣越少，花在「思考」的比例越高。
                         </p>
                         <!-- 比較表 -->
-                        <div style="display: grid; grid-template-columns: 220px 1fr 1fr 1fr; gap: 0; border: 2px solid var(--line); overflow: hidden; height: calc(100% - 230px);">
+                        <div style="display: grid; grid-template-columns: 260px 1fr 1fr 1fr; gap: 0; border: 2px solid var(--line); overflow: hidden; height: calc(100% - 200px);">
                             <!-- header row -->
                             <div style="background: var(--paper-2); border-bottom: 2px solid var(--line);"></div>
-                            <div style="background: var(--green); color: var(--paper-2); font-family: var(--font-mono); font-size: 30px; font-weight: 700; display: flex; align-items: center; justify-content: center; border-left: 2px solid var(--line); border-bottom: 2px solid var(--line);">⌨️ CLI</div>
-                            <div style="background: var(--amber); color: var(--ink); font-family: var(--font-mono); font-size: 30px; font-weight: 700; display: flex; align-items: center; justify-content: center; border-left: 2px solid var(--line); border-bottom: 2px solid var(--line);">🖱️ GUI</div>
-                            <div style="background: var(--red); color: var(--paper-2); font-family: var(--font-mono); font-size: 30px; font-weight: 700; display: flex; align-items: center; justify-content: center; border-left: 2px solid var(--line); border-bottom: 2px solid var(--line);">🤖 ACI</div>
+                            <div style="background: var(--green); color: var(--paper-2); font-family: var(--font-mono); font-size: 34px; font-weight: 700; display: flex; align-items: center; justify-content: center; border-left: 2px solid var(--line); border-bottom: 2px solid var(--line);">⌨️ CLI</div>
+                            <div style="background: var(--amber); color: var(--ink); font-family: var(--font-mono); font-size: 34px; font-weight: 700; display: flex; align-items: center; justify-content: center; border-left: 2px solid var(--line); border-bottom: 2px solid var(--line);">🖱️ GUI</div>
+                            <div style="background: var(--red); color: var(--paper-2); font-family: var(--font-mono); font-size: 34px; font-weight: 700; display: flex; align-items: center; justify-content: center; border-left: 2px solid var(--line); border-bottom: 2px solid var(--line);">🤖 ACI</div>
                             <!-- row 1: 使用者告訴電腦 -->
-                            <div style="background: var(--paper-2); font-size: 24px; font-weight: 700; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--line);" data-editable="true">使用者告訴電腦</div>
-                            <div style="font-size: 28px; font-weight: 700; display: flex; align-items: center; padding: 0 24px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true"><mark>明確的每一個步驟</mark></div>
-                            <div style="font-size: 28px; font-weight: 700; display: flex; align-items: center; padding: 0 24px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true"><mark>要點擊的視覺元素</mark></div>
-                            <div style="font-size: 28px; font-weight: 700; display: flex; align-items: center; padding: 0 24px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true"><mark>意圖與目標</mark></div>
+                            <div style="background: var(--paper-2); font-size: 26px; font-weight: 700; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--line);" data-editable="true">使用者告訴電腦</div>
+                            <div style="font-size: 32px; font-weight: 700; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true"><mark>明確的每一個步驟</mark></div>
+                            <div style="font-size: 32px; font-weight: 700; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true"><mark>要點擊的視覺元素</mark></div>
+                            <div style="font-size: 32px; font-weight: 700; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true"><mark>意圖與目標</mark></div>
                             <!-- row 2: 核心技能 -->
-                            <div style="background: var(--paper-2); font-size: 24px; font-weight: 700; display: flex; align-items: center; padding: 0 20px; border-bottom: 1px solid var(--line);" data-editable="true">核心技能</div>
-                            <div style="font-size: 28px; display: flex; align-items: center; padding: 0 24px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true">程序的正確性</div>
-                            <div style="font-size: 28px; display: flex; align-items: center; padding: 0 24px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true">熟悉介面操作</div>
-                            <div style="font-size: 28px; display: flex; align-items: center; padding: 0 24px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true">判斷力與表達清晰度</div>
+                            <div style="background: var(--paper-2); font-size: 26px; font-weight: 700; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--line);" data-editable="true">核心技能</div>
+                            <div style="font-size: 32px; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true">程序的正確性</div>
+                            <div style="font-size: 32px; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true">熟悉介面操作</div>
+                            <div style="font-size: 32px; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true">判斷力與表達清晰度</div>
                             <!-- row 3: 失敗模式 -->
-                            <div style="background: var(--paper-2); font-size: 24px; font-weight: 700; display: flex; align-items: center; padding: 0 20px;" data-editable="true">失敗模式</div>
-                            <div style="font-size: 28px; display: flex; align-items: center; padding: 0 24px; border-left: 2px solid var(--line);" data-editable="true">語法錯誤</div>
-                            <div style="font-size: 28px; display: flex; align-items: center; padding: 0 24px; border-left: 2px solid var(--line);" data-editable="true">隱藏的複雜度</div>
-                            <div style="font-size: 28px; display: flex; align-items: center; padding: 0 24px; border-left: 2px solid var(--line);" data-editable="true">意圖模糊或過度信任</div>
+                            <div style="background: var(--paper-2); font-size: 26px; font-weight: 700; display: flex; align-items: center; padding: 0 16px;" data-editable="true">失敗模式</div>
+                            <div style="font-size: 32px; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line);" data-editable="true">語法錯誤</div>
+                            <div style="font-size: 32px; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line);" data-editable="true">隱藏的複雜度</div>
+                            <div style="font-size: 32px; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line);" data-editable="true">意圖模糊或過度信任</div>
                         </div>
                     </div>
                     <div class="footer">
@@ -2031,6 +2030,12 @@
                                         不需要外掛，Obsidian App 在背景執行即可。
                                     </p>
                                     <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line);">
+                                        <div style="font-family: var(--font-mono); font-size: 14px; color: var(--yellow); font-weight: 700; margin-bottom: 8px;">⚠️ 前置步驟：開啟 CLI 功能</div>
+                                        <div style="font-size: 15px; line-height: 1.6; color: var(--fg); margin-bottom: 10px;">
+                                            在 Obsidian 中前往 <strong>Settings → General</strong>，找到 <strong>Enable Command line interface</strong> 並開啟。
+                                        </div>
+                                    </div>
+                                    <div style="padding-top: 4px; border-top: 1px solid var(--line);">
                                         <div style="font-family: var(--font-mono); font-size: 14px; color: var(--muted); margin-bottom: 6px;">✅ 確認安裝：執行以下指令，看到版本號即代表安裝成功</div>
                                         <code style="font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--green);">obsidian version</code>
                                     </div>
@@ -2108,7 +2113,7 @@ yt-dlp --write-auto-subs --skip-download \
   "https://www.youtube.com/watch?v=k5jYwyhDMxA"
 
 # ImageMagick：縮圖
-magick dog.png -resize 800x dog_small.png</pre>
+magick dog.png -scale 50x50 dog_small.png</pre>
                                 </div>
                             </div>
                             <!-- 右：讓 Bob 接手 -->
@@ -2118,14 +2123,14 @@ magick dog.png -resize 800x dog_small.png</pre>
                                     <div style="display: flex; flex-direction: column; gap: 12px;">
                                         <div style="font-size: 19px; font-family: var(--font-mono); color: var(--muted);">yt-dlp Prompt：</div>
                                         <p id="p20-ytdlp" data-editable="true" style="font-family: var(--font-mono); font-size: 22px; line-height: 1.65; margin: 0;">
-                                            請幫我下載這支 YouTube 影片的英文逐字稿（只要字幕，不要影片）：https://www.youtube.com/watch?v=k5jYwyhDMxA
+                                            請幫我用 yt-dlp 下載這支影片的英文逐字稿，只要字幕，不要影片：https://www.youtube.com/watch?v=k5jYwyhDMxA
                                         </p>
                                         <button onclick="copyPrompt('p20-ytdlp', this)" style="align-self: flex-start; font-family: var(--font-mono); font-size: 17px; font-weight: 700; padding: 8px 20px; background: var(--yellow); color: #0d2135; border: none; border-radius: 0; cursor: pointer; letter-spacing: 0.05em;">📋 複製</button>
                                     </div>
                                     <div style="border-top: 1px solid var(--line); padding-top: 20px; display: flex; flex-direction: column; gap: 12px;">
                                         <div style="font-size: 19px; font-family: var(--font-mono); color: var(--muted);">ImageMagick Prompt：</div>
                                         <p id="p20-magick" data-editable="true" style="font-family: var(--font-mono); font-size: 22px; line-height: 1.65; margin: 0;">
-                                            請用 ImageMagick 把 dog.png 縮小成寬度 800px，存成新檔案，原始檔保留。
+                                            請用 ImageMagick 把 dog.png 縮小成尺寸 50x50，存成新檔案，原始檔保留。
                                         </p>
                                         <button onclick="copyPrompt('p20-magick', this)" style="align-self: flex-start; font-family: var(--font-mono); font-size: 17px; font-weight: 700; padding: 8px 20px; background: var(--yellow); color: #0d2135; border: none; border-radius: 0; cursor: pointer; letter-spacing: 0.05em;">📋 複製</button>
                                     </div>
