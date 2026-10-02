@@ -1,0 +1,2491 @@
+<!doctype html>
+<html lang="zh-Hant">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>W2｜給 Agent 一把順手的工具</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700;900&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            /* === DESIGN TOKENS === */
+            :root {
+                --stage-w: 1920;
+                --stage-h: 1080;
+                --paper: #f6ecd4;
+                --paper-2: #ead8b7;
+                --ink: #17211f;
+                --muted: #5d665d;
+                --green: #1e4b3f;
+                --green-2: #0d302a;
+                --cyan: #00b7c7;
+                --amber: #f0a12b;
+                --red: #b54b3d;
+                --line: rgba(23, 33, 31, 0.18);
+                --shadow: 0 28px 70px rgba(7, 18, 16, 0.28);
+                --font-serif: "Noto Serif TC", serif;
+                --font-mono: "IBM Plex Mono", monospace;
+            }
+
+            /* === RESET === */
+            * {
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background: #0b1715;
+            }
+            body {
+                font-family: var(--font-serif);
+                color: var(--ink);
+            }
+            button {
+                font: inherit;
+            }
+
+            /* === FIXED 16:9 VIEWPORT BASE === */
+            .deck-viewport {
+                position: fixed;
+                inset: 0;
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+                background:
+                    radial-gradient(
+                        circle at 15% 15%,
+                        rgba(0, 183, 199, 0.18),
+                        transparent 28%
+                    ),
+                    radial-gradient(
+                        circle at 84% 76%,
+                        rgba(240, 161, 43, 0.16),
+                        transparent 30%
+                    ),
+                    linear-gradient(135deg, #081311, #152420 56%, #091411);
+            }
+            .deck-stage {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: calc(var(--stage-w) * 1px);
+                height: calc(var(--stage-h) * 1px);
+                transform-origin: top left;
+                overflow: hidden;
+                background: var(--paper);
+                box-shadow: 0 40px 120px rgba(0, 0, 0, 0.55);
+                isolation: isolate;
+            }
+            .slide {
+                position: absolute;
+                inset: 0;
+                width: 1920px;
+                height: 1080px;
+                padding: 86px 104px;
+                visibility: hidden;
+                opacity: 0;
+                pointer-events: none;
+                transition:
+                    opacity 520ms ease,
+                    visibility 520ms ease;
+                overflow: hidden;
+                background:
+                    linear-gradient(
+                        rgba(23, 33, 31, 0.045) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(23, 33, 31, 0.045) 1px,
+                        transparent 1px
+                    ),
+                    radial-gradient(
+                        circle at 20% 12%,
+                        rgba(255, 255, 255, 0.58),
+                        transparent 34%
+                    ),
+                    linear-gradient(145deg, var(--paper), #efe0c0 62%, #e2ca9e);
+                background-size:
+                    48px 48px,
+                    48px 48px,
+                    auto,
+                    auto;
+            }
+            .slide.active {
+                visibility: visible;
+                opacity: 1;
+                pointer-events: auto;
+                z-index: 2;
+            }
+
+            /* === ATMOSPHERIC CHROME === */
+            .slide::before {
+                content: "";
+                position: absolute;
+                inset: 28px;
+                border: 1px solid rgba(23, 33, 31, 0.22);
+                border-radius: 28px;
+                pointer-events: none;
+                z-index: 0;
+            }
+            .slide::after {
+                content: "";
+                position: absolute;
+                right: -180px;
+                top: -210px;
+                width: 620px;
+                height: 620px;
+                border-radius: 50%;
+                background: repeating-conic-gradient(
+                    from 12deg,
+                    rgba(0, 183, 199, 0.28) 0 10deg,
+                    transparent 10deg 22deg
+                );
+                opacity: 0.7;
+                z-index: 0;
+            }
+            .grain {
+                position: absolute;
+                inset: 0;
+                background-image: radial-gradient(
+                    rgba(23, 33, 31, 0.12) 0.7px,
+                    transparent 0.7px
+                );
+                background-size: 33px 33px;
+                opacity: 0.25;
+                pointer-events: none;
+                z-index: 1;
+            }
+            .content {
+                position: relative;
+                z-index: 3;
+                height: 100%;
+            }
+
+            /* === TYPOGRAPHY === */
+            .kicker {
+                font-family: var(--font-mono);
+                font-size: 24px;
+                letter-spacing: 0.16em;
+                text-transform: uppercase;
+                color: var(--red);
+                margin-bottom: 24px;
+            }
+            h1,
+            h2,
+            h3,
+            p {
+                margin: 0;
+            }
+            h1 {
+                font-size: 112px;
+                line-height: 1.08;
+                font-weight: 900;
+                letter-spacing: -0.04em;
+                max-width: 1250px;
+            }
+            h2 {
+                font-size: 78px;
+                line-height: 1.12;
+                font-weight: 900;
+                letter-spacing: -0.035em;
+                max-width: 1300px;
+            }
+            h3 {
+                font-size: 42px;
+                line-height: 1.22;
+                font-weight: 900;
+            }
+            .lead {
+                font-size: 42px;
+                line-height: 1.55;
+                color: var(--green-2);
+                max-width: 1220px;
+                margin-top: 34px;
+            }
+            code {
+                font-family: var(--font-mono);
+                background: rgba(30, 75, 63, 0.12);
+                color: #0a3935;
+                border: 1px solid rgba(30, 75, 63, 0.2);
+                padding: 0.08em 0.28em;
+                border-radius: 9px;
+            }
+
+            /* === LAYOUT COMPONENTS === */
+            .title-grid {
+                display: grid;
+                grid-template-columns: 1.03fr 0.74fr;
+                gap: 80px;
+                align-items: center;
+                height: 100%;
+            }
+            .seal {
+                width: 510px;
+                height: 510px;
+                border-radius: 50%;
+                display: grid;
+                place-items: center;
+                background:
+                    radial-gradient(
+                        circle,
+                        rgba(246, 236, 212, 0.88) 0 37%,
+                        transparent 38%
+                    ),
+                    conic-gradient(
+                        from -20deg,
+                        var(--cyan),
+                        transparent 18%,
+                        var(--amber) 35%,
+                        transparent 52%,
+                        var(--red) 68%,
+                        transparent 82%,
+                        var(--cyan)
+                    );
+                box-shadow:
+                    inset 0 0 0 18px rgba(23, 33, 31, 0.09),
+                    var(--shadow);
+                position: relative;
+            }
+            .seal strong {
+                font-size: 132px;
+                font-weight: 900;
+                color: var(--green-2);
+                letter-spacing: -0.08em;
+            }
+            .seal small {
+                position: absolute;
+                bottom: 108px;
+                font-family: var(--font-mono);
+                font-size: 20px;
+                letter-spacing: 0.22em;
+            }
+            .big-question {
+                display: grid;
+                place-items: center;
+                height: 100%;
+                text-align: center;
+            }
+            .quote {
+                font-size: 86px;
+                line-height: 1.26;
+                font-weight: 900;
+                max-width: 1380px;
+                letter-spacing: -0.04em;
+            }
+            .quote mark {
+                background: linear-gradient(
+                    transparent 56%,
+                    rgba(0, 183, 199, 0.38) 56%
+                );
+                color: inherit;
+            }
+            .two-col {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 28px;
+                margin-top: 28px;
+            }
+            .three-col {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 20px;
+                margin-top: 28px;
+            }
+            .card {
+                background: rgba(255, 248, 232, 0.72);
+                border: 1px solid var(--line);
+                border-radius: 30px;
+                padding: 22px 28px;
+                box-shadow: 0 18px 45px rgba(23, 33, 31, 0.1);
+                position: relative;
+                overflow: hidden;
+            }
+            .card::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 10px;
+                background: var(--cyan);
+            }
+            .card.amber::before {
+                background: var(--amber);
+            }
+            .card.red::before {
+                background: var(--red);
+            }
+            .card.green::before {
+                background: var(--green);
+            }
+            .card p {
+                font-size: 27px;
+                line-height: 1.38;
+                margin-top: 10px;
+                color: var(--green-2);
+            }
+            .compare {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 28px;
+                margin-top: 28px;
+            }
+            .panel {
+                min-height: 0;
+                padding: 28px;
+                border-radius: 34px;
+                border: 1px solid var(--line);
+                background: rgba(255, 248, 232, 0.64);
+                box-shadow: var(--shadow);
+            }
+            .panel.dark {
+                background: linear-gradient(145deg, var(--green-2), #163e35);
+                color: var(--paper);
+            }
+            .bullets {
+                margin: 16px 0 0;
+                padding-left: 0;
+                list-style: none;
+            }
+            .bullets li {
+                font-size: 32px;
+                line-height: 1.38;
+                margin: 10px 0;
+                padding-left: 44px;
+                position: relative;
+            }
+            .bullets li::before {
+                content: "◆";
+                position: absolute;
+                left: 0;
+                color: var(--cyan);
+                font-size: 0.72em;
+            }
+            .term-grid {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 16px;
+                margin-top: 24px;
+            }
+            .term {
+                border-radius: 28px;
+                padding: 20px 18px;
+                background: rgba(255, 248, 232, 0.72);
+                border: 1px solid var(--line);
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                gap: 14px;
+            }
+            .term .num {
+                font-family: var(--font-mono);
+                font-size: 22px;
+                color: var(--red);
+            }
+            .term h3 {
+                font-size: 34px;
+            }
+            .term p {
+                font-size: 24px;
+                line-height: 1.38;
+                color: var(--green-2);
+            }
+            .flow {
+                display: flex;
+                align-items: stretch;
+                gap: 16px;
+                margin-top: 28px;
+            }
+            .flow-step {
+                flex: 1;
+                border-radius: 28px;
+                padding: 22px 22px;
+                background: rgba(255, 248, 232, 0.75);
+                border: 1px solid var(--line);
+                position: relative;
+            }
+            .flow-step h3 {
+                font-size: 32px;
+            }
+            .flow-step p {
+                font-size: 25px;
+                line-height: 1.38;
+                margin-top: 10px;
+            }
+            .path-box,
+            .prompt-box {
+                margin-top: 22px;
+                background: #0d211d;
+                color: #dff6e4;
+                border-radius: 30px;
+                padding: 22px 32px;
+                font-family: var(--font-mono);
+                font-size: 26px;
+                line-height: 1.42;
+                box-shadow: var(--shadow);
+            }
+            .path-box pre,
+            .prompt-box pre {
+                margin: 0;
+                padding: 0;
+                font: inherit;
+                white-space: pre;
+            }
+            .prompt-box {
+                font-size: 24px;
+                max-height: 480px;
+                overflow: hidden;
+            }
+            .agenda {
+                display: grid;
+                grid-template-columns: 270px 1fr;
+                gap: 6px 20px;
+                margin-top: 20px;
+            }
+            .time {
+                font-family: var(--font-mono);
+                color: var(--red);
+                font-size: 22px;
+                padding-top: 4px;
+            }
+            .agenda-card {
+                border-bottom: 1px solid var(--line);
+                padding-bottom: 8px;
+            }
+            .agenda-card h3 {
+                font-size: 28px;
+            }
+            .agenda-card p {
+                margin-top: 4px;
+                font-size: 22px;
+                line-height: 1.3;
+                color: var(--green-2);
+            }
+            .footer {
+                position: absolute;
+                left: 104px;
+                right: 104px;
+                bottom: 54px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-family: var(--font-mono);
+                color: rgba(23, 33, 31, 0.52);
+                font-size: 20px;
+                z-index: 4;
+            }
+
+            /* === NAVIGATION UI === */
+            .nav-ui {
+                position: fixed;
+                right: 18px;
+                bottom: 18px;
+                z-index: 50;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #f6ecd4;
+                font-family: var(--font-mono);
+                font-size: 13px;
+                background: rgba(5, 11, 10, 0.64);
+                border: 1px solid rgba(246, 236, 212, 0.16);
+                border-radius: 999px;
+                padding: 9px 13px;
+                backdrop-filter: blur(10px);
+            }
+            .nav-ui button {
+                border: 0;
+                color: #f6ecd4;
+                background: rgba(246, 236, 212, 0.12);
+                border-radius: 999px;
+                padding: 5px 10px;
+                cursor: pointer;
+            }
+            .edit-pill {
+                position: fixed;
+                left: 18px;
+                top: 18px;
+                z-index: 60;
+                font-family: var(--font-mono);
+                font-size: 13px;
+                color: #f6ecd4;
+                background: rgba(5, 11, 10, 0.64);
+                border: 1px solid rgba(246, 236, 212, 0.16);
+                border-radius: 999px;
+                padding: 9px 13px;
+                opacity: 0.2;
+                transition: opacity 0.2s ease;
+            }
+            .edit-pill:hover,
+            body.editing .edit-pill {
+                opacity: 1;
+            }
+            body.editing [data-editable="true"] {
+                outline: 3px dashed rgba(0, 183, 199, 0.75);
+                outline-offset: 5px;
+                cursor: text;
+            }
+
+            /* === ANIMATIONS === */
+            .active .reveal {
+                animation: riseIn 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+            }
+            .active .reveal:nth-child(2) {
+                animation-delay: 90ms;
+            }
+            .active .reveal:nth-child(3) {
+                animation-delay: 180ms;
+            }
+            .active .reveal:nth-child(4) {
+                animation-delay: 270ms;
+            }
+            .active .seal {
+                animation: rotateSeal 18s linear infinite;
+            }
+            @keyframes riseIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                    filter: blur(8px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                    filter: blur(0);
+                }
+            }
+            @keyframes rotateSeal {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                *,
+                *::before,
+                *::after {
+                    animation: none !important;
+                    transition: none !important;
+                }
+            }
+
+            /* === OUTLINE SLIDE === */
+            .outline-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
+                gap: 20px;
+                margin-top: 28px;
+                height: calc(100% - 170px);
+            }
+            .outline-block {
+                border-radius: 30px;
+                padding: 28px 36px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                position: relative;
+                overflow: hidden;
+                border: 1px solid var(--line);
+                background: rgba(255, 248, 232, 0.68);
+                box-shadow: 0 14px 36px rgba(23, 33, 31, 0.09);
+            }
+            .outline-block::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 12px;
+            }
+            .outline-block.b1::before {
+                background: var(--cyan);
+            }
+            .outline-block.b2::before {
+                background: var(--amber);
+            }
+            .outline-block.b3::before {
+                background: var(--green);
+            }
+            .outline-block.b4::before {
+                background: var(--red);
+            }
+            .outline-block .part-label {
+                font-family: var(--font-mono);
+                font-size: 19px;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                margin-bottom: 8px;
+            }
+            .outline-block.b1 .part-label {
+                color: var(--cyan);
+            }
+            .outline-block.b2 .part-label {
+                color: var(--green);
+            }
+            .outline-block.b3 .part-label {
+                color: var(--green);
+            }
+            .outline-block.b4 .part-label {
+                color: var(--red);
+            }
+            .outline-block h3 {
+                font-size: 40px;
+                line-height: 1.1;
+                letter-spacing: -0.03em;
+                margin-bottom: 0;
+            }
+            .outline-block ul {
+                margin: 10px 0 0;
+                padding: 0;
+                list-style: none;
+            }
+            .outline-block ul li {
+                font-size: 24px;
+                line-height: 1.45;
+                padding-left: 20px;
+                position: relative;
+                color: var(--green-2);
+            }
+            .outline-block ul li::before {
+                content: "—";
+                position: absolute;
+                left: 0;
+                color: var(--muted);
+                font-size: 0.9em;
+            }
+            /* === COURSE MAP (SLIDE 04) === */
+            .course-map {
+                grid-template-columns: repeat(2, 1fr) !important;
+                height: 700px !important;
+                gap: 16px !important;
+                margin-top: 16px !important;
+            }
+            .course-map .outline-block {
+                padding: 18px 24px !important;
+            }
+            .course-map .outline-block:last-child {
+                grid-column: 1 / -1;
+            }
+            .course-map .outline-block .part-label {
+                margin-bottom: 4px;
+                font-size: 18px;
+            }
+            .course-map .outline-block h3 {
+                font-size: 30px !important;
+                line-height: 1.1;
+            }
+            .course-map .outline-block p {
+                margin-top: 5px !important;
+                font-size: 19px !important;
+                line-height: 1.25 !important;
+            }
+            .course-map .outline-block > div:last-child {
+                font-size: 19px !important;
+                line-height: 1.25 !important;
+            }
+
+            .demo-grid .outline-block ul {
+                list-style: disc;
+                padding-left: 30px;
+            }
+            .demo-grid .outline-block ul li {
+                padding-left: 0;
+            }
+            .demo-grid .outline-block ul li::before {
+                content: none;
+            }
+
+            /* === SECTION DIVIDER === */
+            .section-divider .content {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                height: 100%;
+            }
+            .section-divider .part-tag {
+                font-family: var(--font-mono);
+                font-size: 22px;
+                letter-spacing: 0.18em;
+                text-transform: uppercase;
+                margin-bottom: 28px;
+            }
+            .section-divider h2 {
+                max-width: 1100px;
+            }
+            .section-divider .div-accent {
+                position: absolute;
+                right: 80px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 280px;
+                font-weight: 900;
+                line-height: 1;
+                letter-spacing: -0.06em;
+                opacity: 0.06;
+                font-family: var(--font-mono);
+                color: var(--ink);
+                pointer-events: none;
+                user-select: none;
+            }
+
+            /* === W2 VISUAL SYSTEM === */
+            :root {
+                --paper: #f6f1e7;
+                --paper-2: #fffaf0;
+                --ink: #102a43;
+                --muted: #627d98;
+                --green: #147d82;
+                --green-2: #0d2135;
+                --cyan: #147d82;
+                --amber: #f6c84c;
+                --yellow: #f6c84c;
+                --red: #ed6a3a;
+                --line: #c9bda9;
+                --shadow: 18px 18px 0 #f6c84c;
+                --font-serif: "Noto Sans TC", sans-serif;
+                --font-mono: "DM Mono", monospace;
+            }
+            body { font-family: var(--font-serif); background: #102a43; }
+            .deck-viewport { position: relative; inset: auto; background: #102a43; }
+            .deck-stage { left: 50%; top: 50%; transform-origin: center center; background: var(--paper); box-shadow: 0 28px 80px rgba(0,0,0,.35); }
+            .slide {
+                padding: 0;
+                background: var(--paper);
+                color: var(--ink);
+            }
+            .slide::before {
+                inset: 0;
+                border: 0;
+                border-radius: 0;
+                opacity: .32;
+                background-image: radial-gradient(rgba(16,42,67,.15) .8px, transparent .8px);
+                background-size: 7px 7px;
+            }
+            .slide::after, .grain { display: none; }
+            .content { height: 100%; padding: 72px 112px 72px; }
+            .kicker { font: 500 23px/1 var(--font-mono); letter-spacing: .08em; color: var(--red); margin-bottom: 18px; }
+            h1 { font-size: 104px; line-height: 1.12; font-weight: 700; letter-spacing: -.055em; }
+            h2 { font-size: 70px; line-height: 1.15; font-weight: 700; letter-spacing: -.045em; }
+            h3 { font-size: 31px; line-height: 1.25; font-weight: 700; letter-spacing: -.025em; }
+            p { font-size: 29px; line-height: 1.5; }
+            .lead { max-width: 1080px; margin-top: 20px; font-size: 35px; line-height: 1.45; color: #334e68; }
+            code { border: 0; border-radius: 0; background: rgba(246,200,76,.58); color: inherit; }
+            mark { background: linear-gradient(transparent 48%, var(--yellow) 48%); }
+            .card, .panel, .term, .flow-step, .outline-block {
+                border: 2px solid var(--ink);
+                border-radius: 0;
+                background: var(--paper-2);
+                box-shadow: none;
+            }
+            .card { padding: 16px 22px; }
+            .card::before, .outline-block::before { width: 8px; }
+            .card p, .term p, .agenda-card p { color: #486581; }
+            .panel { padding: 14px 22px; border-left: 8px solid var(--red); }
+            .panel.dark { background: var(--paper-2); color: var(--ink); border-left: 8px solid var(--green); box-shadow: none; }
+            .path-box, .prompt-box { background: var(--paper-2); color: var(--ink); border-radius: 0; box-shadow: none; border-left: 8px solid var(--green); }
+            .term, .flow-step { border-radius: 0; }
+            .bullets li::before { content: "✓"; color: var(--green); font-family: var(--font-mono); }
+            .outline-block { border-left-width: 12px; }
+            .outline-block .part-label, .term .num, .time { color: var(--red); }
+            .section-divider { background: var(--green); color: var(--paper-2); }
+            .section-divider .part-tag, .section-divider .kicker { color: var(--yellow); }
+            .section-divider .div-accent { color: var(--paper-2); }
+            .footer {
+                left: 112px;
+                right: 112px;
+                bottom: 32px;
+                border-top: 2px solid var(--ink);
+                padding-top: 12px;
+                font: 500 18px/1 var(--font-mono);
+                color: var(--muted);
+            }
+            .slide:first-child { background: var(--ink); color: var(--paper-2); }
+            .slide:first-child .kicker { color: var(--yellow); }
+            .slide:first-child .lead { color: #d9e2ec; }
+            .slide:first-child .footer { border-color: var(--paper-2); color: #d9e2ec; }
+            .slide:first-child .seal {
+                width: 420px;
+                height: 420px;
+                margin-left: auto;
+                border: 4px solid var(--yellow);
+                border-radius: 50%;
+                background: transparent;
+                box-shadow: none;
+                color: var(--yellow);
+            }
+            .slide:first-child .seal strong { font: 500 112px/1 var(--font-mono); color: var(--yellow); }
+            .slide:first-child .seal small {
+                bottom: 76px;
+                width: 100%;
+                padding: 0 34px;
+                text-align: center;
+                font-size: 16px;
+                line-height: 1.35;
+                letter-spacing: 0.12em;
+                color: var(--yellow);
+            }
+            .nav-ui { right: 22px; bottom: 20px; border-radius: 0; padding: 10px; background: rgba(16,42,67,.9); color: var(--paper-2); border: 1px solid rgba(255,255,255,.3); font: 400 15px/1 var(--font-mono); }
+            .nav-ui button { width: 34px; height: 30px; padding: 0; border: 1px solid rgba(255,255,255,.5); border-radius: 0; background: transparent; color: inherit; }
+            .nav-ui button:hover { background: var(--red); }
+            .edit-pill { left: 22px; top: auto; bottom: 20px; border-radius: 0; padding: 11px 14px; background: rgba(16,42,67,.9); color: var(--paper-2); font: 400 13px/1 var(--font-mono); }
+        </style>
+    </head>
+    <body>
+        <main class="deck-viewport" aria-label="第 2 週課程內容簡報">
+            <section class="deck-stage" id="stage">
+                <article class="slide active">
+                    <div class="grain"></div>
+                    <div class="content title-grid">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                人文AI創造工作坊 2026｜第 2 週
+                            </div>
+                            <h1 class="reveal" data-editable="true">
+                                給 Agent<br />一把<span
+                                    style="color: var(--red)"
+                                    >順手</span
+                                >的工具
+                            </h1>
+                            <p class="lead reveal" data-editable="true">
+                                工欲善其事，先替你的 AI
+                                打造無障礙工作環境。理解
+                                <code>JSON</code>、<code>API</code>、<code>CLI</code>、<code>GUI</code> 與
+                                <code>ACI</code>。
+                            </p>
+                            <div class="reveal" style="margin-top: 48px; display: flex; align-items: center; gap: 20px;">
+                                <div style="width: 3px; height: 48px; background: var(--yellow); flex-shrink: 0;"></div>
+                                <div>
+                                    <div style="font-family: var(--font-mono); font-size: 22px; font-weight: 700; color: var(--paper-2); letter-spacing: 0.04em;" data-editable="true">江豪文（Haowen Jiang）</div>
+                                    <a href="https://hw.is-a.dev" target="_blank" rel="noopener noreferrer" style="font-family: var(--font-mono); font-size: 19px; color: var(--yellow); text-decoration: none; letter-spacing: 0.06em;">hw.is-a.dev ↗</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="seal reveal">
+                            <strong>W2</strong
+                            ><small>JSON / API / CLI / GUI / ACI</small>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Cover</div>
+                        <div>01 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display: flex; flex-direction: column; gap: 24px;">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">先想一想</div>
+                            <h2 class="reveal" data-editable="true">在開始之前，先想想：</h2>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 4px;">
+                            <div class="card reveal" style="display: flex; gap: 20px; align-items: flex-start; padding: 28px 32px;">
+                                <span style="font-family: var(--font-mono); font-size: 28px; font-weight: 900; color: var(--cyan); flex-shrink: 0; line-height: 1;">01</span>
+                                <p style="font-size: 28px; font-weight: 600; line-height: 1.5; margin: 0; color: var(--ink);" data-editable="true">
+                                    當 AI 說「我做不到」，是模型不夠聰明，還是它手上根本<mark>沒有合適的工具</mark>？
+                                </p>
+                            </div>
+                            <div class="card amber reveal" style="display: flex; gap: 20px; align-items: flex-start; padding: 28px 32px;">
+                                <span style="font-family: var(--font-mono); font-size: 28px; font-weight: 900; color: var(--amber); flex-shrink: 0; line-height: 1;">02</span>
+                                <p style="font-size: 28px; font-weight: 600; line-height: 1.5; margin: 0; color: var(--ink);" data-editable="true">
+                                    你是否也把「這個功能沒做出來」，全都算在 AI <mark>「不夠聰明」</mark>的帳上？
+                                </p>
+                            </div>
+                            <div class="card red reveal" style="display: flex; gap: 20px; align-items: flex-start; padding: 28px 32px;">
+                                <span style="font-family: var(--font-mono); font-size: 28px; font-weight: 900; color: var(--red); flex-shrink: 0; line-height: 1;">03</span>
+                                <p style="font-size: 28px; font-weight: 600; line-height: 1.5; margin: 0; color: var(--ink);" data-editable="true">
+                                    同一個任務，<mark>換一種操作介面</mark>，AI 的表現會不會完全不同？
+                                </p>
+                            </div>
+                            <div class="card reveal" style="display: flex; gap: 20px; align-items: flex-start; padding: 28px 32px; border-left: 6px solid var(--green);">
+                                <span style="font-family: var(--font-mono); font-size: 28px; font-weight: 900; color: var(--green); flex-shrink: 0; line-height: 1;">04</span>
+                                <p style="font-size: 28px; font-weight: 600; line-height: 1.5; margin: 0; color: var(--ink);" data-editable="true">
+                                    工具好不好用，其實跟「<mark>有沒有給它一把順手的工具</mark>」更有關？
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Opening questions</div>
+                        <div>02 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content big-question">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                核心問題
+                            </div>
+                            <p class="quote reveal" data-editable="true">
+                                Agent 使用工具時，<mark>API、CLI、GUI</mark>
+                                分別扮演什麼角色？為什麼 CLI
+                                特別適合被記錄、重複與自動化？
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Core question</div>
+                        <div>03 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display:flex;flex-direction:column;">
+                        <div class="kicker reveal" data-editable="true">
+                            五週課程地圖
+                        </div>
+                        <h2
+                            class="reveal"
+                            data-editable="true"
+                            style="font-size: 62px"
+                        >
+                            從 AI 使用者到 AI 工作流程創造者
+                        </h2>
+                        <div
+                            class="course-map"
+                            style="
+                                display: grid;
+                                grid-template-columns: 1fr;
+                                gap: 14px;
+                                margin-top: 24px;
+                                flex: 1;
+                                min-height: 0;
+                            "
+                        >
+                            <div
+                                class="outline-block b1 reveal"
+                                style="
+                                    padding: 18px 28px;
+                                    display: grid;
+                                    grid-template-columns: 1.16fr 0.84fr;
+                                    gap: 24px;
+                                    min-height: 0;
+                                "
+                            >
+                                <div>
+                                    <div class="part-label">W1 🧠</div>
+                                    <h3
+                                        data-editable="true"
+                                        style="font-size: 30px"
+                                    >
+                                        Agentic AI 的五個關鍵概念
+                                    </h3>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 21px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--muted);
+                                        "
+                                    >
+                                        搞懂 <code>AGENTS.md</code>，讓 AI
+                                        從「隨機應答」變成你的專屬助理。
+                                    </p>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 20px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--green-2);
+                                        "
+                                    >
+                                        <strong>學習成果：</strong>能撰寫
+                                        <code>AGENTS.md</code>，定義 AI
+                                        的角色、規則與邊界
+                                    </p>
+                                </div>
+                                <div
+                                    style="
+                                        font-size: 19px;
+                                        line-height: 1.45;
+                                        color: var(--green-2);
+                                    "
+                                >
+                                    <p data-editable="true">
+                                        <strong>脈絡設計</strong>｜<strong
+                                            >指令工程</strong
+                                        >
+                                    </p>
+                                    <p data-editable="true">
+                                        🔑 Markdown、AGENTS.md、YAML、GIT
+                                    </p>
+                                    <p data-editable="true">
+                                        ⚗️ 根據 AGENTS.md 定義 AI 角色、產出網頁
+                                    </p>
+                                </div>
+                            </div>
+                            <div
+                                class="outline-block b2 reveal"
+                                style="
+                                    padding: 18px 28px;
+                                    display: grid;
+                                    grid-template-columns: 1.16fr 0.84fr;
+                                    gap: 24px;
+                                    min-height: 0;
+                                "
+                            >
+                                <div>
+                                    <div class="part-label">W2 🛠️</div>
+                                    <h3
+                                        data-editable="true"
+                                        style="font-size: 30px"
+                                    >
+                                        給 Agent 一把順手的工具
+                                    </h3>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 21px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--muted);
+                                        "
+                                    >
+                                        工欲善其事，先替你的 AI
+                                        打造無障礙工作環境。
+                                    </p>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 20px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--green-2);
+                                        "
+                                    >
+                                        <strong>學習成果：</strong>能理解不同工具對
+                                        AI 的友善程度
+                                    </p>
+                                </div>
+                                <div
+                                    style="
+                                        font-size: 19px;
+                                        line-height: 1.45;
+                                        color: var(--green-2);
+                                    "
+                                >
+                                    <p data-editable="true">
+                                        <strong>工具選擇</strong>｜<strong
+                                            >命令列</strong
+                                        >
+                                    </p>
+                                    <p data-editable="true">
+                                        🔑 API、CLI、GUI、ACI、JSON
+                                    </p>
+                                    <p data-editable="true">
+                                        ⚗️ Openlibrary API、Obsidian CLI
+                                    </p>
+                                </div>
+                            </div>
+                            <div
+                                class="outline-block b3 reveal"
+                                style="
+                                    padding: 18px 28px;
+                                    display: grid;
+                                    grid-template-columns: 1.16fr 0.84fr;
+                                    gap: 24px;
+                                    min-height: 0;
+                                "
+                            >
+                                <div>
+                                    <div class="part-label">W3 🎓</div>
+                                    <h3
+                                        data-editable="true"
+                                        style="font-size: 30px"
+                                    >
+                                        用 SKILL.md 培養 Agent 的專長
+                                    </h3>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 21px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--muted);
+                                        "
+                                    >
+                                        一個檔案，讓 AI
+                                        記住你的工作方式，比你想得還快。
+                                    </p>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 20px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--green-2);
+                                        "
+                                    >
+                                        <strong>學習成果：</strong>能讓 Agent
+                                        學習可重複使用的客製化技能
+                                    </p>
+                                </div>
+                                <div
+                                    style="
+                                        font-size: 19px;
+                                        line-height: 1.45;
+                                        color: var(--green-2);
+                                    "
+                                >
+                                    <p data-editable="true">
+                                        <strong>可攜式工作流</strong>｜<strong
+                                            >客製化技能</strong
+                                        >
+                                    </p>
+                                    <p data-editable="true">
+                                        🔑 SKILL.md、scripts、references
+                                    </p>
+                                    <p data-editable="true">
+                                        ⚗️ find-skills、skill-create
+                                    </p>
+                                </div>
+                            </div>
+                            <div
+                                class="outline-block b4 reveal"
+                                style="
+                                    padding: 18px 28px;
+                                    display: grid;
+                                    grid-template-columns: 1.16fr 0.84fr;
+                                    gap: 24px;
+                                    min-height: 0;
+                                "
+                            >
+                                <div>
+                                    <div class="part-label">W4 🔌</div>
+                                    <h3
+                                        data-editable="true"
+                                        style="font-size: 30px"
+                                    >
+                                        打通 Agent 與外界的連線
+                                    </h3>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 21px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--muted);
+                                        "
+                                    >
+                                        接上 MCP，讓 AI
+                                        伸出手，直接操作各種外部服務。
+                                    </p>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 20px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--green-2);
+                                        "
+                                    >
+                                        <strong>學習成果：</strong>能透過 MCP
+                                        為 Agent 接入真實世界的服務與資料
+                                    </p>
+                                </div>
+                                <div
+                                    style="
+                                        font-size: 19px;
+                                        line-height: 1.45;
+                                        color: var(--green-2);
+                                    "
+                                >
+                                    <p data-editable="true">
+                                        <strong>外部服務整合</strong>｜<strong
+                                            >工具擴充</strong
+                                        >
+                                    </p>
+                                    <p data-editable="true">
+                                        🔑 MCP、A2A、RSS
+                                    </p>
+                                    <p data-editable="true">
+                                        ⚗️ NetNewsWire、Excalidraw
+                                    </p>
+                                </div>
+                            </div>
+                            <div
+                                class="outline-block b1 reveal"
+                                style="
+                                    padding: 18px 28px;
+                                    display: grid;
+                                    grid-template-columns: 1.16fr 0.84fr;
+                                    gap: 24px;
+                                    min-height: 0;
+                                "
+                            >
+                                <div>
+                                    <div class="part-label">W5 🌍</div>
+                                    <h3
+                                        data-editable="true"
+                                        style="font-size: 30px"
+                                    >
+                                        把成果發布到全世界
+                                    </h3>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 21px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--muted);
+                                        "
+                                    >
+                                        用 GitHub Pages 讓你的 AI
+                                        工作流程作品，站上公開舞台。
+                                    </p>
+                                    <p
+                                        data-editable="true"
+                                        style="
+                                            font-size: 20px;
+                                            line-height: 1.35;
+                                            margin-top: 8px;
+                                            color: var(--green-2);
+                                        "
+                                    >
+                                        <strong>學習成果：</strong>能將個人數位作品對外展示與分享
+                                    </p>
+                                </div>
+                                <div
+                                    style="
+                                        font-size: 19px;
+                                        line-height: 1.45;
+                                        color: var(--green-2);
+                                    "
+                                >
+                                    <p data-editable="true">
+                                        <strong>成果發布</strong>｜<strong
+                                            >公開分享</strong
+                                        >
+                                    </p>
+                                    <p data-editable="true">
+                                        🔑 deployment、workflow、CI/CD
+                                    </p>
+                                    <p data-editable="true">
+                                        ⚗️ GitHub Pages、GitHub Workflows
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                       <div style="text-align: center; margin-top: 14px;">
+                            <a href="https://howard-haowen.github.io/genai_workshop/2026" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 12px; padding: 12px 28px; background: var(--green); color: var(--paper-2); font-family: var(--font-mono); font-size: 22px; font-weight: 700; text-decoration: none; border-radius: 0; letter-spacing: 0.06em;">
+                                🌐 課程地圖網站 ↗
+                            </a>
+                        </div>
+                    </div>
+                    <div class="footer"><div>Course map</div><div>04 / 23</div></div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content big-question">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                本週學習成果
+                            </div>
+                            <p
+                                class="quote reveal"
+                                data-editable="true"
+                                style="
+                                    font-size: 76px;
+                                    line-height: 1.28;
+                                    max-width: 1460px;
+                                "
+                            >
+                                能理解<mark>不同工具介面</mark>對 AI 的友善程度
+                            </p>
+                            <p
+                                class="lead reveal"
+                                data-editable="true"
+                                style="
+                                    font-size: 38px;
+                                    margin-top: 44px;
+                                    text-align: center;
+                                    max-width: 1400px;
+                                "
+                            >
+                                認識 API、CLI、GUI 三種常見介面 ·
+                                判斷任務適合哪一種 ·
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Learning outcome</div>
+                        <div>05 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            本週流程
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            今天會依照這個順序往下走
+                        </h2>
+                        <div class="agenda">
+                            <div class="time">01</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">開場與核心問題</h3>
+                                <p data-editable="true">
+                                    封面、反問開場、核心問題、五週課程地圖與本週學習成果。
+                                </p>
+                            </div>
+                            <div class="time">02</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">工具的三個層次</h3>
+                                <p data-editable="true">
+                                    從內建工具、Skills 到 MCP Servers，認識 Agent 可用的工具層次。
+                                </p>
+                            </div>
+                            <div class="time">03</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">五個關鍵詞：JSON、API、CLI、GUI、ACI</h3>
+                                <p data-editable="true">
+                                    認識三種介面的特性與差異，並以比較表與比喻加深印象。
+                                </p>
+                            </div>
+                            <div class="time">04</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">
+                                    開啟 Terminal
+                                </h3>
+                                <p data-editable="true">
+                                    在 macOS 與 Windows 上開啟終端機，準備進行課堂活動。
+                                </p>
+                            </div>
+                            <div class="time">05</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">
+                                    三站式課堂活動
+                                </h3>
+                                <p data-editable="true">
+                                    Open Library API、Obsidian CLI、yt-dlp &amp; ImageMagick，各站先手動再讓 Bob 接手。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>This week</div>
+                        <div>06 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            工具的三個層次
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            Agent 的工具：從<mark>內建</mark>到<mark>客製</mark>
+                        </h2>
+                        <div class="three-col" style="margin-top: 26px;">
+                            <div class="card reveal">
+                                <h3 data-editable="true">🧰 內建工具</h3>
+                                <p data-editable="true">
+                                    Agent 平台預裝的工具，開箱即用。例如 IBM Bob 內建 <code>read_file</code>、<code>execute_command</code>、<code>grep</code>、<code>apply_diff</code> 等數十種工具，涵蓋檔案讀寫、程式碼搜尋與系統操作。
+                                </p>
+                            </div>
+                            <div class="card amber reveal">
+                                <h3 data-editable="true">🎓 Skills</h3>
+                                <p data-editable="true">
+                                    透過 <code>SKILL.md</code> 賦予 Agent 特定領域的知識與工作方式。Skills 是可攜式的指令集，讓 Agent 學習你的個人工作流程，跨平台都能沿用。
+                                </p>
+                            </div>
+                            <div class="card red reveal">
+                                <h3 data-editable="true">🔌 MCP Servers</h3>
+                                <p data-editable="true">
+                                    透過 Model Context Protocol 接入外部服務。每一個 MCP Server 就像為 Agent 安裝一套新應用，讓它能操作 Obsidian、瀏覽網頁、讀取 RSS 等真實世界的工具。
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="panel reveal"
+                            style="
+                                min-height: 0;
+                                height: 160px;
+                                padding: 0 48px;
+                                margin-top: 20px;
+                                display: flex;
+                                align-items: center;
+                            "
+                        >
+                            <p
+                                class="lead"
+                                data-editable="true"
+                                style="font-size: 40px; line-height: 1.45; margin: 0; max-width: none;"
+                            >
+                                工具不夠用？先問自己：該用內建工具、補一個 Skill，還是接一個 MCP Server？
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Tool layers</div>
+                        <div>07 / 23</div>
+                    </div>
+                </article>
+
+
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            🖐️ 課堂活動
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            用 <mark>Ask Mode</mark> 問 IBM Bob：有哪些內建工具？
+                        </h2>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 36px; flex: 1;">
+                            <!-- 左：步驟說明 -->
+                            <div style="display: flex; flex-direction: column; gap: 18px;">
+                                <div class="card reveal" style="flex: none;">
+                                    <h3 data-editable="true">📋 操作步驟</h3>
+                                    <ol data-editable="true" style="margin: 0; padding-left: 22px; font-size: 26px; line-height: 1.7;">
+                                        <li>打開 IBM Bob</li>
+                                        <li>切換到 <strong>Ask Mode</strong>（問答模式）</li>
+                                        <li>貼上右側的 Prompt 送出</li>
+                                        <li>觀察 Bob 列出的工具清單</li>
+                                        <li>找出你覺得最實用的三個工具</li>
+                                    </ol>
+                                </div>
+                                <div class="panel reveal" style="min-height: 0; padding: 20px 28px;">
+                                    <p class="lead" data-editable="true" style="font-size: 28px; line-height: 1.5; margin: 0; max-width: none;">
+                                        💡 Ask Mode 不會執行任何操作，只回答問題——適合探索 Bob 的能力邊界。
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- 右：可複製 Prompt -->
+                            <div style="display: flex; flex-direction: column; gap: 14px;">
+                                <div style="font-family: var(--font-mono); font-size: 19px; font-weight: 700; color: var(--green); letter-spacing: 0.05em;">📝 可直接複製的 Prompt</div>
+                                <div class="panel dark reveal" style="min-height: 0; flex: 1; padding: 16px 20px; display: flex; flex-direction: column; gap: 16px;">
+                                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                                        <p id="prompt-zh" data-editable="true" style="font-family: var(--font-mono); font-size: 22px; line-height: 1.6; margin: 0;">
+                                            請列出你在 Agent Mode 下所有可用的內建工具，並簡單說明每個工具的用途。請用表格或分類清單呈現。
+                                        </p>
+                                        <button onclick="copyPrompt('prompt-zh', this)" style="align-self: flex-start; font-family: var(--font-mono); font-size: 15px; font-weight: 700; padding: 7px 18px; background: var(--yellow); color: #0d2135; border: none; border-radius: 0; cursor: pointer; letter-spacing: 0.05em; transition: opacity 0.15s;">📋 複製 Prompt</button>
+                                    </div>
+                                    <div style="border-top: 1px solid var(--line); padding-top: 12px; display: flex; flex-direction: column; gap: 10px;">
+                                        <div style="font-size: 15px; font-family: var(--font-mono); color: var(--muted); margin-bottom: 2px;">英文版（同樣有效）：</div>
+                                        <p id="prompt-en" data-editable="true" style="font-family: var(--font-mono); font-size: 20px; line-height: 1.6; color: var(--ink); margin: 0;">
+                                            List all the built-in tools available to you in Agent Mode, with a brief description of each tool's purpose. Present the result as a categorized list or table.
+                                        </p>
+                                        <button onclick="copyPrompt('prompt-en', this)" style="align-self: flex-start; font-family: var(--font-mono); font-size: 15px; font-weight: 700; padding: 7px 18px; background: var(--yellow); color: #0d2135; border: 1px solid var(--line); border-radius: 0; cursor: pointer; letter-spacing: 0.05em; transition: opacity 0.15s;">📋 Copy Prompt</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Hands-on activity</div>
+                        <div>08 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            五個關鍵詞總覽
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            先記住這五個詞，今天每一段都會用到
+                        </h2>
+                        <div class="term-grid">
+                            <div class="term reveal">
+                                <div class="num">01</div>
+                                <h3 data-editable="true">🏷️ JSON</h3>
+                                <p data-editable="true">
+                                    用鍵值標籤包裝資料，讓程式與 Agent
+                                    都能讀懂、再利用。
+                                </p>
+                            </div>
+                            <div class="term reveal">
+                                <div class="num">02</div>
+                                <h3 data-editable="true">🔌 API</h3>
+                                <p data-editable="true">
+                                    程式對程式的資料交換窗口，例如 Open
+                                    Library Search API。
+                                </p>
+                            </div>
+                            <div class="term reveal">
+                                <div class="num">03</div>
+                                <h3 data-editable="true">⌨️ CLI</h3>
+                                <p data-editable="true">
+                                    用文字指令操作工具，方便 Agent
+                                    執行、記錄與重複。
+                                </p>
+                            </div>
+                            <div class="term reveal">
+                                <div class="num">04</div>
+                                <h3 data-editable="true">🖥️ GUI</h3>
+                                <p data-editable="true">
+                                    用按鈕與畫面操作，方便人類檢視、確認與調整。
+                                </p>
+                            </div>
+                            <div class="term reveal">
+                                <div class="num">05</div>
+                                <h3 data-editable="true">🤖 ACI</h3>
+                                <p data-editable="true">
+                                    人只需用自然語言說「想完成什麼」，Agent 自己決定如何操作電腦並完成任務。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Vocabulary</div>
+                        <div>09 / 23</div>
+                    </div>
+                </article>
+
+                <!-- ── Slide 09: JSON ── -->
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            關鍵詞 1
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            JSON：讓資料能被讀取、整理、再利用的<mark>標籤化格式</mark>
+                        </h2>
+                        <div
+                            class="path-box reveal"
+                            data-editable="true"
+                            style="margin-top: 40px"
+                        >
+                            <pre>
+// Open Library 回傳資料的簡化示意
+{
+  "title": "The Lord of the Rings",
+  "author_name": ["J.R.R. Tolkien"],
+  "first_publish_year": 1954
+}</pre>
+                        </div>
+                        <p class="lead reveal" data-editable="true">
+                            鍵（key）告訴我們「這是什麼」；值（value）才是實際資料。
+                        </p>
+                    </div>
+                    <div class="footer">
+                        <div>JSON</div>
+                        <div>10 / 23</div>
+                    </div>
+                </article>
+
+                <!-- ── Slide 10: API ── -->
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            關鍵詞 2
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            API：像一份寫好規則的<mark>點餐菜單</mark>
+                        </h2>
+                        <div class="three-col">
+                            <div class="card reveal">
+                                <h3 data-editable="true">📜 明確菜單</h3>
+                                <p data-editable="true">
+                                    服務先講清楚可以點什麼、怎麼點，Agent
+                                    只要照著菜單下單。
+                                </p>
+                            </div>
+                            <div class="card amber reveal">
+                                <h3 data-editable="true">🔁 可大量重複</h3>
+                                <p data-editable="true">
+                                    同一份請求，可以查一百次、一千次，結果一樣穩定。
+                                </p>
+                            </div>
+                            <div class="card red reveal">
+                                <h3 data-editable="true">📦 拿到的是資料</h3>
+                                <p data-editable="true">
+                                    回傳的不是畫面，而是可以被程式繼續處理的結構化資料（JSON）。
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            class="panel reveal"
+                            style="
+                                min-height: 0;
+                                height: 175px;
+                                padding: 0 48px;
+                                margin-top: 22px;
+                                display: flex;
+                                align-items: center;
+                            "
+                        >
+                            <p
+                                class="lead"
+                                data-editable="true"
+                                style="font-size: 46px; line-height: 1.45; margin: 0; max-width: none;"
+                            >
+                                一句話：API 讓服務把「能不能做」講清楚，Agent
+                                才不用亂猜。
+                            </p>
+                        </div>
+                        <a
+                            class="reveal"
+                            href="https://medium.com/@Tommmmm/%E5%B7%A5%E7%A8%8B%E5%B8%AB%E6%95%B4%E5%A4%A9%E6%8E%9B%E5%9C%A8%E5%98%B4%E9%82%8A%E7%9A%84api%E6%98%AF%E4%BB%80%E9%BA%BC-7ab8b522d3bc"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="position: absolute; bottom: 92px; display: inline-block; color: var(--green); font-size: 22px; font-weight: 900; text-decoration: none"
+                            >參考閱讀：工程師整天掛在嘴邊的API是什麼?（Medium）→</a
+                        >
+                    </div>
+                    <div class="footer">
+                        <div>Keyword: API</div>
+                        <div>11 / 23</div>
+                    </div>
+                </article>
+
+                <!-- ── Slide 12: 關鍵詞 3–5 CLI / GUI / ACI ── -->
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="padding-bottom: 80px;">
+                        <div class="kicker reveal" data-editable="true">
+                            關鍵詞 3–5
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            CLI、GUI、ACI：人與電腦的<mark>三種對話方式</mark>
+                        </h2>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 32px; margin-top: 28px; height: calc(100% - 230px);">
+                            <!-- 左欄：三張卡片 + 一句話 -->
+                            <div style="display: flex; flex-direction: column; gap: 18px;">
+                                <div class="card reveal">
+                                    <h3 data-editable="true">⌨️ CLI</h3>
+                                    <p data-editable="true">
+                                        Command Line Interface。純文字指令，1970 年代誕生，直到今天仍是 Agent 最愛用的語言。
+                                    </p>
+                                </div>
+                                <div class="card amber reveal">
+                                    <h3 data-editable="true">🖱️ GUI</h3>
+                                    <p data-editable="true">
+                                        Graphical User Interface。桌面、視窗、滑鼠，讓一般人不需學指令就能操作電腦。
+                                    </p>
+                                </div>
+                                <div class="card red reveal">
+                                    <h3 data-editable="true">🤖 ACI</h3>
+                                    <p data-editable="true">
+                                        Agentic Computer Interface。人用自然語言說「想完成什麼」，Agent 自己決定如何操作電腦並完成任務。
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- 右欄：圖片 -->
+                            <div class="reveal" style="display: flex; align-items: center; justify-content: center;">
+                                <img
+                                    src="img/cli-gui-aci-large.png"
+                                    alt="CLI、GUI、ACI 三種介面對比示意圖"
+                                    style="max-width: 100%; max-height: 100%; object-fit: contain; border: 2px solid var(--line);"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Keywords: CLI / GUI / ACI</div>
+                        <div>12 / 23</div>
+                    </div>
+                </article>
+
+                <!-- ── Slide 13: 三種介面比較表 ── -->
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="padding-bottom: 40px;">
+                        <div class="kicker reveal" data-editable="true">三種介面並排比較</div>
+                        <h2 class="reveal" style="margin-bottom: 6px;" data-editable="true">
+                            介面在演進，<mark>從執行轉向思考</mark>
+                        </h2>
+                        <!-- 副標 -->
+                        <p class="reveal" data-editable="true" style="font-size: 24px; color: var(--muted); margin: 0 0 16px; line-height: 1.4;">
+                            介面越進步，人花在「執行」的力氣越少，花在「思考」的比例越高。
+                        </p>
+                        <!-- 比較表 -->
+                        <div style="display: grid; grid-template-columns: 260px 1fr 1fr 1fr; gap: 0; border: 2px solid var(--line); overflow: hidden; height: calc(100% - 200px);">
+                            <!-- header row -->
+                            <div style="background: var(--paper-2); border-bottom: 2px solid var(--line);"></div>
+                            <div style="background: var(--green); color: var(--paper-2); font-family: var(--font-mono); font-size: 34px; font-weight: 700; display: flex; align-items: center; justify-content: center; border-left: 2px solid var(--line); border-bottom: 2px solid var(--line);">⌨️ CLI</div>
+                            <div style="background: var(--amber); color: var(--ink); font-family: var(--font-mono); font-size: 34px; font-weight: 700; display: flex; align-items: center; justify-content: center; border-left: 2px solid var(--line); border-bottom: 2px solid var(--line);">🖱️ GUI</div>
+                            <div style="background: var(--red); color: var(--paper-2); font-family: var(--font-mono); font-size: 34px; font-weight: 700; display: flex; align-items: center; justify-content: center; border-left: 2px solid var(--line); border-bottom: 2px solid var(--line);">🤖 ACI</div>
+                            <!-- row 1: 使用者告訴電腦 -->
+                            <div style="background: var(--paper-2); font-size: 26px; font-weight: 700; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--line);" data-editable="true">使用者告訴電腦</div>
+                            <div style="font-size: 32px; font-weight: 700; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true"><mark>明確的每一個步驟</mark></div>
+                            <div style="font-size: 32px; font-weight: 700; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true"><mark>要點擊的視覺元素</mark></div>
+                            <div style="font-size: 32px; font-weight: 700; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true"><mark>意圖與目標</mark></div>
+                            <!-- row 2: 核心技能 -->
+                            <div style="background: var(--paper-2); font-size: 26px; font-weight: 700; display: flex; align-items: center; padding: 0 16px; border-bottom: 1px solid var(--line);" data-editable="true">核心技能</div>
+                            <div style="font-size: 32px; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true">程序的正確性</div>
+                            <div style="font-size: 32px; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true">熟悉介面操作</div>
+                            <div style="font-size: 32px; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line); border-bottom: 1px solid var(--line);" data-editable="true">判斷力與表達清晰度</div>
+                            <!-- row 3: 失敗模式 -->
+                            <div style="background: var(--paper-2); font-size: 26px; font-weight: 700; display: flex; align-items: center; padding: 0 16px;" data-editable="true">失敗模式</div>
+                            <div style="font-size: 32px; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line);" data-editable="true">語法錯誤</div>
+                            <div style="font-size: 32px; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line);" data-editable="true">隱藏的複雜度</div>
+                            <div style="font-size: 32px; display: flex; align-items: center; padding: 0 20px; border-left: 2px solid var(--line);" data-editable="true">意圖模糊或過度信任</div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>CLI / GUI / ACI</div>
+                        <div>13 / 23</div>
+                    </div>
+                </article>
+
+                <!-- ── Slide 16: CLI / GUI / ACI 人文比喻 ── -->
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            關鍵詞 3、4、5
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            三種介面，一個比喻就記住
+                        </h2>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 28px; margin-top: 36px;">
+                            <!-- CLI -->
+                            <div class="card reveal" style="display: flex; flex-direction: column; gap: 14px;">
+                                <h3 data-editable="true">⌨️ CLI<br><span style="font-size: 0.7em; font-weight: 400; color: var(--muted);">Command-Line Interface</span></h3>
+                                <p data-editable="true" style="font-size: 24px; line-height: 1.6;">
+                                    就像寫信給圖書館員：你用文字說清楚「請幫我找 1984 年後出版、作者是卡夫卡的德文原著」，館員照著指令精確執行。
+                                </p>
+                                <div style="border-top: 2px solid var(--line); padding-top: 12px; margin-top: auto;">
+                                    <p data-editable="true" style="font-size: 21px; color: var(--muted); line-height: 1.5; margin: 0;">
+                                        ✅ 精確、可重複、留有紀錄<br>Agent 最愛用的語言
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- GUI -->
+                            <div class="card amber reveal" style="display: flex; flex-direction: column; gap: 14px;">
+                                <h3 data-editable="true">🖥️ GUI<br><span style="font-size: 0.7em; font-weight: 400; color: var(--muted);">Graphical User Interface</span></h3>
+                                <p data-editable="true" style="font-size: 24px; line-height: 1.6;">
+                                    就像進書店：你靠封面、陳列方式與書店地圖找書，眼睛一掃就能判斷、比較與挑選。
+                                </p>
+                                <div style="border-top: 2px solid var(--line); padding-top: 12px; margin-top: auto;">
+                                    <p data-editable="true" style="font-size: 21px; color: var(--muted); line-height: 1.5; margin: 0;">
+                                        ✅ 視覺直觀、易於判斷脈絡<br>人類最舒適的操作方式
+                                    </p>
+                                </div>
+                            </div>
+                            <!-- ACI -->
+                            <div class="card red reveal" style="display: flex; flex-direction: column; gap: 14px;">
+                                <h3 data-editable="true">🤖 ACI<br><span style="font-size: 0.7em; font-weight: 400; color: var(--muted);">Agentic Computer Interface</span></h3>
+                                <p data-editable="true" style="font-size: 24px; line-height: 1.6;">
+                                    就像對著助理說「幫我訂明天早上九點的會議室」——你不需要告訴他每一個步驟，他自己打開系統、找到表單、填完送出。
+                                </p>
+                                <div style="border-top: 2px solid var(--line); padding-top: 12px; margin-top: auto;">
+                                    <p data-editable="true" style="font-size: 21px; color: var(--muted); line-height: 1.5; margin: 0;">
+                                        ✅ 只需描述目標，不需給步驟<br>⚠️ 2025 年起快速成熟中
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>CLI / GUI / ACI 比喻</div>
+                        <div>14 / 23</div>
+                    </div>
+                </article>
+
+
+                <!-- ── Slide 15: 如何開啟 Terminal ── -->
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            準備工作
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            先開啟你的<mark>命令行工具</mark>，才能跟著做
+                        </h2>
+
+                        <div class="two-col reveal" style="margin-top: 28px; gap: 28px; align-items: stretch;">
+                            <!-- Windows -->
+                            <div class="card" style="display: flex; flex-direction: column; gap: 16px;">
+                                <h3 data-editable="true">🪟 Windows — 兩種方式</h3>
+                                <div style="display: flex; flex-direction: column; gap: 14px;">
+                                    <div style="background: var(--paper-2); border-radius: 12px; padding: 18px 22px;">
+                                        <p style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--green-2); margin: 0 0 6px 0;" data-editable="true">方式一：PowerShell</p>
+                                        <p style="font-size: 22px; line-height: 1.6; margin: 0; color: var(--ink);" data-editable="true">
+                                            按 <kbd style="background: var(--ink); color: var(--paper); padding: 2px 10px; border-radius: 6px; font-family: var(--font-mono); font-size: 18px;">Win</kbd> 鍵 → 搜尋 <strong>PowerShell</strong> → 點擊開啟
+                                        </p>
+                                    </div>
+                                    <div style="background: var(--paper-2); border-radius: 12px; padding: 18px 22px;">
+                                        <p style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--green-2); margin: 0 0 6px 0;" data-editable="true">方式二：Windows Terminal</p>
+                                        <p style="font-size: 22px; line-height: 1.6; margin: 0; color: var(--ink);" data-editable="true">
+                                            按 <kbd style="background: var(--ink); color: var(--paper); padding: 2px 10px; border-radius: 6px; font-family: var(--font-mono); font-size: 18px;">Win</kbd> 鍵 → 搜尋 <strong>Terminal</strong> → 點擊開啟（Windows 11 內建）
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- macOS -->
+                            <div class="card amber" style="display: flex; flex-direction: column; gap: 16px;">
+                                <h3 data-editable="true">🍎 macOS — 兩種方式</h3>
+                                <div style="display: flex; flex-direction: column; gap: 14px;">
+                                    <div style="background: rgba(240, 161, 43, 0.12); border-radius: 12px; padding: 18px 22px;">
+                                        <p style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--green-2); margin: 0 0 6px 0;" data-editable="true">方式一：Terminal（內建）</p>
+                                        <p style="font-size: 22px; line-height: 1.6; margin: 0; color: var(--ink);" data-editable="true">
+                                            按 <kbd style="background: var(--ink); color: var(--paper); padding: 2px 10px; border-radius: 6px; font-family: var(--font-mono); font-size: 18px;">⌘ Space</kbd> → 搜尋 <strong>Terminal</strong> → 按 Enter
+                                        </p>
+                                    </div>
+                                    <div style="background: rgba(240, 161, 43, 0.12); border-radius: 12px; padding: 18px 22px;">
+                                        <p style="font-family: var(--font-mono); font-size: 20px; font-weight: 700; color: var(--green-2); margin: 0 0 6px 0;" data-editable="true">方式二：Finder 路徑</p>
+                                        <p style="font-size: 22px; line-height: 1.6; margin: 0; color: var(--ink);" data-editable="true">
+                                            Finder → 應用程式 → 工具程式 → <strong>終端機</strong>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Warp 推薦橫幅 -->
+                        <div class="reveal" style="margin-top: 24px; background: linear-gradient(135deg, rgba(30, 75, 63, 0.08) 0%, rgba(0, 183, 199, 0.10) 100%); border-radius: 20px; padding: 38px 48px; border: 2px solid rgba(0, 183, 199, 0.35); display: flex; align-items: center; gap: 36px;">
+                            <div style="flex-shrink: 0;">
+                                <span style="font-family: var(--font-mono); font-size: 28px; color: var(--paper); background: var(--green); padding: 12px 28px; border-radius: 99px; font-weight: 900; white-space: nowrap; letter-spacing: 0.04em;">🚀 講師推薦</span>
+                            </div>
+                            <div style="flex: 1;">
+                                <p style="font-size: 32px; font-weight: 700; color: var(--ink); margin: 0 0 14px 0;" data-editable="true">
+                                    現代化 Terminal 工具：<strong>Warp</strong>（Windows &amp; macOS 皆可用）
+                                </p>
+                                <p style="font-size: 28px; color: var(--muted); margin: 0; line-height: 1.6;" data-editable="true">
+                                    使用以下專屬連結下載，可獲得 <mark style="background: linear-gradient(transparent 50%, rgba(0, 183, 199, 0.45) 50%);">exclusive Warp 限定主題</mark>：
+                                    <a href="https://app.warp.dev/referral/VLJZQ5W" style="font-family: var(--font-mono); font-size: 26px; color: var(--cyan); font-weight: 700; word-break: break-all; display: inline-block; margin-top: 8px;">app.warp.dev/referral/VLJZQ5W</a>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>開啟 Terminal</div>
+                        <div>15 / 23</div>
+                    </div>
+                </article>
+
+
+                <!-- ── Slide 17: 課堂活動總覽 ── -->
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            🖐️ 課堂活動
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            三站式體驗：先<mark>手動下指令</mark>，再讓 IBM Bob 接手
+                        </h2>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 24px; margin-top: 36px;">
+                            <!-- 第一站 -->
+                            <div class="card reveal" style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="font-family: var(--font-mono); font-size: 15px; font-weight: 700; color: var(--muted); letter-spacing: 0.08em;">第一站　15 min</div>
+                                <h3 data-editable="true">🔍 Open Library API</h3>
+                                <p data-editable="true" style="font-size: 24px; line-height: 1.6;">
+                                    在瀏覽器貼上 API 網址，親眼看到 JSON 長什麼樣子；接著讓 Bob 用自然語言幫你查書。
+                                </p>
+                                <div style="margin-top: auto; padding-top: 12px; border-top: 2px solid var(--line);">
+                                    <p data-editable="true" style="font-size: 20px; color: var(--muted); margin: 0; line-height: 1.5;">CLI 類型：API（HTTP 請求）</p>
+                                </div>
+                            </div>
+                            <!-- 第二站 -->
+                            <div class="card amber reveal" style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="font-family: var(--font-mono); font-size: 15px; font-weight: 700; color: var(--muted); letter-spacing: 0.08em;">第二站　15 min</div>
+                                <h3 data-editable="true">📓 Obsidian CLI</h3>
+                                <p data-editable="true" style="font-size: 24px; line-height: 1.6;">
+                                    設定 Obsidian 開放 CLI 存取，先用指令新增一則筆記；接著讓 Bob 幫你整理今天的學習。
+                                </p>
+                                <div style="margin-top: auto; padding-top: 12px; border-top: 2px solid var(--line);">
+                                    <p data-editable="true" style="font-size: 20px; color: var(--muted); margin: 0; line-height: 1.5;">CLI 類型：本地 CLI</p>
+                                </div>
+                            </div>
+                            <!-- 第三站 -->
+                            <div class="card red reveal" style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="font-family: var(--font-mono); font-size: 15px; font-weight: 700; color: var(--muted); letter-spacing: 0.08em;">第三站　10 min</div>
+                                <h3 data-editable="true">🎬 yt-dlp &amp; ImageMagick</h3>
+                                <p data-editable="true" style="font-size: 24px; line-height: 1.6;">
+                                    讓 Agent 幫你處理多媒體：下載影片字幕、批次處理圖片，全部交給 Bob 搞定。
+                                </p>
+                                <div style="margin-top: auto; padding-top: 12px; border-top: 2px solid var(--line);">
+                                    <p data-editable="true" style="font-size: 20px; color: var(--muted); margin: 0; line-height: 1.5;">CLI 類型：媒體處理工具</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="panel reveal" style="min-height: 0; padding: 18px 32px; margin-top: 24px;">
+                            <p class="lead" data-editable="true" style="font-size: 26px; line-height: 1.5; margin: 0; max-width: none;">
+                                💡 每一站都先讓你看到「手動指令的樣子」，再提供 Prompt 讓 Bob 做同樣的事——感受差距。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Activity overview</div>
+                        <div>16 / 23</div>
+                    </div>
+                </article>
+
+                <!-- ── Slide 18: 第一站 Open Library API ── -->
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="padding-bottom: 80px;">
+                        <div class="kicker reveal" data-editable="true">
+                            🔍 第一站：Open Library API
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            先用瀏覽器看 JSON，再讓 Bob <mark>幫你查書</mark>
+                        </h2>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 20px; height: calc(100% - 230px);">
+                            <!-- 左：Step 1 手動 + Step 2 Bob -->
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--green); letter-spacing: 0.06em;">Step 1 ── 手動：貼到瀏覽器看看</div>
+                                <div style="display: flex; flex-direction: column; gap: 10px;">
+                                    <!-- WEB UI -->
+                                    <div class="panel dark reveal" style="min-height: 0; padding: 12px 18px; display: flex; flex-direction: column; gap: 8px;">
+                                        <div style="font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--green); letter-spacing: 0.04em;">🖥️ WEB UI（人類用）</div>
+                                        <div style="background: rgba(0,0,0,0.06); padding: 10px 14px; border: 1px solid var(--line);">
+                                            <div style="font-size: 14px; font-family: var(--font-mono); color: var(--muted); margin-bottom: 4px;">回傳 HTML 網頁</div>
+                                            <code style="font-size: 18px; line-height: 1.5; display: block; color: var(--ink); word-break: break-all; font-family: var(--font-mono);"><a href="https://openlibrary.org/search?q=Taiwan+Travelogue" target="_blank" rel="noopener noreferrer" style="color: var(--green); text-decoration: underline;">openlibrary.org/search?q=Taiwan+Travelogue</a></code>
+                                        </div>
+                                    </div>
+                                    <!-- API -->
+                                    <div class="panel dark reveal" style="min-height: 0; padding: 12px 18px; display: flex; flex-direction: column; gap: 8px;">
+                                        <div style="font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--green); letter-spacing: 0.04em;">⚙️ API（Agent 用）</div>
+                                        <div style="background: rgba(0,0,0,0.06); padding: 10px 14px; border: 1px solid var(--line);">
+                                            <div style="font-size: 14px; font-family: var(--font-mono); color: var(--muted); margin-bottom: 4px;">回傳 JSON 資料</div>
+                                            <code style="font-size: 18px; line-height: 1.5; display: block; color: var(--ink); word-break: break-all; font-family: var(--font-mono);"><a href="https://openlibrary.org/search.json?q=Taiwan+Travelogue" target="_blank" rel="noopener noreferrer" style="color: var(--ink); text-decoration: underline;">openlibrary.org/search<span style="color: var(--red); font-weight: bold;">.json</span>?q=Taiwan+Travelogue</a></code>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="panel reveal" style="min-height: 0; padding: 14px 20px; flex: none;">
+                                    <p data-editable="true" style="font-size: 19px; line-height: 1.6; margin: 0;">
+                                        👀 觀察回傳的 JSON：<code>docs[]</code> 裡有哪些欄位？<br>
+                                        <code>title</code>、<code>author_name</code>、<code>first_publish_year</code> 在哪裡？
+                                    </p>
+                                </div>
+                                <div style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--green); letter-spacing: 0.06em;">Step 2 ── 讓 Bob 接手</div>
+                                <div class="panel dark reveal" style="min-height: 0; flex: none; padding: 14px 18px; display: flex; flex-direction: column; gap: 12px;">
+                                    <p id="p18-prompt" data-editable="true" style="font-family: var(--font-mono); font-size: 22px; line-height: 1.6; margin: 0;">
+                                        讀取 https://openlibrary.org/developers/api API 文件，然後幫我查詢 Taiwan Travelogue，列出書名、作者與首次出版年份。
+                                    </p>
+                                    <button onclick="copyPrompt('p18-prompt', this)" style="align-self: flex-start; font-family: var(--font-mono); font-size: 14px; font-weight: 700; padding: 6px 16px; background: var(--yellow); color: #0d2135; border: none; border-radius: 0; cursor: pointer; letter-spacing: 0.05em;">📋 複製 Prompt</button>
+                                </div>
+                            </div>
+                            <!-- 右：API 能力 + Bob 流程 -->
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--muted); letter-spacing: 0.06em;">這個 API 能做什麼</div>
+                                <div class="panel reveal" style="min-height: 0; flex: none; padding: 16px 20px; border-left: 8px solid var(--red);">
+                                    <ul class="bullets" style="margin: 0; display: flex; flex-direction: column; gap: 10px;">
+                                        <li data-editable="true" style="font-size: 19px; line-height: 1.45; margin: 0;"><strong>批次檢索：</strong>單一請求回傳多本書目完整資料。</li>
+                                        <li data-editable="true" style="font-size: 19px; line-height: 1.45; margin: 0;"><strong>雙層架構：</strong>Work 層（作者、首版年）與 Edition 層（書名、封面）。</li>
+                                        <li data-editable="true" style="font-size: 19px; line-height: 1.45; margin: 0;"><strong>靈活過濾：</strong>可附帶出版年、版本數等篩選條件。</li>
+                                    </ul>
+                                    <div style="padding-top: 10px; margin-top: 10px; border-top: 1px dashed rgba(16,42,67,0.2);">
+                                        <a href="https://openlibrary.org/dev/docs/api#anchor-search" target="_blank" rel="noopener noreferrer" style="color: var(--green); font-size: 17px; font-weight: 700; text-decoration: none;">📖 官方文件 →</a>
+                                    </div>
+                                </div>
+                                <div style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--muted); letter-spacing: 0.06em;">Bob 會幫你做什麼？</div>
+                                <div class="card reveal" style="flex: none; padding: 16px 20px;">
+                                    <p data-editable="true" style="font-size: 19px; line-height: 1.7; margin: 0;">
+                                        1️⃣ 組出正確的 API 網址<br>
+                                        2️⃣ 發出 HTTP 請求取得 JSON<br>
+                                        3️⃣ 解析 <code>docs[]</code> 欄位<br>
+                                        4️⃣ 整理成你看得懂的表格
+                                    </p>
+                                </div>
+                                <div class="panel reveal" style="min-height: 0; flex: none; padding: 16px 20px;">
+                                    <p data-editable="true" style="font-size: 19px; line-height: 1.6; margin: 0;">
+                                        🧠 <strong>想一想</strong><br>
+                                        你告訴 Bob 的是<mark>目標</mark>，不是步驟。<br>Bob 自己決定要打哪個 URL、要看哪個欄位——這就是 CLI 讓 Agent 發揮的地方。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Station 1: Open Library API</div>
+                        <div>17 / 23</div>
+                    </div>
+                </article>
+
+                <!-- ── Slide 19: 第二站 Obsidian CLI ── -->
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="padding-bottom: 80px;">
+                        <div class="kicker reveal" data-editable="true">
+                            📓 第二站：Obsidian CLI
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            用終端機指令操作 Vault，再讓 Bob <mark>幫你寫筆記</mark>
+                        </h2>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 28px; height: calc(100% - 230px);">
+                            <!-- 左：說明 + 手動指令 -->
+                            <div style="display: flex; flex-direction: column; gap: 14px;">
+                                <div style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--green); letter-spacing: 0.06em;">⚙️ Obsidian CLI 是什麼？</div>
+                                <div class="card reveal" style="flex: none; padding: 16px 20px;">
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.7; margin: 0;">
+                                        官方命令列工具，讓你透過命令就能操作 vault。<br>
+                                        不需要外掛，Obsidian App 在背景執行即可。
+                                    </p>
+                                    <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--line);">
+                                        <div style="font-family: var(--font-mono); font-size: 14px; color: var(--yellow); font-weight: 700; margin-bottom: 8px;">⚠️ 前置步驟：開啟 CLI 功能</div>
+                                        <div style="font-size: 15px; line-height: 1.6; color: var(--fg); margin-bottom: 10px;">
+                                            在 Obsidian 中前往 <strong>Settings → General</strong>，找到 <strong>Enable Command line interface</strong> 並開啟。
+                                        </div>
+                                    </div>
+                                    <div style="padding-top: 4px; border-top: 1px solid var(--line);">
+                                        <div style="font-family: var(--font-mono); font-size: 14px; color: var(--muted); margin-bottom: 6px;">✅ 確認安裝：執行以下指令，看到版本號即代表安裝成功</div>
+                                        <code style="font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--green);">obsidian version</code>
+                                    </div>
+                                </div>
+                                <div style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--green); letter-spacing: 0.06em;">Step 1 ── 手動：用指令新增筆記</div>
+                                <div class="path-box reveal" style="margin-top: 0; font-size: 16px; flex: none;">
+                                    <pre style="white-space: pre-wrap; word-break: break-all;"># 搜尋 vault
+obsidian search query="agentic AI"
+
+# 建立新筆記（不自動開啟）
+obsidian create \
+  name="W2 課堂筆記" \
+  content="# W2 課堂筆記
+- **API**：程式溝通的介面
+- **CLI**：文字指令操作
+- **GUI**：視窗滑鼠操作" \
+  silent</pre>
+                                </div>
+                                <a href="https://obsidian.md/cli" target="_blank" rel="noopener noreferrer" style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--green); text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">📖 參考文件：obsidian.md/cli →</a>
+                            </div>
+                            <!-- 右：Step 2 Bob prompt + 想一想 -->
+                            <div style="display: flex; flex-direction: column; gap: 14px;">
+                                <div style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--green); letter-spacing: 0.06em;">Step 2 ── 讓 Bob 接手</div>
+                                <div class="panel dark reveal" style="min-height: 0; flex: none; padding: 14px 18px; display: flex; flex-direction: column; gap: 14px;">
+                                    <p id="p19-prompt" data-editable="true" style="font-family: var(--font-mono); font-size: 20px; line-height: 1.6; margin: 0;">
+                                        請在我的 Obsidian vault 裡新增一則名為「W2 課堂筆記」的筆記。內容包含：今天學到的三個關鍵詞（API、CLI、GUI），以及各一句話說明。
+                                    </p>
+                                    <button onclick="copyPrompt('p19-prompt', this)" style="align-self: flex-start; font-family: var(--font-mono); font-size: 14px; font-weight: 700; padding: 6px 16px; background: var(--yellow); color: #0d2135; border: none; border-radius: 0; cursor: pointer; letter-spacing: 0.05em;">📋 複製 Prompt</button>
+                                </div>
+                                <div class="panel reveal" style="min-height: 0; flex: none; padding: 16px 20px;">
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.6; margin: 0;">
+                                        🧠 <strong>想一想</strong><br>
+                                        手動要記住每條指令的語法；Bob 只需要你說「新增一則筆記」，自己決定用哪個指令完成。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Station 2: Obsidian CLI</div>
+                        <div>18 / 23</div>
+                    </div>
+                </article>
+
+                <!-- ── Slide 20: 第三站 yt-dlp & ImageMagick ── -->
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="padding-bottom: 80px;">
+                        <div class="kicker reveal" data-editable="true">
+                            🎬 第三站：yt-dlp &amp; ImageMagick
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            讓 Agent 幫你<mark>處理多媒體</mark>
+                        </h2>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 24px; height: calc(100% - 230px);">
+                            <!-- 左：安裝 Prompt + 手動指令 -->
+                            <div style="display: flex; flex-direction: column; gap: 14px;">
+                                <div style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--red); letter-spacing: 0.06em;">Step 1 ── 讓 Bob 安裝（跨平台）</div>
+                                <div class="panel dark reveal" style="min-height: 0; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px;">
+                                    <p id="p20-install" data-editable="true" style="font-family: var(--font-mono); font-size: 18px; line-height: 1.6; margin: 0;">
+                                        請先偵測我的作業系統，再用最適合的方式安裝 yt-dlp 與 ImageMagick，並在安裝完成後驗證版本。
+                                    </p>
+                                    <button onclick="copyPrompt('p20-install', this)" style="align-self: flex-start; font-family: var(--font-mono); font-size: 14px; font-weight: 700; padding: 6px 16px; background: var(--yellow); color: #0d2135; border: none; border-radius: 0; cursor: pointer; letter-spacing: 0.05em;">📋 複製 Prompt</button>
+                                    <div style="border-top: 1px solid var(--line); padding-top: 10px; display: flex; flex-direction: column; gap: 4px;">
+                                        <div style="font-size: 14px; font-family: var(--font-mono); color: var(--muted);">✅ 確認安裝：</div>
+                                        <code style="font-family: var(--font-mono); font-size: 17px; color: var(--green);">yt-dlp --version</code>
+                                        <code style="font-family: var(--font-mono); font-size: 17px; color: var(--green);">magick --version</code>
+                                    </div>
+                                </div>
+                                <div style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--red); letter-spacing: 0.06em; margin-top: 4px;">Step 2 ── 手動：看指令長什麼樣子</div>
+                                <div class="path-box reveal" style="margin-top: 0; font-size: 16px; flex: none;">
+                                    <pre style="white-space: pre-wrap;"># yt-dlp：下載英文逐字稿（自動生成）
+yt-dlp --write-auto-subs --skip-download \
+  --sub-langs en \
+  "https://www.youtube.com/watch?v=k5jYwyhDMxA"
+
+# ImageMagick：縮圖
+magick dog.png -scale 50x50 dog_small.png</pre>
+                                </div>
+                            </div>
+                            <!-- 右：讓 Bob 接手 -->
+                            <div style="display: flex; flex-direction: column; gap: 14px;">
+                                <div style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--red); letter-spacing: 0.06em;">Step 3 ── 讓 Bob 做同樣的事</div>
+                                <div class="panel dark reveal" style="min-height: 0; padding: 22px 26px; display: flex; flex-direction: column; gap: 20px;">
+                                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                                        <div style="font-size: 19px; font-family: var(--font-mono); color: var(--muted);">yt-dlp Prompt：</div>
+                                        <p id="p20-ytdlp" data-editable="true" style="font-family: var(--font-mono); font-size: 22px; line-height: 1.65; margin: 0;">
+                                            請幫我用 yt-dlp 下載這支影片的英文逐字稿，只要字幕，不要影片：https://www.youtube.com/watch?v=k5jYwyhDMxA
+                                        </p>
+                                        <button onclick="copyPrompt('p20-ytdlp', this)" style="align-self: flex-start; font-family: var(--font-mono); font-size: 17px; font-weight: 700; padding: 8px 20px; background: var(--yellow); color: #0d2135; border: none; border-radius: 0; cursor: pointer; letter-spacing: 0.05em;">📋 複製</button>
+                                    </div>
+                                    <div style="border-top: 1px solid var(--line); padding-top: 20px; display: flex; flex-direction: column; gap: 12px;">
+                                        <div style="font-size: 19px; font-family: var(--font-mono); color: var(--muted);">ImageMagick Prompt：</div>
+                                        <p id="p20-magick" data-editable="true" style="font-family: var(--font-mono); font-size: 22px; line-height: 1.65; margin: 0;">
+                                            請用 ImageMagick 把 dog.png 縮小成尺寸 50x50，存成新檔案，原始檔保留。
+                                        </p>
+                                        <button onclick="copyPrompt('p20-magick', this)" style="align-self: flex-start; font-family: var(--font-mono); font-size: 17px; font-weight: 700; padding: 8px 20px; background: var(--yellow); color: #0d2135; border: none; border-radius: 0; cursor: pointer; letter-spacing: 0.05em;">📋 複製</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Station 3: yt-dlp &amp; ImageMagick</div>
+                        <div>19 / 23</div>
+                    </div>
+                </article>
+
+
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display: flex; flex-direction: column; gap: 24px;">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">API vs CLI</div>
+                            <h2 class="reveal" data-editable="true" style="font-size: 56px; white-space: nowrap;">
+                                兩種工具，一個共同目標：讓 Agent <mark>精準執行</mark>
+                            </h2>
+                        </div>
+
+                        <!-- 比較表 -->
+                        <div class="two-col reveal" style="margin-top: 0; gap: 24px; align-items: stretch;">
+                            <!-- API -->
+                            <div class="card" style="display: flex; flex-direction: column; gap: 18px;">
+                                <h3 style="font-size: 32px;" data-editable="true">🌐 API</h3>
+                                <div style="display: flex; flex-direction: column; gap: 12px;">
+                                    <div style="background: var(--paper-2); border-radius: 10px; padding: 16px 20px;">
+                                        <p style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--muted); margin: 0 0 6px 0;">是什麼</p>
+                                        <p style="font-size: 23px; line-height: 1.55; margin: 0;" data-editable="true">透過 HTTP 請求，向<strong>遠端服務</strong>要資料或觸發動作。Agent 不需要安裝任何東西，直接送出請求就有回應。</p>
+                                    </div>
+                                    <div style="background: var(--paper-2); border-radius: 10px; padding: 16px 20px;">
+                                        <p style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--muted); margin: 0 0 6px 0;">對 Agent 的價值</p>
+                                        <p style="font-size: 23px; line-height: 1.55; margin: 0;" data-editable="true">取得即時數據（書目、天氣、匯率）、觸發外部服務（傳訊、寫日曆）——<strong>連接網路世界的橋樑</strong>。</p>
+                                    </div>
+                                    <div style="background: var(--paper-2); border-radius: 10px; padding: 16px 20px;">
+                                        <p style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--muted); margin: 0 0 6px 0;">限制</p>
+                                        <p style="font-size: 23px; line-height: 1.55; margin: 0;" data-editable="true">必須有網路、依賴第三方服務的規格，無法直接操作本機檔案。</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- CLI -->
+                            <div class="card amber" style="display: flex; flex-direction: column; gap: 18px;">
+                                <h3 style="font-size: 32px;" data-editable="true">⌨️ CLI</h3>
+                                <div style="display: flex; flex-direction: column; gap: 12px;">
+                                    <div style="background: rgba(240, 161, 43, 0.12); border-radius: 10px; padding: 16px 20px;">
+                                        <p style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--muted); margin: 0 0 6px 0;">是什麼</p>
+                                        <p style="font-size: 23px; line-height: 1.55; margin: 0;" data-editable="true">在終端機輸入指令，直接控制<strong>本機系統</strong>——建立檔案、執行程式、處理媒體，完全離線也能運作。</p>
+                                    </div>
+                                    <div style="background: rgba(240, 161, 43, 0.12); border-radius: 10px; padding: 16px 20px;">
+                                        <p style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--muted); margin: 0 0 6px 0;">對 Agent 的價值</p>
+                                        <p style="font-size: 23px; line-height: 1.55; margin: 0;" data-editable="true">讀寫檔案、安裝套件、執行腳本——<strong>掌控本機環境的雙手</strong>，讓 Agent 真正能「做事」而非只會「查資料」。</p>
+                                    </div>
+                                    <div style="background: rgba(240, 161, 43, 0.12); border-radius: 10px; padding: 16px 20px;">
+                                        <p style="font-family: var(--font-mono); font-size: 17px; font-weight: 700; color: var(--muted); margin: 0 0 6px 0;">限制</p>
+                                        <p style="font-size: 23px; line-height: 1.55; margin: 0;" data-editable="true">需要安裝對應工具，指令語法因平台（Windows / macOS）略有差異。</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 底部統整橫幅 -->
+                        <div class="reveal" style="background: rgba(30, 75, 63, 0.08); border-radius: 18px; padding: 22px 36px; border: 2px solid rgba(30, 75, 63, 0.22); display: flex; align-items: center; gap: 24px;">
+                            <span style="font-size: 32px; flex-shrink: 0;">🤖</span>
+                            <p style="font-size: 27px; font-weight: 700; line-height: 1.5; color: var(--ink); margin: 0; flex: 1;" data-editable="true">
+                                AI Agent 同時擁有兩種能力：用 <mark>API</mark> 連接世界、用 <mark>CLI</mark> 控制本機——這就是為什麼它比人類更有效率地完成跨系統任務。
+                            </p>
+                            <a href="https://launchdock.app/articles/cli-guide/" style="flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 22px; background: var(--green); border-radius: 14px; text-decoration: none;">
+                                <span style="font-size: 26px;">📖</span>
+                                <span style="font-family: var(--font-mono); font-size: 16px; font-weight: 700; color: var(--paper); white-space: nowrap;">CLI 參考指南</span>
+                                <span style="font-family: var(--font-mono); font-size: 13px; color: rgba(246,236,212,0.7); white-space: nowrap;">launchdock.app ↗</span>
+                            </a>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>API vs CLI</div>
+                        <div>20 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display: flex; flex-direction: column; gap: 24px;">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">本週產出</div>
+                            <h2 class="reveal" data-editable="true">離開教室前，至少要有這些成果</h2>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 36px; margin-top: 4px;">
+                            <div class="card reveal" style="display: flex; gap: 24px; align-items: center; padding: 44px 40px;">
+                                <span style="font-family: var(--font-mono); font-size: 36px; font-weight: 900; color: var(--cyan); flex-shrink: 0; line-height: 1;">01</span>
+                                <p style="font-size: 32px; font-weight: 600; line-height: 1.5; margin: 0; color: var(--ink);" data-editable="true">
+                                    針對 <mark>JSON、API、CLI、GUI、ACI</mark> 五個關鍵詞有自己的例子與理解。
+                                </p>
+                            </div>
+                            <div class="card amber reveal" style="display: flex; gap: 24px; align-items: center; padding: 44px 40px;">
+                                <span style="font-family: var(--font-mono); font-size: 36px; font-weight: 900; color: var(--amber); flex-shrink: 0; line-height: 1;">02</span>
+                                <p style="font-size: 32px; font-weight: 600; line-height: 1.5; margin: 0; color: var(--ink);" data-editable="true">
+                                    請 Bob 產生 <mark>CLI、GUI、ACI</mark> 三種人機互動介面的比較表。
+                                </p>
+                            </div>
+                            <div class="card red reveal" style="display: flex; gap: 24px; align-items: center; padding: 44px 40px;">
+                                <span style="font-family: var(--font-mono); font-size: 36px; font-weight: 900; color: var(--red); flex-shrink: 0; line-height: 1;">03</span>
+                                <p style="font-size: 32px; font-weight: 600; line-height: 1.5; margin: 0; color: var(--ink);" data-editable="true">
+                                    請 Bob 使用 <mark>yt-dlp</mark> 抓取影片逐字稿，產生摘要後用 <mark>Obsidian CLI</mark> 寫成筆記。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Deliverables</div>
+                        <div>21 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display: flex; flex-direction: column; gap: 28px;">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                結語與下週預告
+                            </div>
+                            <h2 class="reveal" data-editable="true" style="font-size: 56px; margin-bottom: 0;">
+                                好的工作流，讓每個工具在最適合的位置工作
+                            </h2>
+                        </div>
+
+                        <!-- 左右雙欄：Quote 與圖片 -->
+                        <div class="two-col reveal" style="margin-top: 0; gap: 36px; align-items: stretch;">
+                            <!-- Left: Quotes -->
+                            <div style="display: flex; flex-direction: column; gap: 20px; justify-content: space-between;">
+                                <div class="card" style="padding: 34px 36px; border-left: 10px solid var(--cyan); background: rgba(255, 248, 232, 0.9); flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                    <p style="font-family: var(--font-serif); font-size: 27px; font-weight: 700; line-height: 1.45; color: var(--green-2); margin: 0;" data-editable="true">
+                                        「フリーレン、私の一番好きな魔法は、綺麗な花畑を出す魔法だ。」
+                                    </p>
+                                    <p style="font-size: 22px; font-weight: 500; color: var(--muted); margin-top: 12px; margin-bottom: 0;" data-editable="true">
+                                        （芙莉蓮，我最喜歡的魔法，是變出美麗花田的魔法。）
+                                    </p>
+                                </div>
+
+                                <div class="card" style="padding: 34px 36px; border-left: 10px solid var(--amber); background: rgba(255, 248, 232, 0.9); flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                    <p style="font-family: var(--font-serif); font-size: 27px; font-weight: 700; line-height: 1.45; color: var(--green-2); margin: 0;" data-editable="true">
+                                        API 是數據的接口，CLI 是指令的語言，GUI 是視覺的橋樑——三種介面，三種與工具對話的方式。
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Right: Image -->
+                            <div class="card" style="padding: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(255, 248, 232, 0.9);">
+                                <img
+                                    src="https://image.p-c2-x.abema-tv.com/image/series/19-171/thumb.png?height=720&quality=75&version=1774674561&width=1280"
+                                    alt="《葬送的芙莉蓮》魔法想像"
+                                    style="
+                                        width: 100%;
+                                        height: 400px;
+                                        object-fit: cover;
+                                        border-radius: 20px;
+                                    "
+                                />
+                                <p style="font-family: var(--font-mono); font-size: 16px; line-height: 1.4; margin-top: 8px; margin-bottom: 0; color: var(--muted);">
+                                    來源出處：《葬送的芙莉蓮》（葬送のフリーレン）
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 下週預告橫幅 -->
+                        <div class="reveal" style="background: rgba(0, 183, 199, 0.12); border-radius: 24px; padding: 28px 40px; border: 2px solid rgba(0, 183, 199, 0.38); display: flex; align-items: center; gap: 28px; box-shadow: 0 14px 36px rgba(23, 33, 31, 0.08);">
+                            <span style="font-family: var(--font-mono); font-size: 26px; color: var(--paper); background: var(--green); padding: 8px 22px; border-radius: 99px; font-weight: 900; white-space: nowrap; letter-spacing: 0.04em;">🔮 下週預告</span>
+                            <p style="font-size: 30px; font-weight: 700; line-height: 1.4; color: var(--ink); margin: 0;" data-editable="true">
+                                W3 進入 <mark style="background: linear-gradient(transparent 50%, rgba(0, 183, 199, 0.45) 50%);">SKILL.md</mark>：把一個重複任務寫成 Skill，讓 Agent 記住你的工作方式。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Next week &amp; Closing</div>
+                        <div>22 / 23</div>
+                    </div>
+                </article>
+            </section>
+        </main>
+
+        <nav class="nav-ui" aria-label="簡報導覽">
+            <button id="prev" type="button">←</button>
+            <div id="counter">1 / 23</div>
+            <button id="next" type="button">→</button>
+        </nav>
+
+        <script>
+            /* === STAGE SCALING === */
+            var stage = document.getElementById("stage");
+            function scaleStage() {
+                var viewport = window.visualViewport || window;
+                var scale = Math.min(
+                    viewport.width / 1920,
+                    viewport.height / 1080,
+                );
+                stage.style.transform =
+                    "translate(-50%, -50%) scale(" + scale + ")";
+            }
+            window.addEventListener("resize", scaleStage);
+            scaleStage();
+
+            /* === SLIDE NAVIGATION === */
+            var slides = Array.prototype.slice.call(
+                document.querySelectorAll(".slide"),
+            );
+            var counter = document.getElementById("counter");
+            var current = 0;
+            function showSlide(index) {
+                current = Math.max(0, Math.min(slides.length - 1, index));
+                slides.forEach(function (slide, i) {
+                    if (i === current) slide.classList.add("active");
+                    else slide.classList.remove("active");
+                });
+                counter.textContent = current + 1 + " / " + slides.length;
+                if (history.replaceState)
+                    history.replaceState(
+                        null,
+                        "",
+                        "#" + String(current + 1).padStart(2, "0"),
+                    );
+            }
+            function nextSlide() {
+                showSlide(current + 1);
+            }
+            function prevSlide() {
+                showSlide(current - 1);
+            }
+            document
+                .getElementById("next")
+                .addEventListener("click", nextSlide);
+            document
+                .getElementById("prev")
+                .addEventListener("click", prevSlide);
+            document.addEventListener("keydown", function (event) {
+                var key = event.key;
+                var editing = document.body.classList.contains("editing");
+                if (
+                    editing &&
+                    key.length === 1 &&
+                    !event.ctrlKey &&
+                    !event.metaKey
+                )
+                    return;
+                if (key === "ArrowRight" || key === "PageDown" || key === " ")
+                    nextSlide();
+                if (key === "ArrowLeft" || key === "PageUp") prevSlide();
+                if (key === "Home") showSlide(0);
+                if (key === "End") showSlide(slides.length - 1);
+                if (key.toLowerCase && key.toLowerCase() === "e")
+                    toggleEditing();
+                if (
+                    (event.ctrlKey || event.metaKey) &&
+                    key.toLowerCase &&
+                    key.toLowerCase() === "s"
+                ) {
+                    event.preventDefault();
+                    saveEdits();
+                }
+            });
+
+            /* === TOUCH NAVIGATION === */
+            var touchStartX = 0;
+            stage.addEventListener(
+                "touchstart",
+                function (event) {
+                    touchStartX = event.changedTouches[0].clientX;
+                },
+                { passive: true },
+            );
+            stage.addEventListener(
+                "touchend",
+                function (event) {
+                    var delta = event.changedTouches[0].clientX - touchStartX;
+                    if (Math.abs(delta) > 48) {
+                        if (delta < 0) nextSlide();
+                        else prevSlide();
+                    }
+                },
+                { passive: true },
+            );
+
+            /* === INLINE EDITING === */
+            var editableNodes = Array.prototype.slice.call(
+                document.querySelectorAll('[data-editable="true"]'),
+            );
+            function toggleEditing() {
+                var enabled = !document.body.classList.contains("editing");
+                if (enabled) document.body.classList.add("editing");
+                else document.body.classList.remove("editing");
+                editableNodes.forEach(function (node) {
+                    node.contentEditable = enabled ? "true" : "false";
+                });
+            }
+            function storageKey(index) {
+                return "w2-frontend-slides-edit-v21-" + index;
+            }
+            editableNodes.forEach(function (node, index) {
+                var saved = localStorage.getItem(storageKey(index));
+                if (saved !== null) node.innerHTML = saved;
+                node.addEventListener("input", function () {
+                    localStorage.setItem(storageKey(index), node.innerHTML);
+                });
+            });
+            function saveEdits() {
+                editableNodes.forEach(function (node, index) {
+                    localStorage.setItem(storageKey(index), node.innerHTML);
+                });
+                counter.textContent = "edits saved";
+                setTimeout(function () {
+                    counter.textContent = current + 1 + " / " + slides.length;
+                }, 900);
+            }
+
+            /* === DEEP LINK SUPPORT === */
+            var hashIndex = Number(location.hash.replace("#", ""));
+            if (hashIndex >= 1 && hashIndex <= slides.length)
+                showSlide(hashIndex - 1);
+
+            /* === COPY PROMPT === */
+            function copyPrompt(id, btn) {
+                var el = document.getElementById(id);
+                if (!el) return;
+                var text = el.innerText.trim();
+                navigator.clipboard.writeText(text).then(function () {
+                    var orig = btn.textContent;
+                    btn.textContent = "✅ 已複製！";
+                    btn.style.opacity = "0.75";
+                    setTimeout(function () {
+                        btn.textContent = orig;
+                        btn.style.opacity = "1";
+                    }, 2000);
+                }).catch(function () {
+                    /* fallback for older browsers */
+                    var ta = document.createElement("textarea");
+                    ta.value = text;
+                    ta.style.position = "fixed";
+                    ta.style.opacity = "0";
+                    document.body.appendChild(ta);
+                    ta.select();
+                    document.execCommand("copy");
+                    document.body.removeChild(ta);
+                    var orig = btn.textContent;
+                    btn.textContent = "✅ 已複製！";
+                    btn.style.opacity = "0.75";
+                    setTimeout(function () {
+                        btn.textContent = orig;
+                        btn.style.opacity = "1";
+                    }, 2000);
+                });
+            }
+        </script>
+    </body>
+</html>
