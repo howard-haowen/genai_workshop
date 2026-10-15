@@ -230,6 +230,10 @@
       color: var(--primary);
       padding-top: 2px;
     }
+    ol.steps li .step-content {
+      flex: 1;
+      min-width: 0;
+    }
     ol.steps li ul {
       margin-top: 8px;
       padding-left: 16px;
@@ -499,10 +503,10 @@
           <div class="os-card-tag">🍎 macOS</div>
           <h3>macOS 使用者</h3>
           <ol class="steps">
-            <li>前往 <a href="https://obsidian.md" target="_blank">obsidian.md</a> 下載 macOS 版本（<code>.dmg</code>）</li>
-            <li>開啟 <code>.dmg</code> 檔，將 Obsidian 拖入「應用程式」資料夾</li>
-            <li>從「應用程式」啟動 Obsidian</li>
-            <li>在語言設定選擇「繁體中文」，點擊「建立」新儲存庫</li>
+            <li><span class="step-content">前往 <a href="https://obsidian.md" target="_blank">obsidian.md</a> 下載 macOS 版本（<code>.dmg</code>）</span></li>
+            <li><span class="step-content">開啟 <code>.dmg</code> 檔，將 Obsidian 拖入「應用程式」資料夾</span></li>
+            <li><span class="step-content">從「應用程式」啟動 Obsidian</span></li>
+            <li><span class="step-content">在語言設定選擇「繁體中文」，點擊「建立」新儲存庫</span></li>
           </ol>
           <p class="step-note">或使用 Homebrew 安裝：<code>brew install --cask obsidian</code></p>
         </div>
@@ -510,10 +514,10 @@
           <div class="os-card-tag">📱 iPhone / iPad</div>
           <h3>iPhone / iPad 使用者</h3>
           <ol class="steps">
-            <li>開啟 App Store，搜尋「Obsidian」</li>
-            <li>點擊「取得」並完成安裝</li>
-            <li>開啟 App，選擇建立新儲存庫或開啟現有資料夾</li>
-            <li>在語言設定選擇「繁體中文」</li>
+            <li><span class="step-content">開啟 App Store，搜尋「Obsidian」</span></li>
+            <li><span class="step-content">點擊「取得」並完成安裝</span></li>
+            <li><span class="step-content">開啟 App，選擇建立新儲存庫或開啟現有資料夾</span></li>
+            <li><span class="step-content">在語言設定選擇「繁體中文」</span></li>
           </ol>
           <p class="step-note">建議搭配 iCloud Drive 同步，讓 iPhone、iPad 與 Mac 之間的筆記自動同步。</p>
         </div>
@@ -521,10 +525,10 @@
           <div class="os-card-tag">🪟 Windows</div>
           <h3>Windows 使用者</h3>
           <ol class="steps">
-            <li>前往 <a href="https://obsidian.md" target="_blank">obsidian.md</a> 下載 Windows 版本（<code>.exe</code>）</li>
-            <li>執行安裝程式，依提示完成安裝</li>
-            <li>從桌面捷徑或開始功能表啟動 Obsidian</li>
-            <li>在語言設定選擇「繁體中文」，點擊「建立」新儲存庫</li>
+            <li><span class="step-content">前往 <a href="https://obsidian.md" target="_blank">obsidian.md</a> 下載 Windows 版本（<code>.exe</code>）</span></li>
+            <li><span class="step-content">執行安裝程式，依提示完成安裝</span></li>
+            <li><span class="step-content">從桌面捷徑或開始功能表啟動 Obsidian</span></li>
+            <li><span class="step-content">在語言設定選擇「繁體中文」，點擊「建立」新儲存庫</span></li>
           </ol>
           <p class="step-note">或使用 winget 安裝：<code>winget install Obsidian.Obsidian</code></p>
         </div>
@@ -532,10 +536,10 @@
           <div class="os-card-tag">🤖 Android</div>
           <h3>Android 使用者</h3>
           <ol class="steps">
-            <li>開啟 Google Play 商店，搜尋「Obsidian」</li>
-            <li>點擊「安裝」，等待下載完成</li>
-            <li>開啟 App，選擇建立新儲存庫或開啟現有資料夾</li>
-            <li>在語言設定選擇「繁體中文」</li>
+            <li><span class="step-content">開啟 Google Play 商店，搜尋「Obsidian」</span></li>
+            <li><span class="step-content">點擊「安裝」，等待下載完成</span></li>
+            <li><span class="step-content">開啟 App，選擇建立新儲存庫或開啟現有資料夾</span></li>
+            <li><span class="step-content">在語言設定選擇「繁體中文」</span></li>
           </ol>
           <p class="step-note">建議搭配 Google Drive 或 Dropbox 同步，讓手機與電腦筆記保持一致。</p>
         </div>
@@ -660,10 +664,10 @@
         <div class="faq-a">
           Obsidian CLI 讓你可以在命令列中操作 Obsidian，需先升級至最新版安裝程式（<strong>1.12.7 以上</strong>）並在設定中手動啟用。
           <ol>
-            <li>前往 <strong>設定 → 一般</strong></li>
-            <li>找到「<strong>命令列介面</strong>」並將其啟用</li>
-            <li>依照提示完成 Obsidian CLI 的註冊步驟</li>
-            <li>開啟終端機，輸入以下指令確認已正確啟用：<code>obsidian version</code></li>
+            <li><span class="step-content">前往 <strong>設定 → 一般</strong></span></li>
+            <li><span class="step-content">找到「<strong>命令列介面</strong>」並將其啟用</span></li>
+            <li><span class="step-content">依照提示完成 Obsidian CLI 的註冊步驟</span></li>
+            <li><span class="step-content">開啟終端機，輸入以下指令確認已正確啟用：<code>obsidian version</code></span></li>
           </ol>
           若終端機顯示版本號碼，即表示 Obsidian CLI 已成功啟用。
         </div>
