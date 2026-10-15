@@ -1,0 +1,1120 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ollama 安裝指南</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    /* === CARBON DESIGN SYSTEM TOKENS === */
+    :root {
+      --primary:        #0f62fe;
+      --primary-hover:  #0050e6;
+      --primary-pressed:#002d9c;
+      --ink:            #161616;
+      --ink-muted:      #525252;
+      --ink-subtle:     #8c8c8c;
+      --canvas:         #ffffff;
+      --surface-1:      #f4f4f4;
+      --surface-2:      #e0e0e0;
+      --hairline:       #e0e0e0;
+      --hairline-strong:#161616;
+      --inverse-canvas: #161616;
+      --inverse-ink:    #ffffff;
+      --inverse-muted:  #c6c6c6;
+      --success:        #24a148;
+      --warning:        #f1c21b;
+      --error:          #da1e28;
+      --font: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+      --mono: "IBM Plex Mono", "Courier New", monospace;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      font-family: var(--font);
+      font-size: 16px;
+      line-height: 1.5;
+      letter-spacing: 0.16px;
+      color: var(--ink);
+      background: var(--canvas);
+    }
+
+    /* === UTILITY BAR === */
+    .utility-bar {
+      background: var(--surface-1);
+      color: var(--ink-muted);
+      font-size: 12px;
+      line-height: 1.33;
+      letter-spacing: 0.32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      border-bottom: 1px solid var(--hairline);
+    }
+
+    /* === TOP NAV === */
+    .top-nav {
+      background: var(--canvas);
+      height: 48px;
+      display: flex;
+      align-items: center;
+      padding: 0 32px;
+      border-bottom: 1px solid var(--hairline);
+      gap: 32px;
+    }
+    .top-nav .brand {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.16px;
+      color: var(--ink);
+      text-decoration: none;
+    }
+    .top-nav .eyebrow {
+      font-size: 14px;
+      color: var(--ink-muted);
+      letter-spacing: 0.16px;
+    }
+
+    /* === PAGE LAYOUT === */
+    .page-container {
+      max-width: 1056px;
+      margin: 0 auto;
+      padding: 0 32px;
+    }
+
+    /* === HERO === */
+    .hero {
+      background: var(--canvas);
+      border-bottom: 1px solid var(--hairline);
+      padding: 64px 0 48px;
+    }
+    .hero-kicker {
+      font-size: 14px;
+      font-weight: 400;
+      letter-spacing: 0.16px;
+      color: var(--ink-muted);
+      margin-bottom: 16px;
+    }
+    .hero h1 {
+      font-family: var(--font);
+      font-size: 42px;
+      font-weight: 300;
+      line-height: 1.20;
+      letter-spacing: 0;
+      color: var(--ink);
+      margin-bottom: 24px;
+    }
+    .hero-lead {
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1.50;
+      color: var(--ink-muted);
+      max-width: 640px;
+    }
+
+    /* === SECTION BAND === */
+    .section-band {
+      padding: 48px 0;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .section-band.alt {
+      background: var(--surface-1);
+    }
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .step-tag {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.32px;
+      color: var(--primary);
+      white-space: nowrap;
+    }
+    .section-band h2 {
+      font-size: 32px;
+      font-weight: 400;
+      line-height: 1.25;
+      color: var(--ink);
+    }
+    .section-divider {
+      height: 1px;
+      background: var(--hairline);
+      margin-bottom: 32px;
+    }
+
+    /* === CALLOUT (INFO / WARNING) === */
+    .callout {
+      background: var(--surface-1);
+      border-left: 4px solid var(--primary);
+      padding: 16px 20px;
+      font-size: 14px;
+      line-height: 1.5;
+      letter-spacing: 0.16px;
+      color: var(--ink);
+      margin-bottom: 32px;
+    }
+    .callout strong { font-weight: 600; }
+    .callout.warning { border-left-color: var(--warning); }
+    .callout.success { border-left-color: var(--success); }
+
+    /* === STEPS === */
+    ol.steps {
+      list-style: none;
+      counter-reset: step;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    ol.steps li {
+      counter-increment: step;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      font-size: 16px;
+      line-height: 1.5;
+      letter-spacing: 0.16px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--hairline);
+    }
+    ol.steps li:first-child { border-top: 1px solid var(--hairline); }
+    ol.steps li::before {
+      content: counter(step, decimal-leading-zero);
+      flex-shrink: 0;
+      width: 32px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.32px;
+      color: var(--primary);
+      padding-top: 2px;
+    }
+    ol.steps li .step-content {
+      flex: 1;
+      min-width: 0;
+    }
+    ol.steps li ul {
+      margin-top: 8px;
+      padding-left: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    ol.steps li ul li {
+      list-style: disc;
+      font-size: 14px;
+      color: var(--ink-muted);
+      border: none;
+      padding: 0;
+      display: list-item;
+    }
+    ol.steps li ul li::before { display: none; }
+
+    /* === BULLETS === */
+    ul.bullets {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    ul.bullets li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 16px;
+      line-height: 1.5;
+      letter-spacing: 0.16px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--hairline);
+    }
+    ul.bullets li:first-child { border-top: 1px solid var(--hairline); }
+    ul.bullets li::before {
+      content: "—";
+      flex-shrink: 0;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    /* === OS CARD GRID === */
+    .os-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1px;
+      background: var(--hairline);
+      border: 1px solid var(--hairline);
+      margin-bottom: 0;
+    }
+    .os-card {
+      background: var(--canvas);
+      padding: 32px;
+      position: relative;
+    }
+    .os-card.alt { background: var(--surface-1); }
+    .os-card-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.32px;
+      color: var(--canvas);
+      background: var(--ink);
+      padding: 4px 10px;
+      margin-bottom: 20px;
+    }
+    .os-card.macos .os-card-tag { background: var(--primary); }
+    .os-card.windows .os-card-tag { background: var(--ink); }
+    .os-card h3 {
+      font-size: 20px;
+      font-weight: 400;
+      line-height: 1.40;
+      color: var(--ink);
+      margin-bottom: 20px;
+    }
+    .os-card ol.steps { margin-bottom: 0; }
+
+    /* === REQUIREMENTS TABLE === */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      letter-spacing: 0.16px;
+      line-height: 1.29;
+    }
+    thead tr {
+      background: var(--inverse-canvas);
+      color: var(--inverse-ink);
+    }
+    thead th {
+      text-align: left;
+      font-weight: 600;
+      padding: 12px 16px;
+      font-size: 12px;
+      letter-spacing: 0.32px;
+    }
+    tbody tr:nth-child(odd)  { background: var(--canvas); }
+    tbody tr:nth-child(even) { background: var(--surface-1); }
+    td { padding: 12px 16px; border-bottom: 1px solid var(--hairline); }
+
+    /* === CHECKLIST === */
+    ul.checklist {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    ul.checklist li {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      font-size: 16px;
+      line-height: 1.5;
+      letter-spacing: 0.16px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--hairline);
+    }
+    ul.checklist li:first-child { border-top: 1px solid var(--hairline); }
+    ul.checklist li::before {
+      content: "☐";
+      flex-shrink: 0;
+      font-size: 18px;
+      color: var(--ink-muted);
+      line-height: 1.4;
+    }
+
+    /* === FAQ === */
+    .faq-item {
+      border-bottom: 1px solid var(--hairline);
+    }
+    .faq-item:first-of-type { border-top: 1px solid var(--hairline); }
+    .faq-q {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.16px;
+      color: var(--ink);
+      padding: 16px 0 8px;
+    }
+    .faq-a {
+      font-size: 14px;
+      line-height: 1.5;
+      letter-spacing: 0.16px;
+      color: var(--ink-muted);
+      padding-bottom: 16px;
+    }
+    .faq-a ul {
+      padding-left: 16px;
+      margin-top: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .faq-a ul li { list-style: disc; }
+
+    /* === BENEFIT CARDS GRID === */
+    .benefit-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      background: var(--hairline);
+      border: 1px solid var(--hairline);
+    }
+    .benefit-card {
+      background: var(--canvas);
+      padding: 28px 24px;
+    }
+    .benefit-card:nth-child(even) { background: var(--surface-1); }
+    .benefit-card-icon {
+      font-size: 28px;
+      margin-bottom: 12px;
+      display: block;
+    }
+    .benefit-card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink);
+      margin-bottom: 8px;
+    }
+    .benefit-card-desc {
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--ink-muted);
+    }
+
+    /* === PROMPT BLOCK === */
+    .prompt-block {
+      background: var(--inverse-canvas);
+      border-radius: 0;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+      position: relative;
+    }
+    .prompt-block-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.48px;
+      color: var(--inverse-muted);
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    .prompt-block pre {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: #a8d8a0;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-all;
+      margin: 0;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.32px;
+      color: var(--inverse-muted);
+      background: transparent;
+      border: 1px solid #525252;
+      padding: 4px 12px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .copy-btn:hover {
+      background: #525252;
+      color: var(--inverse-ink);
+    }
+    .copy-btn.copied {
+      border-color: var(--success);
+      color: #5dfc82;
+    }
+
+    /* === LINKS & CODE === */
+    a { color: var(--primary); text-decoration: none; }
+    a:hover { color: var(--primary-hover); text-decoration: underline; }
+    code {
+      font-family: var(--mono);
+      font-size: 13px;
+      background: var(--surface-1);
+      padding: 1px 6px;
+      border: 1px solid var(--hairline);
+      color: var(--ink);
+    }
+
+    /* === AGENT PROMPT BLOCK === */
+    .agent-prompt-block {
+      background: var(--inverse-canvas);
+      border: 1px solid #393939;
+      margin-bottom: 0;
+    }
+    .ap-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid #393939;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .ap-label {
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.32px;
+      color: var(--inverse-muted);
+      text-transform: uppercase;
+    }
+    .ap-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .ap-btn {
+      font-family: var(--font);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.32px;
+      color: var(--inverse-muted);
+      background: transparent;
+      border: 1px solid #525252;
+      padding: 4px 14px;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .ap-btn:hover {
+      background: #525252;
+      color: var(--inverse-ink);
+    }
+    .ap-btn.copied {
+      border-color: var(--success);
+      color: #5dfc82;
+    }
+    .ap-btn-view {
+      border-color: var(--primary);
+      color: #78a9ff;
+    }
+    .ap-btn-view:hover {
+      background: var(--primary);
+      color: var(--inverse-ink);
+    }
+    .ap-btn-view.expanded {
+      border-color: #a8d8a0;
+      color: #a8d8a0;
+    }
+    .ap-preview {
+      position: relative;
+      padding: 16px 20px 0;
+    }
+    .ap-preview pre {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: #a8d8a0;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+    }
+    .ap-fade {
+      height: 40px;
+      background: linear-gradient(to bottom, transparent, var(--inverse-canvas));
+      margin-top: -4px;
+      margin-bottom: 0;
+    }
+    .ap-full {
+      padding: 0 20px 16px;
+    }
+    .ap-full pre {
+      font-family: var(--mono);
+      font-size: 13px;
+      color: #a8d8a0;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+      padding-top: 8px;
+      border-top: 1px solid #393939;
+    }
+
+    /* === REFERENCES === */
+    .ref-list {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .ref-list li {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 14px;
+      line-height: 1.5;
+      letter-spacing: 0.16px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--hairline);
+    }
+    .ref-list li:first-child { border-top: 1px solid var(--hairline); }
+    .ref-list li::before {
+      content: "↗";
+      flex-shrink: 0;
+      color: var(--primary);
+      font-weight: 600;
+      font-size: 16px;
+    }
+    .ref-list a { font-size: 14px; }
+
+    /* === FOOTER === */
+    .page-footer {
+      background: var(--inverse-canvas);
+      color: var(--inverse-muted);
+      font-size: 14px;
+      line-height: 1.29;
+      letter-spacing: 0.16px;
+      padding: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid var(--hairline);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .page-footer .footer-brand {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--inverse-ink);
+      letter-spacing: 0.16px;
+    }
+
+    /* === RESPONSIVE === */
+    @media (max-width: 768px) {
+      .benefit-grid { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 672px) {
+      .page-container { padding: 0 16px; }
+      .hero { padding: 40px 0 32px; }
+      .hero h1 { font-size: 32px; }
+      .os-grid { grid-template-columns: 1fr; }
+      .utility-bar { display: none; }
+      .top-nav { padding: 0 16px; }
+      .page-footer { padding: 24px 16px; flex-direction: column; align-items: flex-start; }
+      .copy-btn { position: static; margin-top: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- UTILITY BAR -->
+  <div class="utility-bar">
+    Workshop 前置準備 · AI 創造工作坊
+  </div>
+
+  <!-- TOP NAV -->
+  <nav class="top-nav">
+    <a class="brand" href="#">Ollama</a>
+    <span class="eyebrow">本機 AI 模型安裝指南</span>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="page-container">
+      <p class="hero-kicker">Workshop 前置準備</p>
+      <h1>Ollama<br>本機 AI 模型安裝指南</h1>
+      <p class="hero-lead">Ollama 讓你在自己的電腦上輕鬆執行大型語言模型，無需雲端帳號、完全離線可用。本指南協助你快速完成安裝，準備好本機 AI 環境。</p>
+    </div>
+  </section>
+
+  <!-- STEP 01：什麼是 Ollama -->
+  <section class="section-band">
+    <div class="page-container">
+      <div class="section-header">
+        <span class="step-tag">Step 01</span>
+        <h2>什麼是 Ollama？</h2>
+      </div>
+      <div class="section-divider"></div>
+      <p style="font-size:16px;line-height:1.6;color:var(--ink-muted);margin-bottom:32px;">
+        Ollama 是一套開源工具，讓你只需一行指令，就能在 macOS、Windows 或 Linux 上下載並執行各種主流大型語言模型（LLM），包含 Llama、Gemma、Mistral、Phi 等。所有運算都在本機完成，資料不上傳雲端。
+      </p>
+      <div class="benefit-grid">
+        <div class="benefit-card">
+          <span class="benefit-card-icon">🔒</span>
+          <div class="benefit-card-title">完全隱私</div>
+          <div class="benefit-card-desc">所有對話與資料均在本機處理，不上傳任何伺服器，敏感內容可放心使用。</div>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-card-icon">📶</span>
+          <div class="benefit-card-title">離線可用</div>
+          <div class="benefit-card-desc">模型下載完成後完全不需要網路連線，網路不穩環境下也能正常運作。</div>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-card-icon">⚡</span>
+          <div class="benefit-card-title">一鍵啟動</div>
+          <div class="benefit-card-desc">安裝後一行指令即可下載並執行模型，無需複雜的環境配置或帳號登入。</div>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-card-icon">🆓</span>
+          <div class="benefit-card-title">完全免費</div>
+          <div class="benefit-card-desc">Ollama 本身開源免費，大多數支援的模型亦免費使用，無需訂閱費用。</div>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-card-icon">🧩</span>
+          <div class="benefit-card-title">豐富模型庫</div>
+          <div class="benefit-card-desc">支援 Llama 3、Gemma 3、Mistral、Phi、Qwen 等數百個模型，持續更新。</div>
+        </div>
+        <div class="benefit-card">
+          <span class="benefit-card-icon">🔌</span>
+          <div class="benefit-card-title">API 相容</div>
+          <div class="benefit-card-desc">提供 OpenAI 相容 REST API，可輕鬆整合至現有應用程式或開發工具。</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 02：系統需求 -->
+  <section class="section-band alt">
+    <div class="page-container">
+      <div class="section-header">
+        <span class="step-tag">Step 02</span>
+        <h2>確認系統需求</h2>
+      </div>
+      <div class="section-divider"></div>
+      <table>
+        <thead>
+          <tr>
+            <th>項目</th>
+            <th>macOS</th>
+            <th>Windows</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>作業系統版本</td>
+            <td>macOS 11 Big Sur 以上</td>
+            <td>Windows 10 / 11（64 位元）</td>
+          </tr>
+          <tr>
+            <td>晶片架構</td>
+            <td>Apple Silicon（M1/M2/M3/M4）或 Intel x86_64</td>
+            <td>x86_64（支援 GPU：NVIDIA / AMD）</td>
+          </tr>
+          <tr>
+            <td>記憶體（RAM）</td>
+            <td>最低 8 GB，建議 16 GB 以上</td>
+            <td>最低 8 GB，建議 16 GB 以上</td>
+          </tr>
+          <tr>
+            <td>磁碟空間</td>
+            <td>依模型而定，建議保留 20 GB 以上</td>
+            <td>依模型而定，建議保留 20 GB 以上</td>
+          </tr>
+          <tr>
+            <td>GPU（選用）</td>
+            <td>Apple Silicon 內建 GPU 自動加速</td>
+            <td>NVIDIA（CUDA）或 AMD（ROCm）顯示卡可加速</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="callout" style="margin-top:24px;margin-bottom:0;">
+        <strong>提示：</strong>沒有 GPU 也沒問題，Ollama 可完全使用 CPU 執行，只是速度較慢。建議先以較小的模型（如 <code>phi3:mini</code> 或 <code>gemma3:1b</code>）測試。
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 03：安裝方式 -->
+  <section class="section-band">
+    <div class="page-container">
+      <div class="section-header">
+        <span class="step-tag">Step 03</span>
+        <h2>安裝 Ollama</h2>
+      </div>
+      <div class="section-divider"></div>
+      <p style="font-size:14px;color:var(--ink-muted);margin-bottom:28px;letter-spacing:0.16px;">
+        Ollama 提供兩種安裝方式：<strong>命令列（Terminal）</strong>與<strong>圖形化安裝程式（Installer）</strong>。以下分別說明 macOS 與 Windows 的操作步驟。
+      </p>
+
+      <div class="os-grid">
+
+        <!-- macOS -->
+        <div class="os-card macos">
+          <div class="os-card-tag">🍎 macOS</div>
+          <h3>macOS 使用者</h3>
+
+          <p style="font-size:14px;color:var(--ink-muted);margin-bottom:20px;font-weight:600;">方法一：使用圖形化安裝程式（推薦）</p>
+          <ol class="steps">
+            <li><span class="step-content">前往 <a href="https://ollama.com/download/mac" target="_blank">ollama.com/download/mac</a> 下載 <code>Ollama.dmg</code></span></li>
+            <li><span class="step-content">開啟下載的 <code>.dmg</code> 檔案</span></li>
+            <li><span class="step-content">將 Ollama 拖曳到「應用程式」資料夾</span></li>
+            <li><span class="step-content">從「應用程式」啟動 Ollama，選單列會出現羊駝圖示 🦙</span></li>
+            <li><span class="step-content">開啟「終端機」（Terminal），輸入以下指令確認安裝成功：
+              <div class="prompt-block" style="margin-top:12px;">
+                <div class="prompt-block-label">Terminal</div>
+                <pre id="macos-verify">ollama --version</pre>
+                <button class="copy-btn" onclick="copyPrompt('macos-verify', this)">複製</button>
+              </div>
+            </span></li>
+          </ol>
+
+          <p style="font-size:14px;color:var(--ink-muted);margin-top:28px;margin-bottom:20px;font-weight:600;">方法二：讓 AI Agent 自動安裝</p>
+          <div class="callout success" style="margin-bottom:20px;">
+            <strong>適用情境：</strong>將以下 prompt 複製後貼入 AI Agent（如 IBM Bob、GitHub Copilot 等），讓 Agent 依照你的環境自動完成安裝與設定。
+          </div>
+          <div class="agent-prompt-block" id="ap-macos">
+            <div class="ap-header">
+              <span class="ap-label">🤖 AI Agent Prompt — macOS</span>
+              <div class="ap-actions">
+                <button class="ap-btn" onclick="copyAgentPrompt('ap-macos-full', this)">複製全文</button>
+                <button class="ap-btn ap-btn-view" onclick="toggleAgentPrompt('ap-macos')">查看全文</button>
+              </div>
+            </div>
+            <div class="ap-preview">
+              <pre>Set up Ollama so I can build with open models.
+
+Ollama runs open models in two ways:
+- Locally, on this computer. Speed depends on the hardware. Large models are slow on a computer without a strong GPU.</pre>
+              <div class="ap-fade"></div>
+            </div>
+            <div class="ap-full" id="ap-macos-full-wrap" style="display:none;">
+              <pre id="ap-macos-full">Set up Ollama so I can build with open models.
+
+Ollama runs open models in two ways:
+- Locally, on this computer. Speed depends on the hardware. Large models are slow on a computer without a strong GPU.
+- In Ollama's cloud. Cloud models run on Ollama's servers, so they are fast on any computer and need no download. In the CLI, a cloud model name ends in :cloud, for example gemma4:cloud. From code, apps call the API at https://ollama.com.
+
+Before you do anything, learn Ollama from its docs:
+- Read the docs index at https://docs.ollama.com/llms.txt.
+- Read https://docs.ollama.com/quickstart.md, https://docs.ollama.com/cloud.md, and https://docs.ollama.com/gpu.md.
+- If I want to call Ollama from code, read https://docs.ollama.com/api/introduction.md. If this project already uses the OpenAI or Anthropic SDK, also read https://docs.ollama.com/api/openai-compatibility.md or https://docs.ollama.com/api/anthropic-compatibility.md.
+- For any other question, search the full docs at https://docs.ollama.com/llms-full.txt.
+
+Then:
+1. If the ollama command is not installed, install the Ollama CLI. On macOS or Linux, run: curl -fsSL https://ollama.com/install.sh | sh. On Windows, run in PowerShell: irm https://ollama.com/install.ps1 | iex.
+2. Check this computer's GPU and memory against https://docs.ollama.com/gpu.md.
+3. Ask me what I want to build.
+4. Recommend local models, cloud models, or both for that, and tell me why. If local models would be slow on this computer, recommend cloud models. If I don't have a paid plan, start with gemma4:cloud, which the free plan includes. Most other cloud models need a paid plan or purchased credits.
+
+Do not sign in, create an API key, or use an API key for me. If I choose cloud models, tell me to run ollama signin, or to create a key at https://ollama.com/settings/keys.</pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- Windows -->
+        <div class="os-card windows alt">
+          <div class="os-card-tag">🪟 Windows</div>
+          <h3>Windows 使用者</h3>
+
+          <p style="font-size:14px;color:var(--ink-muted);margin-bottom:20px;font-weight:600;">方法一：使用圖形化安裝程式（推薦）</p>
+          <ol class="steps">
+            <li><span class="step-content">前往 <a href="https://ollama.com/download/windows" target="_blank">ollama.com/download/windows</a> 下載 <code>OllamaSetup.exe</code></span></li>
+            <li><span class="step-content">執行下載完成的安裝程式</span></li>
+            <li><span class="step-content">依照安裝精靈完成安裝：
+              <ul>
+                <li>同意授權條款</li>
+                <li>選擇安裝目錄（建議使用預設值）</li>
+                <li>點擊「Install」開始安裝</li>
+              </ul>
+            </span></li>
+            <li><span class="step-content">安裝完成後，Ollama 會在背景自動執行，系統匣會出現羊駝圖示 🦙</span></li>
+            <li><span class="step-content">開啟「命令提示字元」或「PowerShell」，輸入以下指令確認安裝成功：
+              <div class="prompt-block" style="margin-top:12px;">
+                <div class="prompt-block-label">PowerShell / CMD</div>
+                <pre id="win-verify">ollama --version</pre>
+                <button class="copy-btn" onclick="copyPrompt('win-verify', this)">複製</button>
+              </div>
+            </span></li>
+          </ol>
+
+          <p style="font-size:14px;color:var(--ink-muted);margin-top:28px;margin-bottom:20px;font-weight:600;">方法二：讓 AI Agent 自動安裝</p>
+          <div class="callout success" style="margin-bottom:20px;">
+            <strong>適用情境：</strong>將以下 prompt 複製後貼入 AI Agent（如 IBM Bob、GitHub Copilot 等），讓 Agent 依照你的環境自動完成安裝與設定。
+          </div>
+          <div class="agent-prompt-block" id="ap-windows">
+            <div class="ap-header">
+              <span class="ap-label">🤖 AI Agent Prompt — Windows</span>
+              <div class="ap-actions">
+                <button class="ap-btn" onclick="copyAgentPrompt('ap-windows-full', this)">複製全文</button>
+                <button class="ap-btn ap-btn-view" onclick="toggleAgentPrompt('ap-windows')">查看全文</button>
+              </div>
+            </div>
+            <div class="ap-preview">
+              <pre>Set up Ollama so I can build with open models.
+
+Ollama runs open models in two ways:
+- Locally, on this computer. Speed depends on the hardware. Large models are slow on a computer without a strong GPU.</pre>
+              <div class="ap-fade"></div>
+            </div>
+            <div class="ap-full" id="ap-windows-full-wrap" style="display:none;">
+              <pre id="ap-windows-full">Set up Ollama so I can build with open models.
+
+Ollama runs open models in two ways:
+- Locally, on this computer. Speed depends on the hardware. Large models are slow on a computer without a strong GPU.
+- In Ollama's cloud. Cloud models run on Ollama's servers, so they are fast on any computer and need no download. In the CLI, a cloud model name ends in :cloud, for example gemma4:cloud. From code, apps call the API at https://ollama.com.
+
+Before you do anything, learn Ollama from its docs:
+- Read the docs index at https://docs.ollama.com/llms.txt.
+- Read https://docs.ollama.com/quickstart.md, https://docs.ollama.com/cloud.md, and https://docs.ollama.com/gpu.md.
+- If I want to call Ollama from code, read https://docs.ollama.com/api/introduction.md. If this project already uses the OpenAI or Anthropic SDK, also read https://docs.ollama.com/api/openai-compatibility.md or https://docs.ollama.com/api/anthropic-compatibility.md.
+- For any other question, search the full docs at https://docs.ollama.com/llms-full.txt.
+
+Then:
+1. If the ollama command is not installed, install the Ollama CLI. On macOS or Linux, run: curl -fsSL https://ollama.com/install.sh | sh. On Windows, run in PowerShell: irm https://ollama.com/install.ps1 | iex.
+2. Check this computer's GPU and memory against https://docs.ollama.com/gpu.md.
+3. Ask me what I want to build.
+4. Recommend local models, cloud models, or both for that, and tell me why. If local models would be slow on this computer, recommend cloud models. If I don't have a paid plan, start with gemma4:cloud, which the free plan includes. Most other cloud models need a paid plan or purchased credits.
+
+Do not sign in, create an API key, or use an API key for me. If I choose cloud models, tell me to run ollama signin, or to create a key at https://ollama.com/settings/keys.</pre>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 04：下載並執行模型 -->
+  <section class="section-band alt">
+    <div class="page-container">
+      <div class="section-header">
+        <span class="step-tag">Step 04</span>
+        <h2>下載並執行 AI 模型</h2>
+      </div>
+      <div class="section-divider"></div>
+      <div class="callout">
+        <strong>說明：</strong>Ollama 安裝完成後，使用 <code>ollama run &lt;模型名稱&gt;</code> 指令即可自動下載並啟動模型。首次下載需要時間，請保持網路連線。
+      </div>
+
+      <p style="font-size:14px;color:var(--ink-muted);margin-bottom:20px;letter-spacing:0.16px;font-weight:600;">推薦入門模型：</p>
+      <table style="margin-bottom:32px;">
+        <thead>
+          <tr>
+            <th>模型名稱</th>
+            <th>大小</th>
+            <th>適合情境</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>gemma3:1b</code></td>
+            <td>約 815 MB</td>
+            <td>快速測試、低記憶體裝置</td>
+          </tr>
+          <tr>
+            <td><code>phi4-mini</code></td>
+            <td>約 2.5 GB</td>
+            <td>輕量、推理能力佳</td>
+          </tr>
+          <tr>
+            <td><code>llama3.1:8b</code></td>
+            <td>約 4.7 GB</td>
+            <td>高品質回應（需 16 GB RAM）</td>
+          </tr>
+          <tr>
+            <td><code>gemma4:e4b-mlx</code></td>
+            <td>約 2.5 GB</td>
+            <td>🍎 macOS 專屬（Apple Silicon MLX 加速，速度快）</td>
+          </tr>
+          <tr>
+            <td><code>gemma4:e4b</code></td>
+            <td>約 2.5 GB</td>
+            <td>通用版本（macOS / Windows / Linux）</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p style="font-size:14px;color:var(--ink-muted);margin-bottom:20px;letter-spacing:0.16px;font-weight:600;">使用指令下載並對話（以 Gemma3:1b 為例）：</p>
+      <div class="prompt-block">
+        <div class="prompt-block-label">Terminal / PowerShell</div>
+        <pre id="run-gemma">ollama run gemma3:1b</pre>
+        <button class="copy-btn" onclick="copyPrompt('run-gemma', this)">複製</button>
+      </div>
+
+      <p style="font-size:14px;color:var(--ink-muted);margin-bottom:20px;letter-spacing:0.16px;font-weight:600;">其他常用指令：</p>
+      <div class="prompt-block">
+        <div class="prompt-block-label">Terminal / PowerShell — 列出已下載的模型</div>
+        <pre id="list-models">ollama list</pre>
+        <button class="copy-btn" onclick="copyPrompt('list-models', this)">複製</button>
+      </div>
+      <div class="prompt-block">
+        <div class="prompt-block-label">Terminal / PowerShell — 刪除模型</div>
+        <pre id="rm-model">ollama rm gemma3:1b</pre>
+        <button class="copy-btn" onclick="copyPrompt('rm-model', this)">複製</button>
+      </div>
+      <div class="prompt-block">
+        <div class="prompt-block-label">Terminal / PowerShell — 查詢更多可用模型</div>
+        <pre id="model-page">ollama search</pre>
+        <button class="copy-btn" onclick="copyPrompt('model-page', this)">複製</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STEP 05：確認清單 -->
+  <section class="section-band">
+    <div class="page-container">
+      <div class="section-header">
+        <span class="step-tag">Step 05</span>
+        <h2>第一次使用前建議確認</h2>
+      </div>
+      <div class="section-divider"></div>
+      <ul class="checklist">
+        <li>已完成 Ollama 軟體安裝（macOS 或 Windows）</li>
+        <li>在終端機執行 <code>ollama --version</code> 可看到版本號</li>
+        <li>已下載至少一個模型（建議 <code>gemma3:1b</code> 或 <code>phi4-mini</code>）</li>
+        <li>執行 <code>ollama run &lt;模型名稱&gt;</code> 後可正常與模型對話</li>
+        <li>執行 <code>ollama list</code> 可看到已下載的模型清單</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- STEP 06：常見問題 -->
+  <section class="section-band alt">
+    <div class="page-container">
+      <div class="section-header">
+        <span class="step-tag">Step 06</span>
+        <h2>常見問題</h2>
+      </div>
+      <div class="section-divider"></div>
+      <div class="faq-item">
+        <div class="faq-q">Q：安裝後執行 <code>ollama</code> 指令卻顯示「找不到指令」？</div>
+        <div class="faq-a">
+          請依序確認以下項目：
+          <ul>
+            <li>關閉並重新開啟終端機（Terminal / PowerShell），讓環境變數更新</li>
+            <li>macOS 使用者確認 <code>/usr/local/bin/ollama</code> 或 <code>/usr/bin/ollama</code> 是否存在</li>
+            <li>Windows 使用者確認 PATH 環境變數是否包含 Ollama 安裝路徑</li>
+            <li>嘗試重新安裝 Ollama</li>
+          </ul>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Q：下載模型速度很慢或中斷怎麼辦？</div>
+        <div class="faq-a">
+          Ollama 支援斷點續傳，重新執行相同的 <code>ollama run</code> 指令會繼續未完成的下載，無需重頭開始。
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Q：模型回應速度很慢怎麼辦？</div>
+        <div class="faq-a">
+          建議嘗試以下方式：
+          <ul>
+            <li>改用更小的模型，例如 <code>gemma3:1b</code> 或 <code>phi4-mini</code></li>
+            <li>關閉其他佔用記憶體的程式</li>
+            <li>確認 GPU 加速是否正常啟用（NVIDIA 需安裝 CUDA 驅動程式）</li>
+          </ul>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q">Q：Windows 上安裝後找不到 Ollama 圖示？</div>
+        <div class="faq-a">
+          Ollama 在 Windows 上會以系統匣（System Tray）常駐，請查看螢幕右下角通知區域。若未出現，可在開始功能表搜尋「Ollama」並手動啟動。
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 參考連結 -->
+  <section class="section-band">
+    <div class="page-container">
+      <div class="section-header">
+        <h2>參考連結</h2>
+      </div>
+      <div class="section-divider"></div>
+      <ul class="ref-list">
+        <li>
+          <div>
+            <div style="font-weight:600;margin-bottom:2px;">Ollama 官方下載頁面</div>
+            <a href="https://ollama.com/download" target="_blank">https://ollama.com/download</a>
+          </div>
+        </li>
+        <li>
+          <div>
+            <div style="font-weight:600;margin-bottom:2px;">Ollama 模型庫（可搜尋所有可用模型）</div>
+            <a href="https://ollama.com/library" target="_blank">https://ollama.com/library</a>
+          </div>
+        </li>
+        <li>
+          <div>
+            <div style="font-weight:600;margin-bottom:2px;">Ollama GitHub 儲存庫（原始碼與說明文件）</div>
+            <a href="https://github.com/ollama/ollama" target="_blank">https://github.com/ollama/ollama</a>
+          </div>
+        </li>
+        <li>
+          <div>
+            <div style="font-weight:600;margin-bottom:2px;">Ollama REST API 文件</div>
+            <a href="https://github.com/ollama/ollama/blob/main/docs/api.md" target="_blank">https://github.com/ollama/ollama/blob/main/docs/api.md</a>
+          </div>
+        </li>
+        <li>
+          <div>
+            <div style="font-weight:600;margin-bottom:2px;">Homebrew 官網（macOS 套件管理器）</div>
+            <a href="https://brew.sh" target="_blank">https://brew.sh</a>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="page-footer">
+    <span class="footer-brand">Ollama</span>
+    <span>本機 AI 模型安裝指南 · AI 創造工作坊</span>
+  </footer>
+
+  <script>
+    function copyPrompt(id, btn) {
+      var text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text).then(function() {
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('copied');
+        setTimeout(function() {
+          btn.textContent = '複製';
+          btn.classList.remove('copied');
+        }, 2000);
+      }).catch(function() {
+        btn.textContent = '請手動複製';
+      });
+    }
+
+    function copyAgentPrompt(id, btn) {
+      var text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text.trim()).then(function() {
+        btn.textContent = '已複製 ✓';
+        btn.classList.add('copied');
+        setTimeout(function() {
+          btn.textContent = '複製全文';
+          btn.classList.remove('copied');
+        }, 2000);
+      }).catch(function() {
+        btn.textContent = '請手動複製';
+      });
+    }
+
+    function toggleAgentPrompt(blockId) {
+      var block = document.getElementById(blockId);
+      var fullWrap = document.getElementById(blockId + '-full-wrap');
+      var preview = block.querySelector('.ap-preview');
+      var viewBtn = block.querySelector('.ap-btn-view');
+      var isExpanded = fullWrap.style.display !== 'none';
+      if (isExpanded) {
+        fullWrap.style.display = 'none';
+        preview.style.display = '';
+        viewBtn.textContent = '查看全文';
+        viewBtn.classList.remove('expanded');
+      } else {
+        fullWrap.style.display = '';
+        preview.style.display = 'none';
+        viewBtn.textContent = '收合全文';
+        viewBtn.classList.add('expanded');
+      }
+    }
+  </script>
+
+</body>
+</html>
