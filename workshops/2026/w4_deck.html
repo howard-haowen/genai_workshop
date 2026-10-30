@@ -1,0 +1,2317 @@
+<!doctype html>
+<html lang="zh-Hant">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>W4｜打通 Agent 與外界的連線</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700;900&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            /* === DESIGN TOKENS === */
+            :root {
+                --stage-w: 1920;
+                --stage-h: 1080;
+                --paper: #f6ecd4;
+                --paper-2: #ead8b7;
+                --ink: #17211f;
+                --muted: #5d665d;
+                --green: #1e4b3f;
+                --green-2: #0d302a;
+                --cyan: #00b7c7;
+                --amber: #f0a12b;
+                --red: #b54b3d;
+                --line: rgba(23, 33, 31, 0.18);
+                --shadow: 0 28px 70px rgba(7, 18, 16, 0.28);
+                --font-serif: "Noto Serif TC", serif;
+                --font-mono: "IBM Plex Mono", monospace;
+            }
+
+            /* === RESET === */
+            * {
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background: #0b1715;
+            }
+            body {
+                font-family: var(--font-serif);
+                color: var(--ink);
+            }
+            button {
+                font: inherit;
+            }
+
+            /* === FIXED 16:9 VIEWPORT BASE === */
+            .deck-viewport {
+                position: fixed;
+                inset: 0;
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+                background:
+                    radial-gradient(
+                        circle at 15% 15%,
+                        rgba(0, 183, 199, 0.18),
+                        transparent 28%
+                    ),
+                    radial-gradient(
+                        circle at 84% 76%,
+                        rgba(240, 161, 43, 0.16),
+                        transparent 30%
+                    ),
+                    linear-gradient(135deg, #081311, #152420 56%, #091411);
+            }
+            .deck-stage {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: calc(var(--stage-w) * 1px);
+                height: calc(var(--stage-h) * 1px);
+                transform-origin: top left;
+                overflow: hidden;
+                background: var(--paper);
+                box-shadow: 0 40px 120px rgba(0, 0, 0, 0.55);
+                isolation: isolate;
+            }
+            .slide {
+                position: absolute;
+                inset: 0;
+                width: 1920px;
+                height: 1080px;
+                padding: 86px 104px;
+                visibility: hidden;
+                opacity: 0;
+                pointer-events: none;
+                transition:
+                    opacity 520ms ease,
+                    visibility 520ms ease;
+                overflow: hidden;
+                background:
+                    linear-gradient(
+                        rgba(23, 33, 31, 0.045) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(23, 33, 31, 0.045) 1px,
+                        transparent 1px
+                    ),
+                    radial-gradient(
+                        circle at 20% 12%,
+                        rgba(255, 255, 255, 0.58),
+                        transparent 34%
+                    ),
+                    linear-gradient(145deg, var(--paper), #efe0c0 62%, #e2ca9e);
+                background-size:
+                    48px 48px,
+                    48px 48px,
+                    auto,
+                    auto;
+            }
+            .slide.active {
+                visibility: visible;
+                opacity: 1;
+                pointer-events: auto;
+                z-index: 2;
+            }
+
+            /* === ATMOSPHERIC CHROME === */
+            .slide::before {
+                content: "";
+                position: absolute;
+                inset: 28px;
+                border: 1px solid rgba(23, 33, 31, 0.22);
+                border-radius: 28px;
+                pointer-events: none;
+                z-index: 0;
+            }
+            .slide::after {
+                content: "";
+                position: absolute;
+                right: -180px;
+                top: -210px;
+                width: 620px;
+                height: 620px;
+                border-radius: 50%;
+                background: repeating-conic-gradient(
+                    from 12deg,
+                    rgba(0, 183, 199, 0.28) 0 10deg,
+                    transparent 10deg 22deg
+                );
+                opacity: 0.7;
+                z-index: 0;
+            }
+            .grain {
+                position: absolute;
+                inset: 0;
+                background-image: radial-gradient(
+                    rgba(23, 33, 31, 0.12) 0.7px,
+                    transparent 0.7px
+                );
+                background-size: 33px 33px;
+                opacity: 0.25;
+                pointer-events: none;
+                z-index: 1;
+            }
+            .content {
+                position: relative;
+                z-index: 3;
+                height: 100%;
+            }
+
+            /* === TYPOGRAPHY === */
+            .kicker {
+                font-family: var(--font-mono);
+                font-size: 24px;
+                letter-spacing: 0.16em;
+                text-transform: uppercase;
+                color: var(--green);
+                margin-bottom: 24px;
+            }
+            h1,
+            h2,
+            h3,
+            p {
+                margin: 0;
+            }
+            h1 {
+                font-size: 112px;
+                line-height: 1.08;
+                font-weight: 900;
+                letter-spacing: -0.04em;
+                max-width: 1250px;
+            }
+            h2 {
+                font-size: 78px;
+                line-height: 1.12;
+                font-weight: 900;
+                letter-spacing: -0.035em;
+                max-width: 1300px;
+            }
+            h3 {
+                font-size: 42px;
+                line-height: 1.22;
+                font-weight: 900;
+            }
+            .lead {
+                font-size: 42px;
+                line-height: 1.55;
+                color: var(--green-2);
+                max-width: 1220px;
+                margin-top: 34px;
+            }
+            code {
+                font-family: var(--font-mono);
+                background: rgba(30, 75, 63, 0.12);
+                color: #0a3935;
+                border: 1px solid rgba(30, 75, 63, 0.2);
+                padding: 0.08em 0.28em;
+                border-radius: 9px;
+            }
+
+            /* === LAYOUT COMPONENTS === */
+            .title-grid {
+                display: grid;
+                grid-template-columns: 1.03fr 0.74fr;
+                gap: 80px;
+                align-items: center;
+                height: 100%;
+            }
+            .seal {
+                width: 510px;
+                height: 510px;
+                border-radius: 50%;
+                display: grid;
+                place-items: center;
+                background:
+                    radial-gradient(
+                        circle,
+                        rgba(246, 236, 212, 0.88) 0 37%,
+                        transparent 38%
+                    ),
+                    conic-gradient(
+                        from -20deg,
+                        var(--cyan),
+                        transparent 18%,
+                        var(--amber) 35%,
+                        transparent 52%,
+                        var(--red) 68%,
+                        transparent 82%,
+                        var(--cyan)
+                    );
+                box-shadow:
+                    inset 0 0 0 18px rgba(23, 33, 31, 0.09),
+                    var(--shadow);
+                position: relative;
+            }
+            .seal strong {
+                font-size: 132px;
+                font-weight: 900;
+                color: var(--green-2);
+                letter-spacing: -0.08em;
+            }
+            .seal small {
+                position: absolute;
+                bottom: 108px;
+                font-family: var(--font-mono);
+                font-size: 20px;
+                letter-spacing: 0.22em;
+            }
+            .big-question {
+                display: grid;
+                place-items: center;
+                height: 100%;
+                text-align: center;
+            }
+            .quote {
+                font-size: 86px;
+                line-height: 1.26;
+                font-weight: 900;
+                max-width: 1380px;
+                letter-spacing: -0.04em;
+            }
+            .quote mark {
+                background: linear-gradient(
+                    transparent 56%,
+                    rgba(0, 183, 199, 0.38) 56%
+                );
+                color: inherit;
+            }
+            .two-col {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+                margin-top: 44px;
+            }
+            .three-col {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 28px;
+                margin-top: 40px;
+            }
+            .card {
+                background: rgba(255, 248, 232, 0.72);
+                border: 1px solid var(--line);
+                border-radius: 30px;
+                padding: 30px 34px;
+                box-shadow: 0 18px 45px rgba(23, 33, 31, 0.1);
+                min-height: 160px;
+                position: relative;
+                overflow: hidden;
+            }
+            .card::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 10px;
+                background: var(--cyan);
+            }
+            .card.amber::before {
+                background: var(--amber);
+            }
+            .card.red::before {
+                background: var(--red);
+            }
+            .card.green::before {
+                background: var(--green);
+            }
+            .card p {
+                font-size: 28px;
+                line-height: 1.42;
+                margin-top: 14px;
+                color: var(--green-2);
+            }
+            .compare {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 38px;
+                margin-top: 44px;
+            }
+            .panel {
+                min-height: 460px;
+                padding: 38px;
+                border-radius: 34px;
+                border: 1px solid var(--line);
+                background: rgba(255, 248, 232, 0.64);
+                box-shadow: var(--shadow);
+            }
+            .panel.dark {
+                background: linear-gradient(145deg, var(--green-2), #163e35);
+                color: var(--paper);
+            }
+            .bullets {
+                margin: 22px 0 0;
+                padding-left: 0;
+                list-style: none;
+            }
+            .bullets li {
+                font-size: 32px;
+                line-height: 1.42;
+                margin: 16px 0;
+                padding-left: 48px;
+                position: relative;
+            }
+            .bullets li::before {
+                content: "◆";
+                position: absolute;
+                left: 0;
+                color: var(--cyan);
+                font-size: 0.72em;
+            }
+            .term-grid {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 22px;
+                margin-top: 42px;
+            }
+            .term {
+                min-height: 430px;
+                border-radius: 28px;
+                padding: 26px 22px;
+                background: rgba(255, 248, 232, 0.72);
+                border: 1px solid var(--line);
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                gap: 22px;
+            }
+            .term .num {
+                font-family: var(--font-mono);
+                font-size: 22px;
+                color: var(--red);
+            }
+            .term h3 {
+                font-size: 34px;
+                min-height: 82px;
+            }
+            .term p {
+                font-size: 25px;
+                line-height: 1.42;
+                color: var(--green-2);
+            }
+            .flow {
+                display: flex;
+                align-items: stretch;
+                gap: 18px;
+                margin-top: 44px;
+            }
+            .flow-step {
+                flex: 1;
+                min-height: 200px;
+                border-radius: 28px;
+                padding: 28px 26px;
+                background: rgba(255, 248, 232, 0.75);
+                border: 1px solid var(--line);
+                position: relative;
+            }
+            .flow-step h3 {
+                font-size: 32px;
+            }
+            .flow-step p {
+                font-size: 25px;
+                line-height: 1.42;
+                margin-top: 14px;
+            }
+            .path-box,
+            .prompt-box {
+                margin-top: 34px;
+                background: #0d211d;
+                color: #dff6e4;
+                border-radius: 30px;
+                padding: 32px 40px;
+                font-family: var(--font-mono);
+                font-size: 27px;
+                line-height: 1.46;
+                box-shadow: var(--shadow);
+            }
+            .path-box pre,
+            .prompt-box pre {
+                margin: 0;
+                padding: 0;
+                font: inherit;
+                white-space: pre;
+            }
+            .prompt-box {
+                font-size: 24px;
+                max-height: 480px;
+                overflow: hidden;
+            }
+            .agenda {
+                display: grid;
+                grid-template-columns: 290px 1fr;
+                gap: 10px 24px;
+                margin-top: 28px;
+            }
+            .time {
+                font-family: var(--font-mono);
+                color: var(--red);
+                font-size: 24px;
+                padding-top: 5px;
+            }
+            .agenda-card {
+                border-bottom: 1px solid var(--line);
+                padding-bottom: 10px;
+            }
+            .agenda-card h3 {
+                font-size: 30px;
+            }
+            .agenda-card p {
+                margin-top: 6px;
+                font-size: 23px;
+                line-height: 1.35;
+                color: var(--green-2);
+            }
+            .footer {
+                position: absolute;
+                left: 104px;
+                right: 104px;
+                bottom: 54px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-family: var(--font-mono);
+                color: rgba(23, 33, 31, 0.52);
+                font-size: 20px;
+                z-index: 4;
+            }
+
+            /* === NAVIGATION UI === */
+            .nav-ui {
+                position: fixed;
+                right: 18px;
+                bottom: 18px;
+                z-index: 50;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #f6ecd4;
+                font-family: var(--font-mono);
+                font-size: 13px;
+                background: rgba(5, 11, 10, 0.64);
+                border: 1px solid rgba(246, 236, 212, 0.16);
+                border-radius: 999px;
+                padding: 9px 13px;
+                backdrop-filter: blur(10px);
+            }
+            .nav-ui button {
+                border: 0;
+                color: #f6ecd4;
+                background: rgba(246, 236, 212, 0.12);
+                border-radius: 999px;
+                padding: 5px 10px;
+                cursor: pointer;
+            }
+            .edit-pill {
+                position: fixed;
+                left: 18px;
+                top: 18px;
+                z-index: 60;
+                font-family: var(--font-mono);
+                font-size: 13px;
+                color: #f6ecd4;
+                background: rgba(5, 11, 10, 0.64);
+                border: 1px solid rgba(246, 236, 212, 0.16);
+                border-radius: 999px;
+                padding: 9px 13px;
+                opacity: 0.2;
+                transition: opacity 0.2s ease;
+            }
+            .edit-pill:hover,
+            body.editing .edit-pill {
+                opacity: 1;
+            }
+            body.editing [data-editable="true"] {
+                outline: 3px dashed rgba(0, 183, 199, 0.75);
+                outline-offset: 5px;
+                cursor: text;
+            }
+
+            /* === ANIMATIONS === */
+            .active .reveal {
+                animation: riseIn 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+            }
+            .active .reveal:nth-child(2) {
+                animation-delay: 90ms;
+            }
+            .active .reveal:nth-child(3) {
+                animation-delay: 180ms;
+            }
+            .active .reveal:nth-child(4) {
+                animation-delay: 270ms;
+            }
+            .active .seal {
+                animation: rotateSeal 18s linear infinite;
+            }
+            @keyframes riseIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                    filter: blur(8px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                    filter: blur(0);
+                }
+            }
+            @keyframes rotateSeal {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                *,
+                *::before,
+                *::after {
+                    animation: none !important;
+                    transition: none !important;
+                }
+            }
+
+            /* === OUTLINE SLIDE === */
+            .outline-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
+                gap: 32px;
+                margin-top: 48px;
+                height: calc(100% - 200px);
+            }
+            .outline-block {
+                border-radius: 30px;
+                padding: 42px 48px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                position: relative;
+                overflow: hidden;
+                border: 1px solid var(--line);
+                background: rgba(255, 248, 232, 0.68);
+                box-shadow: 0 14px 36px rgba(23, 33, 31, 0.09);
+            }
+            .outline-block::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 12px;
+            }
+            .outline-block.b1::before {
+                background: var(--cyan);
+            }
+            .outline-block.b2::before {
+                background: var(--amber);
+            }
+            .outline-block.b3::before {
+                background: var(--green);
+            }
+            .outline-block.b4::before {
+                background: var(--red);
+            }
+            .outline-block .part-label {
+                font-family: var(--font-mono);
+                font-size: 19px;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                margin-bottom: 14px;
+            }
+            .outline-block.b1 .part-label {
+                color: var(--cyan);
+            }
+            .outline-block.b2 .part-label {
+                color: var(--amber);
+            }
+            .outline-block.b3 .part-label {
+                color: var(--green);
+            }
+            .outline-block.b4 .part-label {
+                color: var(--red);
+            }
+            .outline-block h3 {
+                font-size: 46px;
+                line-height: 1.1;
+                letter-spacing: -0.03em;
+                margin-bottom: 0;
+            }
+            .outline-block ul {
+                margin: 18px 0 0;
+                padding: 0;
+                list-style: none;
+            }
+            .outline-block ul li {
+                font-size: 25px;
+                line-height: 1.5;
+                padding-left: 20px;
+                position: relative;
+                color: var(--green-2);
+            }
+            .outline-block ul li::before {
+                content: "—";
+                position: absolute;
+                left: 0;
+                color: var(--muted);
+                font-size: 0.9em;
+            }
+            /* === COURSE MAP (SLIDE 04) === */
+            .course-map {
+                grid-template-columns: repeat(2, 1fr) !important;
+                height: 700px !important;
+                gap: 16px !important;
+                margin-top: 16px !important;
+            }
+            .course-map .outline-block {
+                padding: 18px 24px !important;
+            }
+            .course-map .outline-block:last-child {
+                grid-column: 1 / -1;
+            }
+            .course-map .outline-block .part-label {
+                margin-bottom: 4px;
+                font-size: 18px;
+            }
+            .course-map .outline-block h3 {
+                font-size: 30px !important;
+                line-height: 1.1;
+            }
+            .course-map .outline-block p {
+                margin-top: 5px !important;
+                font-size: 19px !important;
+                line-height: 1.25 !important;
+            }
+            .course-map .outline-block > div:last-child {
+                font-size: 19px !important;
+                line-height: 1.25 !important;
+            }
+
+            .demo-grid .outline-block ul {
+                list-style: disc;
+                padding-left: 30px;
+            }
+            .demo-grid .outline-block ul li {
+                padding-left: 0;
+            }
+            .demo-grid .outline-block ul li::before {
+                content: none;
+            }
+
+            /* === SECTION DIVIDER === */
+            .section-divider .content {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                height: 100%;
+            }
+            .section-divider .part-tag {
+                font-family: var(--font-mono);
+                font-size: 22px;
+                letter-spacing: 0.18em;
+                text-transform: uppercase;
+                margin-bottom: 28px;
+            }
+            .section-divider h2 {
+                max-width: 1100px;
+            }
+            .section-divider .div-accent {
+                position: absolute;
+                right: 80px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 280px;
+                font-weight: 900;
+                line-height: 1;
+                letter-spacing: -0.06em;
+                opacity: 0.06;
+                font-family: var(--font-mono);
+                color: var(--ink);
+                pointer-events: none;
+                user-select: none;
+            }
+
+            /* === W2 VISUAL SYSTEM === */
+            :root {
+                --paper: #f6f1e7;
+                --paper-2: #fffaf0;
+                --ink: #102a43;
+                --muted: #627d98;
+                --green: #147d82;
+                --green-2: #0d2135;
+                --cyan: #147d82;
+                --amber: #f6c84c;
+                --yellow: #f6c84c;
+                --red: #ed6a3a;
+                --line: #c9bda9;
+                --shadow: 18px 18px 0 #f6c84c;
+                --font-serif: "Noto Sans TC", sans-serif;
+                --font-mono: "DM Mono", monospace;
+            }
+            body { font-family: var(--font-serif); background: #102a43; }
+            .deck-viewport { position: relative; inset: auto; background: #102a43; }
+            .deck-stage { left: 50%; top: 50%; transform-origin: center center; background: var(--paper); box-shadow: 0 28px 80px rgba(0,0,0,.35); }
+            .slide {
+                padding: 0;
+                background: var(--paper);
+                color: var(--ink);
+            }
+            .slide::before {
+                inset: 0;
+                border: 0;
+                border-radius: 0;
+                opacity: .32;
+                background-image: radial-gradient(rgba(16,42,67,.15) .8px, transparent .8px);
+                background-size: 7px 7px;
+            }
+            .slide::after, .grain { display: none; }
+            .content { height: 100%; padding: 100px 132px 86px; }
+            .kicker { font: 500 23px/1 var(--font-mono); letter-spacing: .08em; color: var(--red); margin-bottom: 28px; }
+            h1 { font-size: 104px; line-height: 1.12; font-weight: 700; letter-spacing: -.055em; }
+            h2 { font-size: 70px; line-height: 1.2; font-weight: 700; letter-spacing: -.045em; }
+            h3 { font-size: 31px; line-height: 1.3; font-weight: 700; letter-spacing: -.025em; }
+            p { font-size: 29px; line-height: 1.55; }
+            .lead { max-width: 1080px; margin-top: 30px; font-size: 37px; line-height: 1.48; color: #334e68; }
+            code { border: 0; border-radius: 0; background: rgba(246,200,76,.58); color: inherit; }
+            mark { background: linear-gradient(transparent 48%, var(--yellow) 48%); }
+            .card, .panel, .term, .flow-step, .outline-block {
+                border: 2px solid var(--ink);
+                border-radius: 0;
+                background: var(--paper-2);
+                box-shadow: none;
+            }
+            .card { padding: 31px; }
+            .card::before, .outline-block::before { width: 8px; }
+            .card p, .term p, .agenda-card p { color: #486581; }
+            .panel { padding: 34px 38px; border-left: 12px solid var(--red); }
+            .panel.dark, .path-box, .prompt-box { background: #0d2135; color: #e8f1f2; border-radius: 0; box-shadow: 18px 18px 0 var(--yellow); }
+            .term, .flow-step { border-radius: 0; }
+            .bullets li::before { content: "✓"; color: var(--green); font-family: var(--font-mono); }
+            .outline-block { border-left-width: 12px; }
+            .outline-block .part-label, .term .num, .time { color: var(--red); }
+            .section-divider { background: var(--green); color: var(--paper-2); }
+            .section-divider .part-tag, .section-divider .kicker { color: var(--yellow); }
+            .section-divider .div-accent { color: var(--paper-2); }
+            .footer {
+                left: 132px;
+                right: 132px;
+                bottom: 42px;
+                border-top: 2px solid var(--ink);
+                padding-top: 15px;
+                font: 500 18px/1 var(--font-mono);
+                color: var(--muted);
+            }
+            .slide:first-child { background: var(--ink); color: var(--paper-2); }
+            .slide:first-child .kicker { color: var(--yellow); }
+            .slide:first-child .lead { color: #d9e2ec; }
+            .slide:first-child .footer { border-color: var(--paper-2); color: #d9e2ec; }
+            .slide:first-child .seal {
+                width: 420px;
+                height: 420px;
+                margin-left: auto;
+                border: 4px solid var(--yellow);
+                border-radius: 50%;
+                background: transparent;
+                box-shadow: none;
+                color: var(--yellow);
+            }
+            .slide:first-child .seal strong { font: 500 112px/1 var(--font-mono); color: var(--yellow); }
+            .slide:first-child .seal small {
+                bottom: 76px;
+                width: 100%;
+                padding: 0 34px;
+                text-align: center;
+                font-size: 16px;
+                line-height: 1.35;
+                letter-spacing: 0.12em;
+                color: var(--yellow);
+            }
+            .nav-ui { right: 22px; bottom: 20px; border-radius: 0; padding: 10px; background: rgba(16,42,67,.9); color: var(--paper-2); border: 1px solid rgba(255,255,255,.3); font: 400 15px/1 var(--font-mono); }
+            .nav-ui button { width: 34px; height: 30px; padding: 0; border: 1px solid rgba(255,255,255,.5); border-radius: 0; background: transparent; color: inherit; }
+            .nav-ui button:hover { background: var(--red); }
+            .edit-pill { left: 22px; top: auto; bottom: 20px; border-radius: 0; padding: 11px 14px; background: rgba(16,42,67,.9); color: var(--paper-2); font: 400 13px/1 var(--font-mono); }
+        </style>
+    </head>
+    <body>
+        <main class="deck-viewport" aria-label="第 4 週課程內容簡報">
+            <section class="deck-stage" id="stage">
+                <article class="slide active">
+                    <div class="grain"></div>
+                    <div class="content title-grid">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                人文AI創造工作坊 2026｜第 4 週
+                            </div>
+                            <h1 class="reveal" data-editable="true">
+                                打通<span
+                                    style="
+                                        color: var(--red);
+                                    "
+                                    >Agent</span
+                                >與外界的連線
+                            </h1>
+                            <p class="lead reveal" data-editable="true">
+                                接上 <code>MCP</code>，讓 AI 從「只能講」變成「能伸出手」，直接操作各種外部服務與資料。
+                            </p>
+                            <div class="reveal" style="margin-top: 48px; display: flex; align-items: center; gap: 20px;">
+                                <div style="width: 3px; height: 48px; background: var(--yellow); flex-shrink: 0;"></div>
+                                <div>
+                                    <div style="font-family: var(--font-mono); font-size: 22px; font-weight: 700; color: var(--paper-2); letter-spacing: 0.04em;" data-editable="true">江豪文（Haowen Jiang）</div>
+                                    <a href="https://hw.is-a.dev" target="_blank" rel="noopener noreferrer" style="font-family: var(--font-mono); font-size: 19px; color: var(--yellow); text-decoration: none; letter-spacing: 0.06em;">hw.is-a.dev ↗</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="seal reveal">
+                            <strong>W4</strong
+                            ><small>MCP / Zotero / Google</small>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Cover</div>
+                        <div>01 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            反問學生這些問題
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            在開始之前，先想想：
+                        </h2>
+                        <div
+                            style="
+                                display: grid;
+                                grid-template-columns: 1.08fr 0.92fr;
+                                gap: 42px;
+                                align-items: start;
+                                margin-top: 38px;
+                            "
+                        >
+                            <ul class="bullets" style="margin-top: 0">
+                                <li
+                                    class="reveal"
+                                    data-editable="true"
+                                    style="font-size: 34px; line-height: 1.34"
+                                >
+                                    你是否覺得 AI 很會「講」，卻一碰到「動手操作」外部服務就卡住？
+                                </li>                                
+                                <li
+                                    class="reveal"
+                                    data-editable="true"
+                                    style="font-size: 34px; line-height: 1.34"
+                                >
+                                    你是否常常自己複製貼上資料，只因為 AI 沒辦法直接連到你的工具？
+                                </li>
+                                <li
+                                    class="reveal"
+                                    data-editable="true"
+                                    style="font-size: 34px; line-height: 1.34"
+                                >
+                                    你有沒有想過能讓 AI 直接幫你文獻庫、讀取 PDF 全文與文獻筆記？
+                                </li>
+                                <li
+                                    class="reveal"
+                                    data-editable="true"
+                                    style="font-size: 34px; line-height: 1.34"
+                                >
+                                    你有沒有想過能讓 AI 直接幫你搜尋 Gmail、整理 Google Drive 或更新 Google Sheets？
+                                </li>
+                            </ul>
+                            <div
+                                class="panel dark reveal"
+                                style="min-height: 0; padding: 40px 44px"
+                            >
+                                <h3 data-editable="true">隔著一片玻璃的助理</h3>
+                                <p
+                                    data-editable="true"
+                                    style="
+                                        font-size: 27px;
+                                        line-height: 1.5;
+                                        margin-top: 20px;
+                                        color: var(--paper);
+                                    "
+                                >
+                                    現在的 AI，很像坐在玻璃窗後面的萬能顧問：什麼都懂、什麼都能討論，但窗戶外的世界——你的
+                                    文獻庫、你的雲端文件、你的郵件——它一律碰不到。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Opening questions</div>
+                        <div>02 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content big-question">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                核心問題
+                            </div>
+                            <p class="quote reveal" data-editable="true">
+                                MCP 是什麼？它解決什麼問題？
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Core question</div>
+                        <div>03 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display:flex;flex-direction:column;">
+                        <div class="kicker reveal" data-editable="true">五週課程地圖</div>
+                        <h2 class="reveal" data-editable="true" style="font-size: 62px">從 AI 使用者到 AI 工作流程創造者</h2>
+                        <div class="course-map" style="display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 24px; flex: 1; min-height: 0;">
+                            <div class="outline-block b1 reveal" style="padding: 18px 28px; display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 24px; min-height: 0;">
+                                <div>
+                                    <div class="part-label">W1 🧠</div>
+                                    <h3 data-editable="true" style="font-size: 30px">Agentic AI 的五個關鍵概念</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.35; margin-top: 8px; color: var(--muted);">搞懂 <code>AGENTS.md</code>，讓 AI 從「隨機應答」變成你的專屬助理。</p>
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.35; margin-top: 8px; color: var(--green-2);"><strong>學習成果：</strong>能撰寫 <code>AGENTS.md</code>，定義 AI 的角色、規則與邊界</p>
+                                </div>
+                                <div style="font-size: 19px; line-height: 1.45; color: var(--green-2);">
+                                    <p data-editable="true"><strong>脈絡設計</strong>｜<strong>指令工程</strong></p>
+                                    <p data-editable="true">🔑 Markdown、AGENTS.md、YAML、GIT</p>
+                                    <p data-editable="true">⚗️ 建立個人 LLM Wiki、根據 Wiki 產出網頁</p>
+                                </div>
+                            </div>
+                            <div class="outline-block b2 reveal" style="padding: 18px 28px; display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 24px; min-height: 0;">
+                                <div>
+                                    <div class="part-label">W2 🛠️</div>
+                                    <h3 data-editable="true" style="font-size: 30px">給 Agent 一把順手的工具</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.35; margin-top: 8px; color: var(--muted);">工欲善其事，先替你的 AI 打造無障礙工作環境。</p>
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.35; margin-top: 8px; color: var(--green-2);"><strong>學習成果：</strong>能理解不同工具對 AI 的友善程度</p>
+                                </div>
+                                <div style="font-size: 19px; line-height: 1.45; color: var(--green-2);">
+                                    <p data-editable="true"><strong>工具選擇</strong>｜<strong>命令列</strong></p>
+                                    <p data-editable="true">🔑 API、CLI、GUI、ACI、JSON</p>
+                                    <p data-editable="true">⚗️ Openlibrary API、Obsidian CLI</p>
+                                </div>
+                            </div>
+                            <div class="outline-block b3 reveal" style="padding: 18px 28px; display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 24px; min-height: 0;">
+                                <div>
+                                    <div class="part-label">W3 🎓</div>
+                                    <h3 data-editable="true" style="font-size: 30px">用 SKILL.md 培養 Agent 的專長</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.35; margin-top: 8px; color: var(--muted);">一個檔案，讓 AI 記住你的工作方式，比你想得還快。</p>
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.35; margin-top: 8px; color: var(--green-2);"><strong>學習成果：</strong>能讓 Agent 學習可重複使用的客製化技能</p>
+                                </div>
+                                <div style="font-size: 19px; line-height: 1.45; color: var(--green-2);">
+                                    <p data-editable="true"><strong>可攜式工作流</strong>｜<strong>客製化技能</strong></p>
+                                    <p data-editable="true">🔑 SKILL.md、scripts、references</p>
+                                    <p data-editable="true">⚗️ find-skills、skill-create</p>
+                                </div>
+                            </div>
+                            <div class="outline-block b4 reveal" style="padding: 18px 28px; display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 24px; min-height: 0;">
+                                <div>
+                                    <div class="part-label">W4 🔌</div>
+                                    <h3 data-editable="true" style="font-size: 30px">打通 Agent 與外界的連線</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.35; margin-top: 8px; color: var(--muted);">接上 MCP，讓 AI 伸出手，直接操作各種外部服務。</p>
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.35; margin-top: 8px; color: var(--green-2);"><strong>學習成果：</strong>能透過 MCP 為 Agent 接入真實世界的服務與資料</p>
+                                </div>
+                                <div style="font-size: 19px; line-height: 1.45; color: var(--green-2);">
+                                    <p data-editable="true"><strong>外部服務整合</strong>｜<strong>工具擴充</strong></p>
+                                    <p data-editable="true">🔑 MCP、Zotero、Google Workspace</p>
+                                    <p data-editable="true">⚗️ Zotero MCP、Google Workspace MCP</p>
+                                </div>
+                            </div>
+                            <div class="outline-block b1 reveal" style="padding: 18px 28px; display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 24px; min-height: 0;">
+                                <div>
+                                    <div class="part-label">W5 🌍</div>
+                                    <h3 data-editable="true" style="font-size: 30px">把成果發布到全世界</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.35; margin-top: 8px; color: var(--muted);">用 GitHub Pages 讓你的 AI 工作流程作品，站上公開舞台。</p>
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.35; margin-top: 8px; color: var(--green-2);"><strong>學習成果：</strong>能將個人數位作品對外展示與分享</p>
+                                </div>
+                                <div style="font-size: 19px; line-height: 1.45; color: var(--green-2);">
+                                    <p data-editable="true"><strong>成果發布</strong>｜<strong>公開分享</strong></p>
+                                    <p data-editable="true">🔑 deployment、workflow、CI/CD</p>
+                                    <p data-editable="true">⚗️ GitHub Pages、GitHub Workflows</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 14px;">
+                            <a href="https://howard-haowen.github.io/genai_workshop/2026" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 12px; padding: 12px 28px; background: var(--green); color: var(--paper-2); font-family: var(--font-mono); font-size: 22px; font-weight: 700; text-decoration: none; border-radius: 0; letter-spacing: 0.06em;">
+                                🌐 課程地圖網站 ↗
+                            </a>
+                        </div>
+                    </div>
+                    <div class="footer"><div>Course map</div><div>04 / 23</div></div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content big-question">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                本週學習成果
+                            </div>
+                            <p
+                                class="quote reveal"
+                                data-editable="true"
+                                style="
+                                    font-size: 76px;
+                                    line-height: 1.28;
+                                    max-width: 1460px;
+                                "
+                            >
+                                能透過 <mark>MCP</mark> 為 Agent 接入真實世界的服務與資料
+                            </p>
+                            <p
+                                class="lead reveal"
+                                data-editable="true"
+                                style="
+                                    font-size: 38px;
+                                    margin-top: 44px;
+                                    text-align: center;
+                                    max-width: 1320px;
+                                "
+                            >
+                                認識 MCP 概念 · 連接 Zotero 與 Google Workspace · 保留人工檢查點
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Learning outcome</div>
+                        <div>05 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            本週流程
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            今天會依照這個順序往下走
+                        </h2>
+                        <div class="agenda">
+                            <div class="time">01</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">開場與課程定位</h3>
+                                <p data-editable="true">
+                                    封面、開場提問、核心問題、五週課程地圖與本週學習成果。
+                                </p>
+                            </div>
+                            <div class="time">02</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">MCP 概念建立</h3>
+                                <p data-editable="true">
+                                    回顧 API/CLI/GUI、MCP 定義與資料流、MCP 設計原則。
+                                </p>
+                            </div>
+                            <div class="time">03</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">案例拆解</h3>
+                                <p data-editable="true">
+                                    Zotero（文獻管理）與 Google Workspace（雲端辦公）的情境、資料流與比較。
+                                </p>
+                            </div>
+                            <div class="time">04</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">課堂活動與收尾</h3>
+                                <p data-editable="true">
+                                    實作活動、本週產出、人工檢查點、課後活動與下週預告。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>This week</div>
+                        <div>06 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            MCP 是什麼
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            統一 AI Agent 與工具／資料來源的連接方式
+                        </h2>
+                        <div
+                            class="panel dark reveal"
+                            style="
+                                margin-top: 34px;
+                                min-height: 260px;
+                                padding: 42px 52px;
+                            "
+                        >
+                            <h3
+                                data-editable="true"
+                                style="font-size: 46px; line-height: 1.22"
+                            >
+                                MCP = 統一介面 🔌 + 外部工具 🛠️ + 資料來源 📚 + 權限邊界 🚧
+                            </h3>
+                            <p
+                                data-editable="true"
+                                style="
+                                    font-size: 32px;
+                                    line-height: 1.52;
+                                    margin-top: 24px;
+                                    color: var(--paper);
+                                "
+                            >
+                                MCP 不是某一個工具，而是一種協定：把某個工具或資料來源包成標準介面，讓懂 MCP 的
+                                Agent 都能用同一種方式使用它。
+                            </p>
+                        </div>
+                        <div class="three-col" style="margin-top: 32px">
+                            <div class="card reveal">
+                                <h3 data-editable="true">🔌 轉接頭</h3>
+                                <p data-editable="true">
+                                    不同工具原本插孔不同，MCP server 把它們接成 Agent 聽得懂的形式。
+                                </p>
+                            </div>
+                            <div class="card amber reveal">
+                                <h3 data-editable="true">☎️ 接線員</h3>
+                                <p data-editable="true">
+                                    Agent 不必懂每個服務的細節，只要透過標準介面提出需求。
+                                </p>
+                            </div>
+                            <div class="card red reveal">
+                                <h3 data-editable="true">🚪 有門禁的房間</h3>
+                                <p data-editable="true">
+                                    每個 MCP server 只開放特定範圍的資料，不是任意進出。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>What is MCP</div>
+                        <div>07 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            MCP 的資料流
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            一個請求，怎麼變成外部世界的一個動作
+                        </h2>
+                        <div class="flow">
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">🗣️ 使用者請求</h3>
+                                <p data-editable="true">
+                                    你告訴 Agent 想做什麼，例如「幫我整理 Zotero 裡的文獻」。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">🔌 MCP Server</h3>
+                                <p data-editable="true">
+                                    把請求轉成該工具聽得懂的操作，並檢查是否在允許範圍內。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">🌐 外部工具／資料</h3>
+                                <p data-editable="true">
+                                    實際查詢 Zotero 文獻庫、存取 Google Workspace 等外部服務或資料來源。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal">
+                                <h3 data-editable="true">📩 回應 Agent</h3>
+                                <p data-editable="true">
+                                    結果被整理、格式化，回傳給 Agent 繼續完成任務。
+                                </p>
+                            </div>
+                        </div>
+                        <div class="path-box reveal" data-editable="true" style="margin-top: 28px">
+                            <pre>
+使用者請求 → MCP Server（權限檢查） → 外部工具／資料 → 回應 Agent</pre>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>MCP data flow</div>
+                        <div>08 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            銜接 W3 關鍵詞
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            Skill 教會 Agent「怎麼做」；MCP 打開「能碰到什麼」
+                        </h2>
+                        <div class="compare">
+                            <div class="panel reveal">
+                                <h3 data-editable="true">🎓 W3 SKILL.md：行為與流程</h3>
+                                <ul class="bullets">
+                                    <li data-editable="true">
+                                        定義 Agent 「怎麼做」某件事
+                                    </li>
+                                    <li data-editable="true">
+                                        可重複使用的客製化工作方式
+                                    </li>
+                                    <li data-editable="true">
+                                        不涉及讀取外部資料來源
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="panel dark reveal">
+                                <h3 data-editable="true">🔌 W4 MCP：工具與資料存取</h3>
+                                <ul class="bullets">
+                                    <li data-editable="true">
+                                        打開 Agent「能碰到什麼」外部服務
+                                    </li>
+                                    <li data-editable="true">
+                                        本週重點：Zotero 文獻管理、Google Workspace
+                                    </li>
+                                    <li data-editable="true">
+                                        兩者常搭配：Skill 決定怎麼做，MCP 決定能碰到哪裡
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Skills vs MCP</div>
+                        <div>09 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            銜接閱讀
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            Skill 與 MCP 常搭配使用，但 MCP 是最後手段
+                        </h2>
+                        <ul class="bullets" style="margin-top: 36px">
+                            <li class="reveal" data-editable="true" style="font-size: 32px; line-height: 1.4">
+                                <code>SKILL.md</code>（W3）定義 Agent「怎麼做」，是可攜式、可重用的工作指令。
+                            </li>
+                            <li class="reveal" data-editable="true" style="font-size: 32px; line-height: 1.4">
+                                <code>MCP</code>（W4）打開 Agent「能碰到什麼」，讓 Agent 真正存取外部服務與資料。
+                            </li>
+                            <li class="reveal" data-editable="true" style="font-size: 32px; line-height: 1.4">
+                                兩者常搭配：Skill 決定怎麼做，MCP 決定能碰到哪裡。
+                            </li>
+                            <li class="reveal" data-editable="true" style="font-size: 32px; line-height: 1.4; color: var(--red)">
+                                ⚠️ MCP 是 <strong>last resort</strong>：能用 Skill 或 CLI 解決的，就不需要 MCP。只在真的必須即時存取外部服務時才引入。
+                            </li>
+                        </ul>
+                        <a
+                            class="reveal"
+                            href="https://www.youtube.com/watch?v=goU9VIXA8II"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="position: absolute; bottom: 92px; display: inline-block; color: var(--green); font-size: 22px; font-weight: 900; text-decoration: none"
+                            >📺 參考影片：MCP vs Skills: Which Is Right for Your AI Agent and LLMs? →</a
+                        >
+                    </div>
+                    <div class="footer">
+                        <div>Bridge reading</div>
+                        <div>10 / 23</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            哪裡找 MCP Servers
+                        </div>
+                        <h2 class="reveal" data-editable="true" style="font-size: 62px;">
+                            MCP Servers 入口網站：mcpservers.org
+                        </h2>
+                        <div
+                            style="
+                                display: grid;
+                                grid-template-columns: 1.1fr 0.9fr;
+                                gap: 42px;
+                                align-items: start;
+                                margin-top: 32px;
+                            "
+                        >
+                            <!-- 左：功能介紹 bullets -->
+                            <div>
+                                <ul class="bullets" style="margin-top: 0">
+                                    <li class="reveal" data-editable="true" style="font-size: 30px; line-height: 1.4">
+                                        <strong>收錄數千個 MCP Server</strong>，涵蓋生產力、開發工具、資料庫、雲端服務等各類別，持續更新。
+                                    </li>
+                                    <li class="reveal" data-editable="true" style="font-size: 30px; line-height: 1.4">
+                                        支援<strong>依類別、標籤、關鍵字搜尋</strong>，快速找到符合你工作情境的 server。
+                                    </li>
+                                    <li class="reveal" data-editable="true" style="font-size: 30px; line-height: 1.4">
+                                        每個 server 頁面附有<strong>功能說明、安裝指令與 GitHub 連結</strong>，讓你一站完成評估與安裝。
+                                    </li>
+                                    <li class="reveal" data-editable="true" style="font-size: 30px; line-height: 1.4">
+                                        提供<strong>繁體中文介面</strong>（<code>/zh-TW/</code>），對中文使用者更友善。
+                                    </li>
+                                </ul>
+                            </div>
+                            <!-- 右：連結面板 + 參考部落格 -->
+                            <div style="display: flex; flex-direction: column; gap: 24px;">
+                                <div class="panel dark reveal" style="min-height: 0; padding: 36px 44px;">
+                                    <h3 data-editable="true" style="font-size: 34px; color: var(--paper); line-height: 1.25;">
+                                        🌐 立刻前往瀏覽
+                                    </h3>
+                                    <a
+                                        href="https://mcpservers.org/zh-TW/"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        style="display: inline-block; margin-top: 18px; padding: 16px 30px; background: var(--amber); color: var(--ink); font-family: var(--font-mono); font-size: 24px; font-weight: 900; text-decoration: none; letter-spacing: 0.04em; white-space: nowrap;"
+                                    >mcpservers.org/zh-TW ↗</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Where to find MCP servers · mcpservers.org</div>
+                        <div>11 / 24</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            案例 1：Zotero MCP
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            讓 Agent 直接讀取你的文獻庫
+                        </h2>
+                        <ul class="bullets" style="margin-top: 36px">
+                            <li class="reveal" data-editable="true" style="font-size: 30px; line-height: 1.4">
+                                搜尋 Zotero 文獻庫，依關鍵字、作者、年份找出相關論文與書目。
+                            </li>
+                            <li class="reveal" data-editable="true" style="font-size: 30px; line-height: 1.4">
+                                直接讀取 PDF 全文與附件，讓 Agent 幫你摘要或比較多篇文獻。
+                            </li>
+                            <li class="reveal" data-editable="true" style="font-size: 30px; line-height: 1.4">
+                                自動生成引用格式（APA、MLA、Chicago 等），寫入筆記或報告。
+                            </li>
+                            <li class="reveal" data-editable="true" style="font-size: 30px; line-height: 1.4">
+                                管理收藏夾與標籤，幫你整理研究主題的文獻地圖。
+                            </li>
+                        </ul>
+                        <a
+                            class="reveal"
+                            href="https://www.zotero.org/download/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="position: absolute; bottom: 92px; display: inline-block; color: var(--green); font-size: 22px; font-weight: 900; text-decoration: none"
+                            >📖 下載Zotero文獻管理軟體：zotero.org/download →</a
+                        >
+                    </div>
+                    <div class="footer">
+                        <div>Case 1 · Zotero MCP</div>
+                        <div>12 / 24</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">Zotero MCP Server 功能總覽</div>
+                        <h2 class="reveal" data-editable="true" style="font-size: 58px; margin-bottom: 0">
+                            六大面向，深度操作你的文獻庫
+                        </h2>
+                        <div class="two-col" style="margin-top: 24px; gap: 28px">
+                            <div class="reveal" style="display: flex; flex-direction: column; gap: 16px;">
+                                <div class="card" style="min-height: 0; padding: 18px 22px;">
+                                    <h3 data-editable="true" style="font-size: 24px">🔍 文獻檢索與查詢</h3>
+                                    <ul class="bullets" style="margin-top: 8px">
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">關鍵字、標籤、進階條件、語意搜尋</li>
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">Citation Key 查詢 ／ 查看最近新增</li>
+                                    </ul>
+                                </div>
+                                <div class="card amber" style="min-height: 0; padding: 18px 22px;">
+                                    <h3 data-editable="true" style="font-size: 24px">📖 全文閱讀與 PDF 解析</h3>
+                                    <ul class="bullets" style="margin-top: 8px">
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">PDF 大綱、指定頁閱讀、版面偵測</li>
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">全文提取 ／ 取得附件本地路徑</li>
+                                    </ul>
+                                </div>
+                                <div class="card green" style="min-height: 0; padding: 18px 22px;">
+                                    <h3 data-editable="true" style="font-size: 24px">✍️ 標註與筆記管理</h3>
+                                    <ul class="bullets" style="margin-top: 8px">
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">PDF 劃線、區域標註、標註編修</li>
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">富文字筆記管理 ／ 跨文獻綜述生成</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="reveal" style="display: flex; flex-direction: column; gap: 16px;">
+                                <div class="card" style="min-height: 0; padding: 18px 22px;">
+                                    <h3 data-editable="true" style="font-size: 24px">🗂️ 分類資料夾管理</h3>
+                                    <ul class="bullets" style="margin-top: 8px">
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">分類 CRUD、項目歸檔、樹狀瀏覽</li>
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">個人庫 / 群組庫 / RSS 訂閱庫切換</li>
+                                    </ul>
+                                </div>
+                                <div class="card amber" style="min-height: 0; padding: 18px 22px;">
+                                    <h3 data-editable="true" style="font-size: 24px">📥 文獻匯入與詮釋資料</h3>
+                                    <ul class="bullets" style="margin-top: 8px">
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">DOI / URL / ISBN / BibTeX 一鍵匯入</li>
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">詮釋資料編修 ／ 批次標籤更新</li>
+                                    </ul>
+                                </div>
+                                <div class="card red" style="min-height: 0; padding: 18px 22px;">
+                                    <h3 data-editable="true" style="font-size: 24px">📝 引文與書目匯出</h3>
+                                    <ul class="bullets" style="margin-top: 8px">
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">CSL 引擎：APA、MLA、Chicago、IEEE</li>
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">匯出文中引用 ／ 完整 BibTeX</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <a
+                            class="reveal"
+                            href="https://stevenyuyy.com/zotero-mcp/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="position: absolute; bottom: 92px; display: inline-block; color: var(--green); font-size: 22px; font-weight: 900; text-decoration: none"
+                            >📖 参考：stevenyuyy.com/zotero-mcp →</a
+                        >
+                    </div>
+                    <div class="footer">
+                        <div>Zotero MCP features</div>
+                        <div>13 / 24</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true" style="margin-bottom: 18px">
+                            Zotero 整合架構：MCP vs CLI
+                        </div>
+                        <h2 class="reveal" data-editable="true" style="font-size: 54px; margin: 0">
+                            兩條路徑，通往同一座文獻庫
+                        </h2>
+                        <div class="reveal" style="margin-top: 14px">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1656 750" width="1656" height="750" role="img" aria-labelledby="zt-title zt-desc" style="display: block">
+                                <title id="zt-title">zotero-mcp 與 zotero-cli 的關係架構圖</title>
+                                <desc id="zt-desc">AI／Agent 用戶端可透過 MCP 協定連到 zotero-mcp server，或透過 Shell／CLI 使用 zotero-cli；兩者共用 Zotero 整合層，最後存取你的 Zotero 文獻庫。</desc>
+                                <defs>
+                                    <marker id="zt-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                                        <path d="M0,0 L10,5 L0,10 Z" fill="#102a43" />
+                                    </marker>
+                                </defs>
+
+                                <!-- connectors -->
+                                <g fill="none" stroke="#102a43" stroke-width="3">
+                                    <path d="M828 160 V245" />
+                                    <path d="M415 245 H1241" />
+                                    <path d="M415 245 V281" marker-end="url(#zt-arrow)" />
+                                    <path d="M1241 245 V281" marker-end="url(#zt-arrow)" />
+                                    <path d="M415 395 V430 H1241 V395" />
+                                    <path d="M828 430 V461" marker-end="url(#zt-arrow)" />
+                                    <path d="M828 615 V646" marker-end="url(#zt-arrow)" />
+                                </g>
+
+                                <!-- path labels -->
+                                <g font-family="DM Mono, monospace" font-size="24" font-weight="500" text-anchor="middle">
+                                    <text x="621" y="215" fill="#147d82">MCP way</text>
+                                    <text x="1034" y="215" fill="#c2491d">Shell / CLI way</text>
+                                </g>
+
+                                <!-- AI / Agent clients -->
+                                <rect x="378" y="0" width="900" height="160" fill="#0d2135" stroke="#102a43" stroke-width="2" />
+                                <text x="828" y="40" text-anchor="middle" font-family="DM Mono, monospace" font-size="28" font-weight="700" fill="#f6c84c">AI / Agent Clients</text>
+                                <g font-family="Noto Sans TC, sans-serif" font-size="24" fill="#fffaf0">
+                                    <text x="440" y="84">IBM Bob</text>
+                                    <text x="440" y="116">Claude Code / Codex</text>
+                                    <text x="860" y="84">Cursor / Windsurf</text>
+                                    <text x="860" y="116">Zotero App Plugin</text>
+                                </g>
+
+                                <!-- zotero-mcp server -->
+                                <rect x="130" y="285" width="570" height="110" fill="#147d82" stroke="#102a43" stroke-width="2" />
+                                <text x="415" y="333" text-anchor="middle" font-family="DM Mono, monospace" font-size="32" font-weight="700" fill="#fffaf0">zotero-mcp server</text>
+                                <text x="415" y="372" text-anchor="middle" font-family="Noto Sans TC, sans-serif" font-size="24" fill="#fffaf0">(MCP protocol)</text>
+
+                                <!-- zotero-cli -->
+                                <rect x="956" y="285" width="570" height="110" fill="#f6c84c" stroke="#102a43" stroke-width="2" />
+                                <text x="1241" y="333" text-anchor="middle" font-family="DM Mono, monospace" font-size="32" font-weight="700" fill="#102a43">zotero-cli</text>
+                                <text x="1241" y="372" text-anchor="middle" font-family="Noto Sans TC, sans-serif" font-size="24" fill="#102a43">(agent skill / command)</text>
+
+                                <!-- Zotero integration layer -->
+                                <rect x="378" y="465" width="900" height="150" fill="#fffaf0" stroke="#102a43" stroke-width="2" />
+                                <rect x="378" y="465" width="12" height="150" fill="#ed6a3a" />
+                                <text x="828" y="506" text-anchor="middle" font-family="DM Mono, monospace" font-size="28" font-weight="700" fill="#102a43">Zotero integration layer</text>
+                                <g font-family="Noto Sans TC, sans-serif" font-size="24" fill="#102a43">
+                                    <text x="430" y="554">• local Zotero API</text>
+                                    <text x="430" y="592">• Zotero SQLite read API</text>
+                                    <text x="840" y="554">• web API / hybrid mode</text>
+                                    <text x="840" y="592">• PDF / search / write tools</text>
+                                </g>
+
+                                <!-- Your Zotero library -->
+                                <rect x="478" y="650" width="700" height="90" fill="#ed6a3a" stroke="#102a43" stroke-width="2" />
+                                <text x="828" y="688" text-anchor="middle" font-family="DM Mono, monospace" font-size="28" font-weight="700" fill="#102a43">Your Zotero library</text>
+                                <text x="828" y="722" text-anchor="middle" font-family="Noto Sans TC, sans-serif" font-size="24" fill="#102a43">papers / notes / collections / PDFs</text>
+                            </svg>
+                        </div>
+                        <div
+                            class="reveal"
+                            style="position: absolute; right: 132px; bottom: 124px; width: 450px; font-size: 22px; line-height: 1.5; font-weight: 700; color: var(--ink)"
+                        >
+                            <div data-editable="true">❓ 若有任何疑問，前往</div>
+                            <a
+                                href="https://github.com/54yyyu/zotero-mcp"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style="display: block; color: var(--green); font-weight: 900; text-decoration: none; white-space: nowrap"
+                                >github.com/54yyyu/zotero-mcp →</a
+                            >
+                            <div data-editable="true">使用 <strong>Chat with Copilot</strong></div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Zotero MCP vs CLI architecture</div>
+                        <div>14 / 24</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">Zotero MCP vs Zotero Skill</div>
+                        <h2 class="reveal" data-editable="true" style="font-size: 56px; margin-bottom: 0">
+                            16,815 vs 98：兩種接法的上下文成本
+                        </h2>
+                        <p class="reveal" data-editable="true" style="font-size: 25px; line-height: 1.5; margin: 18px 0 0">
+                            MCP server 在<strong>每一次請求</strong>都會先送出所有工具的 schema，連你還沒輸入任何字也一樣；
+                            Skill 在 Agent 判斷需要之前，只佔 <strong>98 tokens</strong>。
+                        </p>
+                        <div class="reveal" style="margin-top: 22px; border: 2px solid var(--ink); background: var(--paper-2)">
+                            <div style="display: grid; grid-template-columns: 1.7fr 1fr 1fr; font-size: 23px; font-weight: 900; background: var(--ink); color: var(--paper-2)">
+                                <div style="padding: 12px 22px" data-editable="true">方式</div>
+                                <div style="padding: 12px 22px; text-align: right" data-editable="true">佔用上下文（tokens）</div>
+                                <div style="padding: 12px 22px" data-editable="true">計費時機</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1.7fr 1fr 1fr; font-size: 23px; border-top: 1px solid var(--line); border-left: 10px solid var(--cyan)">
+                                <div style="padding: 11px 12px" data-editable="true">MCP server，預設設定（41 個工具）</div>
+                                <div style="padding: 11px 22px; text-align: right; font: 900 26px var(--font-mono); color: var(--red)">16,815</div>
+                                <div style="padding: 11px 22px" data-editable="true">每次請求</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1.7fr 1fr 1fr; font-size: 23px; border-top: 1px solid var(--line); border-left: 10px solid var(--cyan)">
+                                <div style="padding: 11px 12px" data-editable="true">MCP server，全部工具（53 個）</div>
+                                <div style="padding: 11px 22px; text-align: right; font: 700 26px var(--font-mono); color: var(--red)">20,942</div>
+                                <div style="padding: 11px 22px" data-editable="true">每次請求</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1.7fr 1fr 1fr; font-size: 23px; border-top: 1px solid var(--line); border-left: 10px solid var(--green)">
+                                <div style="padding: 11px 12px" data-editable="true">Agent skill，只載入 frontmatter</div>
+                                <div style="padding: 11px 22px; text-align: right; font: 900 26px var(--font-mono); color: var(--green)">98</div>
+                                <div style="padding: 11px 22px" data-editable="true">隨時</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1.7fr 1fr 1fr; font-size: 23px; border-top: 1px solid var(--line); border-left: 10px solid var(--green)">
+                                <div style="padding: 11px 12px" data-editable="true">Agent skill，載入內文</div>
+                                <div style="padding: 11px 22px; text-align: right; font: 700 26px var(--font-mono); color: var(--green)">2,400</div>
+                                <div style="padding: 11px 22px" data-editable="true">觸發時</div>
+                            </div>
+                            <div style="display: grid; grid-template-columns: 1.7fr 1fr 1fr; font-size: 23px; border-top: 1px solid var(--line); border-left: 10px solid var(--green)">
+                                <div style="padding: 11px 12px" data-editable="true">Agent skill ＋完整指令參考</div>
+                                <div style="padding: 11px 22px; text-align: right; font: 700 26px var(--font-mono); color: var(--green)">6,158</div>
+                                <div style="padding: 11px 22px" data-editable="true">最壞情況</div>
+                            </div>
+                        </div>
+                        <ul class="bullets reveal" style="margin-top: 22px">
+                            <li data-editable="true" style="font-size: 26px; line-height: 1.5; margin: 6px 0">
+                                用戶端支援 MCP 但<strong>沒有 shell</strong>（如 Claude Desktop、ChatGPT）→ 用 <strong>MCP server</strong>。
+                            </li>
+                            <li data-editable="true" style="font-size: 26px; line-height: 1.5; margin: 6px 0">
+                                用戶端<strong>有 shell</strong>（如 IBM Bob）→ 用 <strong>Skill</strong>。
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="footer">
+                        <div>Zotero MCP vs Skill · context cost</div>
+                        <div>15 / 24</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">課堂活動</div>
+                        <h2 class="reveal" data-editable="true" style="font-size: 58px; margin-bottom: 0">
+                            設定 Zotero MCP：五個步驟
+                        </h2>
+                        <div class="reveal" style="display: flex; flex-direction: column; gap: 14px; margin-top: 24px">
+                            <div class="card" style="min-height: 0; padding: 14px 22px; display: flex; align-items: center; gap: 22px">
+                                <div style="font: 700 44px/1 var(--font-mono); color: var(--red); width: 56px; flex: none">1</div>
+                                <div>
+                                    <h3 data-editable="true" style="font-size: 26px; margin: 0">取得專案檔案</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.4; margin: 4px 0 0">
+                                        第一次執行，按照
+                                        <a href="https://hw.is-a.dev/ibm-bobathon/workshops/w05/index.html" target="_blank" rel="noopener noreferrer" style="color: var(--green); font-weight: 900; text-decoration: none">網頁內容</a>
+                                        操作；若已執行過，要求 Agent 使用 <code>git</code> 跟遠端同步。
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="card amber" style="min-height: 0; padding: 14px 22px; display: flex; align-items: center; gap: 22px">
+                                <div style="font: 700 44px/1 var(--font-mono); color: var(--red); width: 56px; flex: none">2</div>
+                                <div>
+                                    <h3 data-editable="true" style="font-size: 26px; margin: 0">下載並安裝 Zotero</h3>
+                                    <p style="font-size: 21px; line-height: 1.4; margin: 4px 0 0">
+                                        <a href="https://www.zotero.org/download/" target="_blank" rel="noopener noreferrer" style="color: var(--green); font-weight: 900; text-decoration: none">📖 zotero.org/download →</a>
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="card green" style="min-height: 0; padding: 14px 22px; display: flex; align-items: center; gap: 22px">
+                                <div style="font: 700 44px/1 var(--font-mono); color: var(--red); width: 56px; flex: none">3</div>
+                                <div>
+                                    <h3 data-editable="true" style="font-size: 26px; margin: 0">使用 Agent Mode 執行 <code>zotero-bootstrap.md</code></h3>
+                                </div>
+                            </div>
+                            <div class="card red" style="min-height: 0; padding: 14px 22px; display: flex; align-items: center; gap: 22px">
+                                <div style="font: 700 44px/1 var(--font-mono); color: var(--red); width: 56px; flex: none">4</div>
+                                <div>
+                                    <h3 data-editable="true" style="font-size: 26px; margin: 0">使用 Agent Mode 執行 <code>zotero-mcp-setup-guide.md</code></h3>
+                                </div>
+                            </div>
+                            <div class="card" style="min-height: 0; padding: 14px 22px; display: flex; align-items: center; gap: 22px">
+                                <div style="font: 700 44px/1 var(--font-mono); color: var(--red); width: 56px; flex: none">5</div>
+                                <div>
+                                    <h3 data-editable="true" style="font-size: 26px; margin: 0">開始使用自然語言操作 Zotero</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Class activity · Zotero MCP setup</div>
+                        <div>16 / 24</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            案例 2：Google Workspace MCP
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            讓 Agent 幫你操作整個 Google 工作套件
+                        </h2>
+                        <ul class="bullets" style="margin-top: 36px">
+                            <li class="reveal" data-editable="true" style="font-size: 30px; line-height: 1.4">
+                                <strong>Gmail</strong>：讀取、搜尋、撰寫與整理郵件；<strong>Calendar</strong>：查詢與建立行程。
+                            </li>
+                            <li class="reveal" data-editable="true" style="font-size: 30px; line-height: 1.4">
+                                <strong>Drive</strong>：搜尋、上傳與管理雲端檔案；<strong>Docs</strong>：讀取、建立與編輯文件。
+                            </li>
+                            <li class="reveal" data-editable="true" style="font-size: 30px; line-height: 1.4">
+                                <strong>Sheets</strong>：讀取試算表資料，讓 Agent 分析或更新欄位；<strong>Slides</strong>：讀取簡報結構。
+                            </li>
+                            <li class="reveal" data-editable="true" style="font-size: 30px; line-height: 1.4">
+                                一個 MCP server，同時打通六種 Google 服務，統一授權管理。
+                            </li>
+                        </ul>
+                        <a
+                            class="reveal"
+                            href="https://workspace.google.com/intl/zh-TW/resources/what-is-workspace/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="position: absolute; bottom: 92px; display: inline-block; color: var(--green); font-size: 22px; font-weight: 900; text-decoration: none"
+                            >📖 什麼是 Google Workspace：workspace.google.com/intl/zh-TW/resources/what-is-workspace →</a
+                        >
+                    </div>
+                    <div class="footer">
+                        <div>Case 2 · Google Workspace MCP</div>
+                        <div>17 / 24</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">Google Workspace MCP 功能總覽</div>
+                        <h2 class="reveal" data-editable="true" style="font-size: 58px; margin-bottom: 0">
+                            六項服務，Agent 能完成哪些操作
+                        </h2>
+                        <div class="two-col" style="margin-top: 24px; gap: 28px">
+                            <div class="reveal" style="display: flex; flex-direction: column; gap: 16px;">
+                                <div class="card" style="min-height: 0; padding: 18px 22px;">
+                                    <h3 data-editable="true" style="font-size: 24px">📧 Gmail：郵件處理</h3>
+                                    <ul class="bullets" style="margin-top: 8px">
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">搜尋與閱讀郵件、整理收件匣</li>
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">起草回信（交由你審閱後再送出）</li>
+                                    </ul>
+                                </div>
+                                <div class="card amber" style="min-height: 0; padding: 18px 22px;">
+                                    <h3 data-editable="true" style="font-size: 24px">📅 Calendar：行程管理</h3>
+                                    <ul class="bullets" style="margin-top: 8px">
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">查詢行程與空檔</li>
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">建立新活動、安排會議</li>
+                                    </ul>
+                                </div>
+                                <div class="card green" style="min-height: 0; padding: 18px 22px;">
+                                    <h3 data-editable="true" style="font-size: 24px">📁 Drive：雲端檔案</h3>
+                                    <ul class="bullets" style="margin-top: 8px">
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">搜尋雲端檔案與資料夾</li>
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">下載、上傳與管理檔案</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <div class="reveal" style="display: flex; flex-direction: column; gap: 16px;">
+                                <div class="card" style="min-height: 0; padding: 18px 22px;">
+                                    <h3 data-editable="true" style="font-size: 24px">📄 Docs：文件編輯</h3>
+                                    <ul class="bullets" style="margin-top: 8px">
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">讀取文件全文、建立新文件</li>
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">新增與編輯段落內容</li>
+                                    </ul>
+                                </div>
+                                <div class="card amber" style="min-height: 0; padding: 18px 22px;">
+                                    <h3 data-editable="true" style="font-size: 24px">📊 Sheets：試算表</h3>
+                                    <ul class="bullets" style="margin-top: 8px">
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">讀取儲存格資料並協助分析</li>
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">寫入或更新欄位</li>
+                                    </ul>
+                                </div>
+                                <div class="card red" style="min-height: 0; padding: 18px 22px;">
+                                    <h3 data-editable="true" style="font-size: 24px">🖼️ Slides：簡報</h3>
+                                    <ul class="bullets" style="margin-top: 8px">
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">讀取投影片結構與文字</li>
+                                        <li data-editable="true" style="font-size: 21px; margin: 6px 0">協助整理簡報內容大綱</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <a
+                            class="reveal"
+                            href="https://workspacemcp.com/quick-start"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="position: absolute; bottom: 92px; display: inline-block; color: var(--green); font-size: 22px; font-weight: 900; text-decoration: none"
+                            >🔗 參考：workspacemcp.com/quick-start →</a
+                        >
+                    </div>
+                    <div class="footer">
+                        <div>Google Workspace MCP features</div>
+                        <div>18 / 24</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true" style="margin-bottom: 18px">
+                            Google Workspace 整合架構：MCP vs CLI
+                        </div>
+                        <h2 class="reveal" data-editable="true" style="font-size: 54px; margin: 0">
+                            workspace-cli 是 workspace-mcp 的另一個用戶端
+                        </h2>
+                        <div class="reveal" style="margin-top: 14px">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1656 750" width="1656" height="750" role="img" aria-labelledby="ws-title ws-desc" style="display: block">
+                                <title id="ws-title">workspace-mcp 與 workspace-cli 的關係架構圖</title>
+                                <desc id="ws-desc">workspace-mcp 是 MCP Server，透過 OAuth 與 REST API 連到 Google Workspace，並對外提供工具；AI／MCP 用戶端與 workspace-cli 都透過它存取 Google Workspace。</desc>
+                                <defs>
+                                    <marker id="ws-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+                                        <path d="M0,0 L10,5 L0,10 Z" fill="#102a43" />
+                                    </marker>
+                                </defs>
+
+                                <!-- connectors -->
+                                <g fill="none" stroke="#102a43" stroke-width="3">
+                                    <path d="M828 266 V184" marker-end="url(#ws-arrow)" />
+                                    <path d="M828 460 V500" />
+                                    <path d="M415 500 H1241" />
+                                    <path d="M415 500 V536" marker-end="url(#ws-arrow)" />
+                                    <path d="M1241 500 V536" marker-end="url(#ws-arrow)" />
+                                </g>
+
+                                <!-- connector label -->
+                                <text x="860" y="232" font-family="DM Mono, monospace" font-size="24" font-weight="500" fill="#c2491d">OAuth / REST API</text>
+
+                                <!-- Google Workspace -->
+                                <rect x="478" y="0" width="700" height="180" fill="#ed6a3a" stroke="#102a43" stroke-width="2" />
+                                <text x="828" y="40" text-anchor="middle" font-family="DM Mono, monospace" font-size="28" font-weight="700" fill="#102a43">Google Workspace</text>
+                                <g text-anchor="middle" font-family="Noto Sans TC, sans-serif" font-size="24" fill="#102a43">
+                                    <text x="828" y="84">Gmail / Calendar / Drive</text>
+                                    <text x="828" y="118">Docs / Sheets / Slides</text>
+                                    <text x="828" y="152">Tasks / Chat / Forms ...</text>
+                                </g>
+
+                                <!-- workspace-mcp -->
+                                <rect x="378" y="270" width="900" height="190" fill="#147d82" stroke="#102a43" stroke-width="2" />
+                                <text x="828" y="314" text-anchor="middle" font-family="DM Mono, monospace" font-size="32" font-weight="700" fill="#fffaf0">workspace-mcp</text>
+                                <text x="828" y="350" text-anchor="middle" font-family="Noto Sans TC, sans-serif" font-size="24" fill="#fffaf0">MCP Server</text>
+                                <g font-family="Noto Sans TC, sans-serif" font-size="24" fill="#fffaf0">
+                                    <text x="440" y="398">• exposes tools</text>
+                                    <text x="440" y="436">• handles auth</text>
+                                    <text x="840" y="398">• routes tool calls</text>
+                                    <text x="840" y="436">• works with MCP clients</text>
+                                </g>
+
+                                <!-- AI / MCP clients -->
+                                <rect x="130" y="540" width="570" height="210" fill="#0d2135" stroke="#102a43" stroke-width="2" />
+                                <text x="415" y="637" text-anchor="middle" font-family="DM Mono, monospace" font-size="32" font-weight="700" fill="#f6c84c">AI / MCP clients</text>
+                                <text x="415" y="679" text-anchor="middle" font-family="Noto Sans TC, sans-serif" font-size="24" fill="#fffaf0">(Claude, Cursor, VS Code...)</text>
+
+                                <!-- workspace-cli -->
+                                <rect x="956" y="540" width="570" height="210" fill="#f6c84c" stroke="#102a43" stroke-width="2" />
+                                <text x="1241" y="584" text-anchor="middle" font-family="DM Mono, monospace" font-size="32" font-weight="700" fill="#102a43">workspace-cli</text>
+                                <text x="1241" y="620" text-anchor="middle" font-family="Noto Sans TC, sans-serif" font-size="24" fill="#102a43">CLI client</text>
+                                <g font-family="Noto Sans TC, sans-serif" font-size="24" fill="#102a43">
+                                    <text x="1040" y="662">• list tools</text>
+                                    <text x="1040" y="694">• call tools</text>
+                                    <text x="1040" y="726">• script automation</text>
+                                </g>
+                            </svg>
+                        </div>
+                        <div
+                            class="reveal"
+                            style="position: absolute; right: 132px; top: 262px; width: 450px; font-size: 22px; line-height: 1.5; font-weight: 700; color: var(--ink)"
+                        >
+                            <div data-editable="true">❓ 若有任何疑問，前往</div>
+                            <a
+                                href="https://github.com/taylorwilsdon/google_workspace_mcp"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style="display: block; color: var(--green); font-weight: 900; text-decoration: none; white-space: nowrap"
+                                >github.com/taylorwilsdon/<br />google_workspace_mcp →</a
+                            >
+                            <div data-editable="true">使用 <strong>Chat with Copilot</strong></div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Workspace MCP vs CLI architecture</div>
+                        <div>19 / 24</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">課堂活動</div>
+                        <h2 class="reveal" data-editable="true" style="font-size: 58px; margin-bottom: 0">
+                            設定 Google Workspace MCP：四個步驟
+                        </h2>
+                        <div class="reveal" style="display: flex; flex-direction: column; gap: 14px; margin-top: 24px">
+                            <div class="card" style="min-height: 0; padding: 14px 22px; display: flex; align-items: center; gap: 22px">
+                                <div style="font: 700 44px/1 var(--font-mono); color: var(--red); width: 56px; flex: none">1</div>
+                                <div>
+                                    <h3 data-editable="true" style="font-size: 26px; margin: 0">取得專案檔案</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.4; margin: 4px 0 0">
+                                        第一次執行，按照
+                                        <a href="https://hw.is-a.dev/ibm-bobathon/workshops/w05/index.html" target="_blank" rel="noopener noreferrer" style="color: var(--green); font-weight: 900; text-decoration: none">網頁內容</a>
+                                        操作；若已執行過，要求 Agent 使用 <code>git</code> 跟遠端同步。
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="card amber" style="min-height: 0; padding: 14px 22px; display: flex; align-items: center; gap: 22px">
+                                <div style="font: 700 44px/1 var(--font-mono); color: var(--red); width: 56px; flex: none">2</div>
+                                <div>
+                                    <h3 data-editable="true" style="font-size: 26px; margin: 0">參考<a href="https://ithelp.ithome.com.tw/m/articles/10387011" target="_blank" rel="noopener noreferrer" style="color: var(--green); font-weight: 900; text-decoration: none">這篇教學</a>取得 Google OAuth Client ID / Client Secret</h3>
+                                </div>
+                            </div>
+                            <div class="card green" style="min-height: 0; padding: 14px 22px; display: flex; align-items: center; gap: 22px">
+                                <div style="font: 700 44px/1 var(--font-mono); color: var(--red); width: 56px; flex: none">3</div>
+                                <div>
+                                    <h3 data-editable="true" style="font-size: 26px; margin: 0">使用 Agent Mode 執行 <code>workspace-mcp-setup-guide.md</code></h3>
+                                </div>
+                            </div>
+                            <div class="card red" style="min-height: 0; padding: 14px 22px; display: flex; align-items: center; gap: 22px">
+                                <div style="font: 700 44px/1 var(--font-mono); color: var(--red); width: 56px; flex: none">4</div>
+                                <div>
+                                    <h3 data-editable="true" style="font-size: 26px; margin: 0">開始使用自然語言操作 Google Workspace</h3>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Class activity · Google Workspace MCP setup</div>
+                        <div>20 / 25</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            兩個案例比較
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            一個管文獻，一個管工作流
+                        </h2>
+                        <div class="compare">
+                            <div class="panel reveal">
+                                <h3 data-editable="true">📚 Zotero MCP</h3>
+                                <ul class="bullets">
+                                    <li data-editable="true">存取個人 Zotero 文獻庫</li>
+                                    <li data-editable="true">
+                                        輸出：文獻摘要頁、引用格式
+                                    </li>
+                                    <li data-editable="true">
+                                        適合：學術研究、論文寫作、文獻回顧
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="panel dark reveal">
+                                <h3 data-editable="true">🌐 Google Workspace MCP</h3>
+                                <ul class="bullets">
+                                    <li data-editable="true">打通 Gmail、Drive、Docs、Sheets、Calendar、Slides</li>
+                                    <li data-editable="true">
+                                        輸出：整理後的郵件、文件、試算表資料
+                                    </li>
+                                    <li data-editable="true">
+                                        適合：日常辦公、跨服務資料整合
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Zotero vs Google Workspace</div>
+                        <div>21 / 25</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            本週產出
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            離開教室前，至少要有這些成果
+                        </h2>
+                        <div class="three-col" style="margin-top: 44px">
+                            <div class="card reveal">
+                                <h3 data-editable="true">📚 Zotero MCP 實作</h3>
+                                <p data-editable="true">
+                                    透過 AI Agent 成功操作 Zotero：新增文獻與附件、讓 Agent 自動產生文獻閱讀筆記。
+                                </p>
+                            </div>
+                            <div class="card amber reveal">
+                                <h3 data-editable="true">📬 Google Workspace MCP 實作</h3>
+                                <p data-editable="true">
+                                    透過 AI Agent 成功操作 Google 服務，包含收發 Gmail 郵件、查詢與建立 Google Calendar 行程。
+                                </p>
+                            </div>
+                            <div class="card red reveal">
+                                <h3 data-editable="true">🔗 工作流整合發想</h3>
+                                <p data-editable="true">
+                                    思考如何把 Zotero MCP 與 Google Workspace MCP 融入自己的日常工作流程，寫下初步構想。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Deliverables</div>
+                        <div>22 / 25</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            人工檢查點
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            接得越多外部服務，越需要留住判斷力
+                        </h2>
+                        <div class="three-col">
+                            <div class="card reveal">
+                                <h3 data-editable="true">🔒 權限邊界</h3>
+                                <p data-editable="true">
+                                    只讓 Agent 讀寫你明確指定的資料夾與 feed，不是整個系統。
+                                </p>
+                            </div>
+                            <div class="card amber reveal">
+                                <h3 data-editable="true">🏷️ 來源標記</h3>
+                                <p data-editable="true">
+                                    每一頁來源都要記下網址與日期，方便日後追溯。
+                                </p>
+                            </div>
+                            <div class="card red reveal">
+                                <h3 data-editable="true">🧍 人工判斷</h3>
+                                <p data-editable="true">
+                                    引用是否可信、要不要公開、怎麼詮釋，最終由你決定。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Human checkpoints</div>
+                        <div>23 / 25</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            課後活動
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            把 Skills、CLI、MCP 這三個詞放在一起想一次
+                        </h2>
+                        <div class="three-col" style="margin-top: 44px">
+                            <div class="card reveal">
+                                <h3 data-editable="true">觀看影片</h3>
+                                <p data-editable="true">
+                                    Skills vs CLI vs MCP (Everything you need to know in less 6min)
+                                </p>
+                                <p
+                                    style="
+                                        font-size: 22px;
+                                        line-height: 1.5;
+                                        margin-top: 18px;
+                                        color: var(--muted);
+                                    "
+                                >
+                                    <a
+                                        href="https://www.youtube.com/watch?v=MZvVuZPdtQs"
+                                        target="_blank"
+                                        rel="noopener"
+                                        data-editable="true"
+                                        style="color: inherit"
+                                        >https://www.youtube.com/watch?v=MZvVuZPdtQs</a
+                                    >
+                                </p>
+                            </div>
+                            <div class="card amber reveal">
+                                <h3 data-editable="true">產出格式</h3>
+                                <p data-editable="true">
+                                    用 Markdown 寫下三者的差異，並存入自己的筆記資料夾。
+                                </p>
+                            </div>
+                            <div class="card red reveal">
+                                <h3 data-editable="true">進階挑戰</h3>
+                                <p data-editable="true">
+                                    想像再接一個新的 MCP server，你會怎麼設計它的讀寫範圍與人工檢查點？
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>After class</div>
+                        <div>24 / 25</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display: flex; flex-direction: column; gap: 28px;">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                結語與下週預告
+                            </div>
+                            <h2 class="reveal" data-editable="true" style="font-size: 56px; margin-bottom: 0;">
+                                MCP 讓工具能力不再被各自不同的介面所束縛
+                            </h2>
+                        </div>
+
+                        <!-- 左右雙欄：Quote 與圖片 -->
+                        <div class="two-col reveal" style="margin-top: 0; gap: 36px; align-items: stretch;">
+                            <!-- Left: Quotes -->
+                            <div style="display: flex; flex-direction: column; gap: 20px; justify-content: space-between;">
+                                <div class="card" style="padding: 34px 36px; border-left: 10px solid var(--cyan); background: rgba(255, 248, 232, 0.9); flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                    <p style="font-family: var(--font-serif); font-size: 28px; font-weight: 700; line-height: 1.55; color: var(--green-2); margin: 0;" data-editable="true">
+                                        「魔法は自由であるべきだ。」
+                                    </p>
+                                    <p style="font-family: var(--font-serif); font-size: 24px; font-weight: 400; line-height: 1.55; color: var(--muted); margin: 10px 0 0 0;" data-editable="true">
+                                        「魔法應該是自由的。」
+                                    </p>
+                                </div>
+
+                                <div class="card" style="padding: 34px 36px; border-left: 10px solid var(--amber); background: rgba(255, 248, 232, 0.9); flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                    <p style="font-family: var(--font-serif); font-size: 24px; font-weight: 900; line-height: 1.5; color: var(--red); margin: 18px 0 0;" data-editable="true">
+                                        魔法不該被術式綁住，能力也不該被介面綁住。
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Right: Image -->
+                            <div class="card" style="padding: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(255, 248, 232, 0.9);">
+                                <img
+                                    src="https://image.p-c2-x.abema-tv.com/image/series/19-171/thumb.png?height=720&quality=75&version=1774674561&width=1280"
+                                    alt="《葬送的芙莉蓮》魔法想像"
+                                    style="
+                                        width: 100%;
+                                        height: 400px;
+                                        object-fit: cover;
+                                        border-radius: 20px;
+                                    "
+                                />
+                                <p style="font-family: var(--font-mono); font-size: 16px; line-height: 1.4; margin-top: 8px; margin-bottom: 0; color: var(--muted);">
+                                    來源出處：《葬送的芙莉蓮》（葬送のフリーレン）
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 下週預告橫幅 -->
+                        <div class="reveal" style="background: rgba(0, 183, 199, 0.12); border-radius: 24px; padding: 28px 40px; border: 2px solid rgba(0, 183, 199, 0.38); display: flex; align-items: center; gap: 28px; box-shadow: 0 14px 36px rgba(23, 33, 31, 0.08);">
+                            <span style="font-family: var(--font-mono); font-size: 26px; color: var(--paper); background: var(--green); padding: 8px 22px; border-radius: 99px; font-weight: 900; white-space: nowrap; letter-spacing: 0.04em;">🔮 下週預告</span>
+                            <p style="font-size: 30px; font-weight: 700; line-height: 1.4; color: var(--ink); margin: 0;" data-editable="true">
+                                W5 進入 <mark style="background: linear-gradient(transparent 50%, rgba(0, 183, 199, 0.45) 50%);">deployment</mark>：把你的 AI 工作流程成果，送上公開舞台。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Next week &amp; Closing</div>
+                        <div>25 / 25</div>
+                    </div>
+                </article>
+            </section>
+        </main>
+
+        <nav class="nav-ui" aria-label="簡報導覽">
+            <button id="prev" type="button">←</button>
+            <div id="counter">1 / 25</div>
+            <button id="next" type="button">→</button>
+        </nav>
+
+        <script>
+            /* === STAGE SCALING === */
+            var stage = document.getElementById("stage");
+            function scaleStage() {
+                var viewport = window.visualViewport || window;
+                var scale = Math.min(
+                    viewport.width / 1920,
+                    viewport.height / 1080,
+                );
+                stage.style.transform =
+                    "translate(-50%, -50%) scale(" + scale + ")";
+            }
+            window.addEventListener("resize", scaleStage);
+            scaleStage();
+
+            /* === SLIDE NAVIGATION === */
+            var slides = Array.prototype.slice.call(
+                document.querySelectorAll(".slide"),
+            );
+            var counter = document.getElementById("counter");
+            var current = 0;
+            function showSlide(index) {
+                current = Math.max(0, Math.min(slides.length - 1, index));
+                slides.forEach(function (slide, i) {
+                    if (i === current) slide.classList.add("active");
+                    else slide.classList.remove("active");
+                });
+                counter.textContent = current + 1 + " / " + slides.length;
+                if (history.replaceState)
+                    history.replaceState(
+                        null,
+                        "",
+                        "#" + String(current + 1).padStart(2, "0"),
+                    );
+            }
+            function nextSlide() {
+                showSlide(current + 1);
+            }
+            function prevSlide() {
+                showSlide(current - 1);
+            }
+            document
+                .getElementById("next")
+                .addEventListener("click", nextSlide);
+            document
+                .getElementById("prev")
+                .addEventListener("click", prevSlide);
+            document.addEventListener("keydown", function (event) {
+                var key = event.key;
+                var editing = document.body.classList.contains("editing");
+                if (
+                    editing &&
+                    key.length === 1 &&
+                    !event.ctrlKey &&
+                    !event.metaKey
+                )
+                    return;
+                if (key === "ArrowRight" || key === "PageDown" || key === " ")
+                    nextSlide();
+                if (key === "ArrowLeft" || key === "PageUp") prevSlide();
+                if (key === "Home") showSlide(0);
+                if (key === "End") showSlide(slides.length - 1);
+                if (key.toLowerCase && key.toLowerCase() === "e")
+                    toggleEditing();
+                if (
+                    (event.ctrlKey || event.metaKey) &&
+                    key.toLowerCase &&
+                    key.toLowerCase() === "s"
+                ) {
+                    event.preventDefault();
+                    saveEdits();
+                }
+            });
+
+            /* === TOUCH NAVIGATION === */
+            var touchStartX = 0;
+            stage.addEventListener(
+                "touchstart",
+                function (event) {
+                    touchStartX = event.changedTouches[0].clientX;
+                },
+                { passive: true },
+            );
+            stage.addEventListener(
+                "touchend",
+                function (event) {
+                    var delta = event.changedTouches[0].clientX - touchStartX;
+                    if (Math.abs(delta) > 48) {
+                        if (delta < 0) nextSlide();
+                        else prevSlide();
+                    }
+                },
+                { passive: true },
+            );
+
+            /* === INLINE EDITING === */
+            var editableNodes = Array.prototype.slice.call(
+                document.querySelectorAll('[data-editable="true"]'),
+            );
+            function toggleEditing() {
+                var enabled = !document.body.classList.contains("editing");
+                if (enabled) document.body.classList.add("editing");
+                else document.body.classList.remove("editing");
+                editableNodes.forEach(function (node) {
+                    node.contentEditable = enabled ? "true" : "false";
+                });
+            }
+            function storageKey(index) {
+                return "w4-frontend-slides-edit-v20-" + index;
+            }
+            editableNodes.forEach(function (node, index) {
+                var saved = localStorage.getItem(storageKey(index));
+                if (saved !== null) node.innerHTML = saved;
+                node.addEventListener("input", function () {
+                    localStorage.setItem(storageKey(index), node.innerHTML);
+                });
+            });
+            function saveEdits() {
+                editableNodes.forEach(function (node, index) {
+                    localStorage.setItem(storageKey(index), node.innerHTML);
+                });
+                counter.textContent = "edits saved";
+                setTimeout(function () {
+                    counter.textContent = current + 1 + " / " + slides.length;
+                }, 900);
+            }
+
+            /* === DEEP LINK SUPPORT === */
+            var hashIndex = Number(location.hash.replace("#", ""));
+            if (hashIndex >= 1 && hashIndex <= slides.length)
+                showSlide(hashIndex - 1);
+        </script>
+    </body>
+</html>
