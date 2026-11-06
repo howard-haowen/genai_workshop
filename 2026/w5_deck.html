@@ -1,0 +1,1862 @@
+<!doctype html>
+<html lang="zh-Hant">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>W5｜把成果發布到全世界</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;700;900&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            /* === DESIGN TOKENS === */
+            :root {
+                --stage-w: 1920;
+                --stage-h: 1080;
+                --paper: #f6ecd4;
+                --paper-2: #ead8b7;
+                --ink: #17211f;
+                --muted: #5d665d;
+                --green: #1e4b3f;
+                --green-2: #0d302a;
+                --cyan: #00b7c7;
+                --amber: #f0a12b;
+                --red: #b54b3d;
+                --line: rgba(23, 33, 31, 0.18);
+                --shadow: 0 28px 70px rgba(7, 18, 16, 0.28);
+                --font-serif: "Noto Serif TC", serif;
+                --font-mono: "IBM Plex Mono", monospace;
+            }
+
+            /* === RESET === */
+            * {
+                box-sizing: border-box;
+            }
+            html,
+            body {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                overflow: hidden;
+                background: #0b1715;
+            }
+            body {
+                font-family: var(--font-serif);
+                color: var(--ink);
+            }
+            button {
+                font: inherit;
+            }
+
+            /* === FIXED 16:9 VIEWPORT BASE === */
+            .deck-viewport {
+                position: fixed;
+                inset: 0;
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+                background:
+                    radial-gradient(
+                        circle at 15% 15%,
+                        rgba(0, 183, 199, 0.18),
+                        transparent 28%
+                    ),
+                    radial-gradient(
+                        circle at 84% 76%,
+                        rgba(240, 161, 43, 0.16),
+                        transparent 30%
+                    ),
+                    linear-gradient(135deg, #081311, #152420 56%, #091411);
+            }
+            .deck-stage {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: calc(var(--stage-w) * 1px);
+                height: calc(var(--stage-h) * 1px);
+                transform-origin: top left;
+                overflow: hidden;
+                background: var(--paper);
+                box-shadow: 0 40px 120px rgba(0, 0, 0, 0.55);
+                isolation: isolate;
+            }
+            .slide {
+                position: absolute;
+                inset: 0;
+                width: 1920px;
+                height: 1080px;
+                padding: 86px 104px;
+                visibility: hidden;
+                opacity: 0;
+                pointer-events: none;
+                transition:
+                    opacity 520ms ease,
+                    visibility 520ms ease;
+                overflow: hidden;
+                background:
+                    linear-gradient(
+                        rgba(23, 33, 31, 0.045) 1px,
+                        transparent 1px
+                    ),
+                    linear-gradient(
+                        90deg,
+                        rgba(23, 33, 31, 0.045) 1px,
+                        transparent 1px
+                    ),
+                    radial-gradient(
+                        circle at 20% 12%,
+                        rgba(255, 255, 255, 0.58),
+                        transparent 34%
+                    ),
+                    linear-gradient(145deg, var(--paper), #efe0c0 62%, #e2ca9e);
+                background-size:
+                    48px 48px,
+                    48px 48px,
+                    auto,
+                    auto;
+            }
+            .slide.active {
+                visibility: visible;
+                opacity: 1;
+                pointer-events: auto;
+                z-index: 2;
+            }
+
+            /* === ATMOSPHERIC CHROME === */
+            .slide::before {
+                content: "";
+                position: absolute;
+                inset: 28px;
+                border: 1px solid rgba(23, 33, 31, 0.22);
+                border-radius: 28px;
+                pointer-events: none;
+                z-index: 0;
+            }
+            .slide::after {
+                content: "";
+                position: absolute;
+                right: -180px;
+                top: -210px;
+                width: 620px;
+                height: 620px;
+                border-radius: 50%;
+                background: repeating-conic-gradient(
+                    from 12deg,
+                    rgba(0, 183, 199, 0.28) 0 10deg,
+                    transparent 10deg 22deg
+                );
+                opacity: 0.7;
+                z-index: 0;
+            }
+            .grain {
+                position: absolute;
+                inset: 0;
+                background-image: radial-gradient(
+                    rgba(23, 33, 31, 0.12) 0.7px,
+                    transparent 0.7px
+                );
+                background-size: 33px 33px;
+                opacity: 0.25;
+                pointer-events: none;
+                z-index: 1;
+            }
+            .content {
+                position: relative;
+                z-index: 3;
+                height: 100%;
+            }
+
+            /* === TYPOGRAPHY === */
+            .kicker {
+                font-family: var(--font-mono);
+                font-size: 24px;
+                letter-spacing: 0.16em;
+                text-transform: uppercase;
+                color: var(--green);
+                margin-bottom: 24px;
+            }
+            h1,
+            h2,
+            h3,
+            p {
+                margin: 0;
+            }
+            h1 {
+                font-size: 112px;
+                line-height: 1.08;
+                font-weight: 900;
+                letter-spacing: -0.04em;
+                max-width: 1250px;
+            }
+            h2 {
+                font-size: 78px;
+                line-height: 1.12;
+                font-weight: 900;
+                letter-spacing: -0.035em;
+                max-width: 1300px;
+            }
+            h3 {
+                font-size: 42px;
+                line-height: 1.22;
+                font-weight: 900;
+            }
+            .lead {
+                font-size: 42px;
+                line-height: 1.55;
+                color: var(--green-2);
+                max-width: 1220px;
+                margin-top: 34px;
+            }
+            code {
+                font-family: var(--font-mono);
+                background: rgba(30, 75, 63, 0.12);
+                color: #0a3935;
+                border: 1px solid rgba(30, 75, 63, 0.2);
+                padding: 0.08em 0.28em;
+                border-radius: 9px;
+            }
+
+            /* === LAYOUT COMPONENTS === */
+            .title-grid {
+                display: grid;
+                grid-template-columns: 1.03fr 0.74fr;
+                gap: 80px;
+                align-items: center;
+                height: 100%;
+            }
+            .seal {
+                width: 510px;
+                height: 510px;
+                border-radius: 50%;
+                display: grid;
+                place-items: center;
+                background:
+                    radial-gradient(
+                        circle,
+                        rgba(246, 236, 212, 0.88) 0 37%,
+                        transparent 38%
+                    ),
+                    conic-gradient(
+                        from -20deg,
+                        var(--cyan),
+                        transparent 18%,
+                        var(--amber) 35%,
+                        transparent 52%,
+                        var(--red) 68%,
+                        transparent 82%,
+                        var(--cyan)
+                    );
+                box-shadow:
+                    inset 0 0 0 18px rgba(23, 33, 31, 0.09),
+                    var(--shadow);
+                position: relative;
+            }
+            .seal strong {
+                font-size: 132px;
+                font-weight: 900;
+                color: var(--green-2);
+                letter-spacing: -0.08em;
+            }
+            .seal small {
+                position: absolute;
+                bottom: 108px;
+                font-family: var(--font-mono);
+                font-size: 20px;
+                letter-spacing: 0.22em;
+            }
+            .big-question {
+                display: grid;
+                place-items: center;
+                height: 100%;
+                text-align: center;
+            }
+            .quote {
+                font-size: 86px;
+                line-height: 1.26;
+                font-weight: 900;
+                max-width: 1380px;
+                letter-spacing: -0.04em;
+            }
+            .quote mark {
+                background: linear-gradient(
+                    transparent 56%,
+                    rgba(0, 183, 199, 0.38) 56%
+                );
+                color: inherit;
+            }
+            .two-col {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 40px;
+                margin-top: 44px;
+            }
+            .three-col {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 28px;
+                margin-top: 40px;
+            }
+            .card {
+                background: rgba(255, 248, 232, 0.72);
+                border: 1px solid var(--line);
+                border-radius: 30px;
+                padding: 30px 34px;
+                box-shadow: 0 18px 45px rgba(23, 33, 31, 0.1);
+                min-height: 160px;
+                position: relative;
+                overflow: hidden;
+            }
+            .card::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 10px;
+                background: var(--cyan);
+            }
+            .card.amber::before {
+                background: var(--amber);
+            }
+            .card.red::before {
+                background: var(--red);
+            }
+            .card.green::before {
+                background: var(--green);
+            }
+            .card p {
+                font-size: 28px;
+                line-height: 1.42;
+                margin-top: 14px;
+                color: var(--green-2);
+            }
+            .compare {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 38px;
+                margin-top: 44px;
+            }
+            .panel {
+                min-height: 460px;
+                padding: 38px;
+                border-radius: 34px;
+                border: 1px solid var(--line);
+                background: rgba(255, 248, 232, 0.64);
+                box-shadow: var(--shadow);
+            }
+            .panel.dark {
+                background: linear-gradient(145deg, var(--green-2), #163e35);
+                color: var(--paper);
+            }
+            .bullets {
+                margin: 22px 0 0;
+                padding-left: 0;
+                list-style: none;
+            }
+            .bullets li {
+                font-size: 32px;
+                line-height: 1.42;
+                margin: 16px 0;
+                padding-left: 48px;
+                position: relative;
+            }
+            .bullets li::before {
+                content: "◆";
+                position: absolute;
+                left: 0;
+                color: var(--cyan);
+                font-size: 0.72em;
+            }
+            .bullets li.cross::before {
+                content: "❌";
+            }
+            .bullets li.check::before {
+                content: "✅";
+            }
+            .term-grid {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 22px;
+                margin-top: 42px;
+            }
+            .term {
+                min-height: 430px;
+                border-radius: 28px;
+                padding: 26px 22px;
+                background: rgba(255, 248, 232, 0.72);
+                border: 1px solid var(--line);
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                gap: 22px;
+            }
+            .term .num {
+                font-family: var(--font-mono);
+                font-size: 22px;
+                color: var(--red);
+            }
+            .term h3 {
+                font-size: 34px;
+                min-height: 82px;
+            }
+            .term p {
+                font-size: 25px;
+                line-height: 1.42;
+                color: var(--green-2);
+            }
+            .flow {
+                display: flex;
+                align-items: stretch;
+                gap: 18px;
+                margin-top: 44px;
+            }
+            .flow-step {
+                flex: 1;
+                min-height: 200px;
+                border-radius: 28px;
+                padding: 28px 26px;
+                background: rgba(255, 248, 232, 0.75);
+                border: 1px solid var(--line);
+                position: relative;
+            }
+            .flow-step h3 {
+                font-size: 32px;
+            }
+            .flow-step p {
+                font-size: 25px;
+                line-height: 1.42;
+                margin-top: 14px;
+            }
+            .path-box,
+            .prompt-box {
+                margin-top: 34px;
+                background: #0d211d;
+                color: #dff6e4;
+                border-radius: 30px;
+                padding: 32px 40px;
+                font-family: var(--font-mono);
+                font-size: 27px;
+                line-height: 1.46;
+                box-shadow: var(--shadow);
+            }
+            .path-box pre,
+            .prompt-box pre {
+                margin: 0;
+                padding: 0;
+                font: inherit;
+                white-space: pre;
+            }
+            .prompt-box {
+                font-size: 24px;
+                max-height: 480px;
+                overflow: hidden;
+            }
+            .agenda {
+                display: grid;
+                grid-template-columns: 290px 1fr;
+                gap: 10px 24px;
+                margin-top: 28px;
+            }
+            .time {
+                font-family: var(--font-mono);
+                color: var(--red);
+                font-size: 24px;
+                padding-top: 5px;
+            }
+            .agenda-card {
+                border-bottom: 1px solid var(--line);
+                padding-bottom: 10px;
+            }
+            .agenda-card h3 {
+                font-size: 30px;
+            }
+            .agenda-card p {
+                margin-top: 6px;
+                font-size: 23px;
+                line-height: 1.35;
+                color: var(--green-2);
+            }
+            .footer {
+                position: absolute;
+                left: 104px;
+                right: 104px;
+                bottom: 54px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                font-family: var(--font-mono);
+                color: rgba(23, 33, 31, 0.52);
+                font-size: 20px;
+                z-index: 4;
+            }
+
+            /* === NAVIGATION UI === */
+            .nav-ui {
+                position: fixed;
+                right: 18px;
+                bottom: 18px;
+                z-index: 50;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                color: #f6ecd4;
+                font-family: var(--font-mono);
+                font-size: 13px;
+                background: rgba(5, 11, 10, 0.64);
+                border: 1px solid rgba(246, 236, 212, 0.16);
+                border-radius: 999px;
+                padding: 9px 13px;
+                backdrop-filter: blur(10px);
+            }
+            .nav-ui button {
+                border: 0;
+                color: #f6ecd4;
+                background: rgba(246, 236, 212, 0.12);
+                border-radius: 999px;
+                padding: 5px 10px;
+                cursor: pointer;
+            }
+            .edit-pill {
+                position: fixed;
+                left: 18px;
+                top: 18px;
+                z-index: 60;
+                font-family: var(--font-mono);
+                font-size: 13px;
+                color: #f6ecd4;
+                background: rgba(5, 11, 10, 0.64);
+                border: 1px solid rgba(246, 236, 212, 0.16);
+                border-radius: 999px;
+                padding: 9px 13px;
+                opacity: 0.2;
+                transition: opacity 0.2s ease;
+            }
+            .edit-pill:hover,
+            body.editing .edit-pill {
+                opacity: 1;
+            }
+            body.editing [data-editable="true"] {
+                outline: 3px dashed rgba(0, 183, 199, 0.75);
+                outline-offset: 5px;
+                cursor: text;
+            }
+
+            /* === ANIMATIONS === */
+            .active .reveal {
+                animation: riseIn 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+            }
+            .active .reveal:nth-child(2) {
+                animation-delay: 90ms;
+            }
+            .active .reveal:nth-child(3) {
+                animation-delay: 180ms;
+            }
+            .active .reveal:nth-child(4) {
+                animation-delay: 270ms;
+            }
+            .active .seal {
+                animation: rotateSeal 18s linear infinite;
+            }
+            @keyframes riseIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                    filter: blur(8px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                    filter: blur(0);
+                }
+            }
+            @keyframes rotateSeal {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+            @media (prefers-reduced-motion: reduce) {
+                *,
+                *::before,
+                *::after {
+                    animation: none !important;
+                    transition: none !important;
+                }
+            }
+
+            /* === OUTLINE SLIDE === */
+            .outline-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                grid-template-rows: 1fr 1fr;
+                gap: 32px;
+                margin-top: 48px;
+                height: calc(100% - 200px);
+            }
+            .outline-block {
+                border-radius: 30px;
+                padding: 42px 48px;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                position: relative;
+                overflow: hidden;
+                border: 1px solid var(--line);
+                background: rgba(255, 248, 232, 0.68);
+                box-shadow: 0 14px 36px rgba(23, 33, 31, 0.09);
+            }
+            .outline-block::before {
+                content: "";
+                position: absolute;
+                left: 0;
+                top: 0;
+                bottom: 0;
+                width: 12px;
+            }
+            .outline-block.b1::before {
+                background: var(--cyan);
+            }
+            .outline-block.b2::before {
+                background: var(--amber);
+            }
+            .outline-block.b3::before {
+                background: var(--green);
+            }
+            .outline-block.b4::before {
+                background: var(--red);
+            }
+            .outline-block .part-label {
+                font-family: var(--font-mono);
+                font-size: 19px;
+                letter-spacing: 0.14em;
+                text-transform: uppercase;
+                margin-bottom: 14px;
+            }
+            .outline-block.b1 .part-label {
+                color: var(--cyan);
+            }
+            .outline-block.b2 .part-label {
+                color: var(--amber);
+            }
+            .outline-block.b3 .part-label {
+                color: var(--green);
+            }
+            .outline-block.b4 .part-label {
+                color: var(--red);
+            }
+            .outline-block h3 {
+                font-size: 46px;
+                line-height: 1.1;
+                letter-spacing: -0.03em;
+                margin-bottom: 0;
+            }
+            .outline-block ul {
+                margin: 18px 0 0;
+                padding: 0;
+                list-style: none;
+            }
+            .outline-block ul li {
+                font-size: 25px;
+                line-height: 1.5;
+                padding-left: 20px;
+                position: relative;
+                color: var(--green-2);
+            }
+            .outline-block ul li::before {
+                content: "—";
+                position: absolute;
+                left: 0;
+                color: var(--muted);
+                font-size: 0.9em;
+            }
+            /* === COURSE MAP (SLIDE 04) === */
+            .course-map {
+                grid-template-columns: repeat(2, 1fr) !important;
+                height: 700px !important;
+                gap: 16px !important;
+                margin-top: 16px !important;
+            }
+            .course-map .outline-block {
+                padding: 18px 24px !important;
+            }
+            .course-map .outline-block:last-child {
+                grid-column: 1 / -1;
+            }
+            .course-map .outline-block .part-label {
+                margin-bottom: 4px;
+                font-size: 18px;
+            }
+            .course-map .outline-block h3 {
+                font-size: 30px !important;
+                line-height: 1.1;
+            }
+            .course-map .outline-block p {
+                margin-top: 5px !important;
+                font-size: 19px !important;
+                line-height: 1.25 !important;
+            }
+            .course-map .outline-block > div:last-child {
+                font-size: 19px !important;
+                line-height: 1.25 !important;
+            }
+
+            .demo-grid .outline-block ul {
+                list-style: disc;
+                padding-left: 30px;
+            }
+            .demo-grid .outline-block ul li {
+                padding-left: 0;
+            }
+            .demo-grid .outline-block ul li::before {
+                content: none;
+            }
+
+            /* === SECTION DIVIDER === */
+            .section-divider .content {
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                height: 100%;
+            }
+            .section-divider .part-tag {
+                font-family: var(--font-mono);
+                font-size: 22px;
+                letter-spacing: 0.18em;
+                text-transform: uppercase;
+                margin-bottom: 28px;
+            }
+            .section-divider h2 {
+                max-width: 1100px;
+            }
+            .section-divider .div-accent {
+                position: absolute;
+                right: 80px;
+                top: 50%;
+                transform: translateY(-50%);
+                font-size: 280px;
+                font-weight: 900;
+                line-height: 1;
+                letter-spacing: -0.06em;
+                opacity: 0.06;
+                font-family: var(--font-mono);
+                color: var(--ink);
+                pointer-events: none;
+                user-select: none;
+            }
+
+            /* === W2 VISUAL SYSTEM === */
+            :root {
+                --paper: #f6f1e7;
+                --paper-2: #fffaf0;
+                --ink: #102a43;
+                --muted: #627d98;
+                --green: #147d82;
+                --green-2: #0d2135;
+                --cyan: #147d82;
+                --amber: #f6c84c;
+                --yellow: #f6c84c;
+                --red: #ed6a3a;
+                --line: #c9bda9;
+                --shadow: 18px 18px 0 #f6c84c;
+                --font-serif: "Noto Sans TC", sans-serif;
+                --font-mono: "DM Mono", monospace;
+            }
+            body { font-family: var(--font-serif); background: #102a43; }
+            .deck-viewport { position: relative; inset: auto; background: #102a43; }
+            .deck-stage { left: 50%; top: 50%; transform-origin: center center; background: var(--paper); box-shadow: 0 28px 80px rgba(0,0,0,.35); }
+            .slide {
+                padding: 0;
+                background: var(--paper);
+                color: var(--ink);
+            }
+            .slide::before {
+                inset: 0;
+                border: 0;
+                border-radius: 0;
+                opacity: .32;
+                background-image: radial-gradient(rgba(16,42,67,.15) .8px, transparent .8px);
+                background-size: 7px 7px;
+            }
+            .slide::after, .grain { display: none; }
+            .content { height: 100%; padding: 100px 132px 86px; }
+            .kicker { font: 500 23px/1 var(--font-mono); letter-spacing: .08em; color: var(--red); margin-bottom: 28px; }
+            h1 { font-size: 104px; line-height: 1.12; font-weight: 700; letter-spacing: -.055em; }
+            h2 { font-size: 70px; line-height: 1.2; font-weight: 700; letter-spacing: -.045em; }
+            h3 { font-size: 31px; line-height: 1.3; font-weight: 700; letter-spacing: -.025em; }
+            p { font-size: 29px; line-height: 1.55; }
+            .lead { max-width: 1080px; margin-top: 30px; font-size: 37px; line-height: 1.48; color: #334e68; }
+            code { border: 0; border-radius: 0; background: rgba(246,200,76,.58); color: inherit; }
+            mark { background: linear-gradient(transparent 48%, var(--yellow) 48%); }
+            .card, .panel, .term, .flow-step, .outline-block {
+                border: 2px solid var(--ink);
+                border-radius: 0;
+                background: var(--paper-2);
+                box-shadow: none;
+            }
+            .card { padding: 31px; }
+            .card::before, .outline-block::before { width: 8px; }
+            .card p, .term p, .agenda-card p { color: #486581; }
+            .panel { padding: 34px 38px; border-left: 12px solid var(--red); }
+            .panel.dark, .path-box, .prompt-box { background: #0d2135; color: #e8f1f2; border-radius: 0; box-shadow: 18px 18px 0 var(--yellow); }
+            .term, .flow-step { border-radius: 0; }
+            .bullets li::before { content: "✓"; color: var(--green); font-family: var(--font-mono); }
+            .outline-block { border-left-width: 12px; }
+            .outline-block .part-label, .term .num, .time { color: var(--red); }
+            .section-divider { background: var(--green); color: var(--paper-2); }
+            .section-divider .part-tag, .section-divider .kicker { color: var(--yellow); }
+            .section-divider .div-accent { color: var(--paper-2); }
+            .footer {
+                left: 132px;
+                right: 132px;
+                bottom: 42px;
+                border-top: 2px solid var(--ink);
+                padding-top: 15px;
+                font: 500 18px/1 var(--font-mono);
+                color: var(--muted);
+            }
+            .slide:first-child { background: var(--ink); color: var(--paper-2); }
+            .slide:first-child .kicker { color: var(--yellow); }
+            .slide:first-child .lead { color: #d9e2ec; }
+            .slide:first-child .footer { border-color: var(--paper-2); color: #d9e2ec; }
+            .slide:first-child .seal {
+                width: 420px;
+                height: 420px;
+                margin-left: auto;
+                border: 4px solid var(--yellow);
+                border-radius: 50%;
+                background: transparent;
+                box-shadow: none;
+                color: var(--yellow);
+            }
+            .slide:first-child .seal strong { font: 500 112px/1 var(--font-mono); color: var(--yellow); }
+            .slide:first-child .seal small {
+                bottom: 76px;
+                width: 100%;
+                padding: 0 34px;
+                text-align: center;
+                font-size: 16px;
+                line-height: 1.35;
+                letter-spacing: 0.12em;
+                color: var(--yellow);
+            }
+            .nav-ui { right: 22px; bottom: 20px; border-radius: 0; padding: 10px; background: rgba(16,42,67,.9); color: var(--paper-2); border: 1px solid rgba(255,255,255,.3); font: 400 15px/1 var(--font-mono); }
+            .nav-ui button { width: 34px; height: 30px; padding: 0; border: 1px solid rgba(255,255,255,.5); border-radius: 0; background: transparent; color: inherit; }
+            .nav-ui button:hover { background: var(--red); }
+            .edit-pill { left: 22px; top: auto; bottom: 20px; border-radius: 0; padding: 11px 14px; background: rgba(16,42,67,.9); color: var(--paper-2); font: 400 13px/1 var(--font-mono); }
+        </style>
+    </head>
+    <body>
+        <main class="deck-viewport" aria-label="第 5 週課程內容簡報">
+            <section class="deck-stage" id="stage">
+                <article class="slide active">
+                    <div class="grain"></div>
+                    <div class="content title-grid">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                人文 AI 創造工作坊 2026｜第 5 週
+                            </div>
+                            <h1 class="reveal" data-editable="true">
+                                把成果<span
+                                    style="
+                                        font-size: 1.05em;
+                                        font-weight: 900;
+                                        color: var(--red);
+                                    "
+                                    >發布</span
+                                >到全世界
+                            </h1>
+                            <p class="lead reveal" data-editable="true">
+                                用 <code>GitHub Pages</code> 讓你的 AI
+                                工作流程作品，站上公開舞台。
+                            </p>
+                            <div class="reveal" style="margin-top: 48px; display: flex; align-items: center; gap: 20px;">
+                                <div style="width: 3px; height: 48px; background: var(--yellow); flex-shrink: 0;"></div>
+                                <div>
+                                    <div style="font-family: var(--font-mono); font-size: 22px; font-weight: 700; color: var(--paper-2); letter-spacing: 0.04em;" data-editable="true">江豪文（Haowen Jiang）</div>
+                                    <a href="https://hw.is-a.dev" target="_blank" rel="noopener noreferrer" style="font-family: var(--font-mono); font-size: 19px; color: var(--yellow); text-decoration: none; letter-spacing: 0.06em;">hw.is-a.dev ↗</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="seal reveal">
+                            <strong>W5</strong
+                            ><small>DEPLOY / WORKFLOW / CI/CD</small>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Cover</div>
+                        <div>01 / 16</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            開場提問 ｜ Opening Questions
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            在你按下 Push 之前，先想想：
+                        </h2>
+                        <ul class="bullets" style="margin-top: 24px">
+                            <li
+                                class="reveal"
+                                data-editable="true"
+                                style="font-size: 36px; line-height: 1.34"
+                            >
+                                你是否做出過一份很棒的筆記或報告，但它從頭到尾只存在你自己的電腦裡？
+                            </li>
+                            <li
+                                class="reveal"
+                                data-editable="true"
+                                style="font-size: 36px; line-height: 1.34"
+                            >
+                                你是否覺得「做完」和「發表」之間，還隔著一段你跨不過去的距離？
+                            </li>
+                            <li
+                                class="reveal"
+                                data-editable="true"
+                                style="font-size: 36px; line-height: 1.34"
+                            >
+                                你是否想過，同一份 Markdown，你自己看得懂，全世界的人也該看得懂？
+                            </li>
+                            <li
+                                class="reveal"
+                                data-editable="true"
+                                style="font-size: 36px; line-height: 1.34"
+                            >
+                                你是否以為「把作品放上網」需要會寫程式，其實常常只差把檔案放對資料夾？
+                            </li>
+                            <li
+                                class="reveal"
+                                data-editable="true"
+                                style="font-size: 36px; line-height: 1.34"
+                            >
+                                你是否好奇，按下 <code>git push</code>
+                                的那一刻，究竟發生了什麼事，讓一個網頁自動長出來？
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="footer">
+                        <div>Opening Questions</div>
+                        <div>02 / 16</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content big-question">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                核心問題 ｜ Core Question
+                            </div>
+                            <p class="quote reveal" data-editable="true">
+                                如何從主題、資料來源、工具串接、人為介入、Workflow
+                                到部署，形成完整創作流程？
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Core Question</div>
+                        <div>03 / 16</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display:flex;flex-direction:column;">
+                        <div class="kicker reveal" data-editable="true">五週課程地圖 ｜ Course Map</div>
+                        <h2 class="reveal" data-editable="true" style="font-size: 62px">從 AI 使用者到 AI 工作流程創造者</h2>
+                        <div class="course-map" style="display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 24px; flex: 1; min-height: 0;">
+                            <div class="outline-block b1 reveal" style="padding: 18px 28px; display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 24px; min-height: 0;">
+                                <div>
+                                    <div class="part-label">W1 🧠</div>
+                                    <h3 data-editable="true" style="font-size: 30px">Agentic AI 的五個關鍵概念</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.35; margin-top: 8px; color: var(--muted);">搞懂 <code>AGENTS.md</code>，讓 AI 從「隨機應答」變成你的專屬助理。</p>
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.35; margin-top: 8px; color: var(--green-2);"><strong>學習成果：</strong>能撰寫 <code>AGENTS.md</code>，定義 AI 的角色、規則與邊界</p>
+                                </div>
+                                <div style="font-size: 19px; line-height: 1.45; color: var(--green-2);">
+                                    <p data-editable="true"><strong>脈絡設計</strong>｜<strong>指令工程</strong></p>
+                                    <p data-editable="true">🔑 Markdown、AGENTS.md、YAML、Git</p>
+                                    <p data-editable="true">⚗️ 建立個人 LLM Wiki、根據 Wiki 產出網頁</p>
+                                </div>
+                            </div>
+                            <div class="outline-block b2 reveal" style="padding: 18px 28px; display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 24px; min-height: 0;">
+                                <div>
+                                    <div class="part-label">W2 🛠️</div>
+                                    <h3 data-editable="true" style="font-size: 30px">給 Agent 一把順手的工具</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.35; margin-top: 8px; color: var(--muted);">工欲善其事，先替你的 AI 打造無障礙工作環境。</p>
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.35; margin-top: 8px; color: var(--green-2);"><strong>學習成果：</strong>能理解不同工具對 AI 的友善程度</p>
+                                </div>
+                                <div style="font-size: 19px; line-height: 1.45; color: var(--green-2);">
+                                    <p data-editable="true"><strong>工具選擇</strong>｜<strong>命令列</strong></p>
+                                    <p data-editable="true">🔑 API、CLI、GUI、ACI、JSON</p>
+                                    <p data-editable="true">⚗️ Openlibrary API、Obsidian CLI</p>
+                                </div>
+                            </div>
+                            <div class="outline-block b3 reveal" style="padding: 18px 28px; display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 24px; min-height: 0;">
+                                <div>
+                                    <div class="part-label">W3 🎓</div>
+                                    <h3 data-editable="true" style="font-size: 30px">用 SKILL.md 培養 Agent 的專長</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.35; margin-top: 8px; color: var(--muted);">一個檔案，讓 AI 記住你的工作方式，比你想得還快。</p>
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.35; margin-top: 8px; color: var(--green-2);"><strong>學習成果：</strong>能讓 Agent 學習可重複使用的客製化技能</p>
+                                </div>
+                                <div style="font-size: 19px; line-height: 1.45; color: var(--green-2);">
+                                    <p data-editable="true"><strong>可攜式工作流</strong>｜<strong>客製化技能</strong></p>
+                                    <p data-editable="true">🔑 SKILL.md、scripts、references</p>
+                                    <p data-editable="true">⚗️ find-skills、skill-create</p>
+                                </div>
+                            </div>
+                            <div class="outline-block b4 reveal" style="padding: 18px 28px; display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 24px; min-height: 0;">
+                                <div>
+                                    <div class="part-label">W4 🔌</div>
+                                    <h3 data-editable="true" style="font-size: 30px">打通 Agent 與外界的連線</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.35; margin-top: 8px; color: var(--muted);">接上 MCP，讓 AI 伸出手，直接操作各種外部服務。</p>
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.35; margin-top: 8px; color: var(--green-2);"><strong>學習成果：</strong>能透過 MCP 為 Agent 接入真實世界的服務與資料</p>
+                                </div>
+                                <div style="font-size: 19px; line-height: 1.45; color: var(--green-2);">
+                                    <p data-editable="true"><strong>外部服務整合</strong>｜<strong>工具擴充</strong></p>
+                                    <p data-editable="true">🔑 MCP、Zotero、Google Workspace</p>
+                                    <p data-editable="true">⚗️ Zotero MCP、Google Workspace MCP</p>
+                                </div>
+                            </div>
+                            <div class="outline-block b1 reveal" style="padding: 18px 28px; display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 24px; min-height: 0;">
+                                <div>
+                                    <div class="part-label">W5 🌍</div>
+                                    <h3 data-editable="true" style="font-size: 30px">把成果發布到全世界</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.35; margin-top: 8px; color: var(--muted);">用 GitHub Pages 讓你的 AI 工作流程作品，站上公開舞台。</p>
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.35; margin-top: 8px; color: var(--green-2);"><strong>學習成果：</strong>能將個人數位作品對外展示與分享</p>
+                                </div>
+                                <div style="font-size: 19px; line-height: 1.45; color: var(--green-2);">
+                                    <p data-editable="true"><strong>成果發布</strong>｜<strong>公開分享</strong></p>
+                                    <p data-editable="true">🔑 deployment、workflow、CI/CD</p>
+                                    <p data-editable="true">⚗️ GitHub Pages、GitHub Actions、Vercel</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 14px;">
+                            <a href="https://howard-haowen.github.io/genai_workshop/2026" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 12px; padding: 12px 28px; background: var(--green); color: var(--paper-2); font-family: var(--font-mono); font-size: 22px; font-weight: 700; text-decoration: none; border-radius: 0; letter-spacing: 0.06em;">
+                                🌐 課程地圖網站 ↗
+                            </a>
+                        </div>
+                    </div>
+                    <div class="footer"><div>Course Map</div><div>04 / 16</div></div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content big-question">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                本週學習成果 ｜ Learning Outcome
+                            </div>
+                            <p
+                                class="quote reveal"
+                                data-editable="true"
+                                style="
+                                    font-size: 76px;
+                                    line-height: 1.28;
+                                    max-width: 1460px;
+                                "
+                            >
+                                能將個人數位作品<mark>對外展示與分享</mark>
+                            </p>
+                            <ul
+                                class="bullets"
+                                style="
+                                    display: inline-block;
+                                    text-align: left;
+                                    margin-top: 44px;
+                                "
+                            >
+                                <li
+                                    class="reveal"
+                                    data-editable="true"
+                                    style="font-size: 42px"
+                                >
+                                    GitHub Pages / Vercel 站上公開舞台
+                                </li>
+                                <li
+                                    class="reveal"
+                                    data-editable="true"
+                                    style="font-size: 42px"
+                                >
+                                    GitHub Actions 自動化重複步驟
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Learning Outcome</div>
+                        <div>05 / 16</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            本週流程 ｜ Agenda
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            今天會依照這個順序往下走
+                        </h2>
+                        <div class="agenda">
+                            <div class="time">01</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">開場與課程定位</h3>
+                                <p data-editable="true">
+                                    封面、開場提問、核心問題、五週課程地圖、本週學習成果。
+                                </p>
+                            </div>
+                            <div class="time">02</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">概念建立</h3>
+                                <p data-editable="true">
+                                    發布形式與輸出框架、工作區 vs 部署區、GitHub Actions 運作機制。
+                                </p>
+                            </div>
+                            <div class="time">03</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">平台與 Repo 決策</h3>
+                                <p data-editable="true">
+                                    靜態 vs 動態選擇平台、Public vs Private 隱私防線。
+                                </p>
+                            </div>
+                            <div class="time">04</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">實作活動</h3>
+                                <p data-editable="true">
+                                    說明 GitHub Pages 五步驟與 Vercel 流程，再請 Agent 依你選的平台部署。
+                                </p>
+                            </div>
+                            <div class="time">05</div>
+                            <div class="agenda-card">
+                                <h3 data-editable="true">收尾與總結</h3>
+                                <p data-editable="true">
+                                    本週產出、五週 Portable Workflow 最終成果與課程總結。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Agenda</div>
+                        <div>06 / 16</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display: flex; flex-direction: column;">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                GitHub Pages 能發布什麼 ｜ Markdown 輸出框架
+                            </div>
+                            <h2 class="reveal" data-editable="true" style="font-size: 60px;">
+                                你的 Markdown，可以透過豐富框架轉化為各種公開形式
+                            </h2>
+                        </div>
+
+                        <!-- 上排：發布成果的形式 -->
+                        <div class="reveal" style="margin-top: 28px;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                                <span style="font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--paper); background: var(--green); padding: 4px 14px; border-radius: 99px; letter-spacing: 0.05em;">① 發布成果的形式</span>
+                                <span style="font-size: 18px; color: var(--muted); font-weight: 600;">—— 你希望讓讀者看到的最終樣貌</span>
+                            </div>
+                            <div
+                                class="three-col"
+                                style="grid-template-columns: repeat(4, 1fr); margin-top: 0; gap: 18px;"
+                            >
+                                <div class="card" style="padding: 16px 20px; min-height: auto;">
+                                    <h3 data-editable="true" style="font-size: 26px;">🌐 網頁</h3>
+                                    <p data-editable="true" style="font-size: 18px; line-height: 1.35; margin-top: 6px;">
+                                        研究 showcase、個人作品集、數位策展頁面。
+                                    </p>
+                                </div>
+                                <div class="card amber" style="padding: 16px 20px; min-height: auto;">
+                                    <h3 data-editable="true" style="font-size: 26px;">🎞️ 簡報</h3>
+                                    <p data-editable="true" style="font-size: 18px; line-height: 1.35; margin-top: 6px;">
+                                        投影片模式、線上互動 Demo 與演講發布。
+                                    </p>
+                                </div>
+                                <div class="card red" style="padding: 16px 20px; min-height: auto;">
+                                    <h3 data-editable="true" style="font-size: 26px;">📄 報告 & PDF</h3>
+                                    <p data-editable="true" style="font-size: 18px; line-height: 1.35; margin-top: 6px;">
+                                        正式學術研究報告、書籍排版與可下載檔案。
+                                    </p>
+                                </div>
+                                <div class="card green" style="padding: 16px 20px; min-height: auto;">
+                                    <h3 data-editable="true" style="font-size: 26px;">📚 文件網站</h3>
+                                    <p data-editable="true" style="font-size: 18px; line-height: 1.35; margin-top: 6px;">
+                                        多頁結構、全文檢索的長期知識庫與專案文件。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 下排：輸出框架 -->
+                        <div class="reveal" style="margin-top: 24px;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                                <span style="font-family: var(--font-mono); font-size: 18px; font-weight: 700; color: var(--ink); background: var(--amber); padding: 4px 14px; border-radius: 99px; letter-spacing: 0.05em;">② 輸出框架</span>
+                                <span style="font-size: 18px; color: var(--muted); font-weight: 600;">—— 負責將 Markdown 自動轉檔編譯的開源工具（Marp &gt; Quarkdown &gt; Quarto：依框架複雜程度與功能，由簡到繁排列）</span>
+                            </div>
+                            <div
+                                class="three-col"
+                                style="grid-template-columns: repeat(3, 1fr); margin-top: 0; gap: 20px;"
+                            >
+                                <div class="card" style="padding: 18px 24px; background: rgba(255, 248, 232, 0.88); border-left: 6px solid var(--cyan); min-height: auto;">
+                                    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                        <h4 data-editable="true" style="font-size: 24px; margin: 0; font-family: var(--font-mono); font-weight: 700; color: var(--green-2);">Marp</h4>
+                                        <a href="https://marp.app/" target="_blank" rel="noopener noreferrer" style="color: var(--green); font-size: 17px; font-weight: 700; text-decoration: none;">marp.app ↗</a>
+                                    </div>
+                                    <p data-editable="true" style="font-size: 18px; line-height: 1.38; margin-top: 6px; color: var(--muted);">
+                                        Markdown 轉簡報首選，支援主題、分頁與 HTML/PDF 輸出。
+                                    </p>
+                                </div>
+                                <div class="card red" style="padding: 18px 24px; background: rgba(255, 248, 232, 0.88); border-left: 6px solid var(--red); min-height: auto;">
+                                    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                        <h4 data-editable="true" style="font-size: 24px; margin: 0; font-family: var(--font-mono); font-weight: 700; color: var(--green-2);">Quarkdown</h4>
+                                        <a href="https://quarkdown.com/" target="_blank" rel="noopener noreferrer" style="color: var(--green); font-size: 17px; font-weight: 700; text-decoration: none;">quarkdown.com ↗</a>
+                                    </div>
+                                    <p data-editable="true" style="font-size: 18px; line-height: 1.38; margin-top: 6px; color: var(--muted);">
+                                        Markdown 超集排版引擎，專注於精緻書籍、簡報與高質感印刷版面。
+                                    </p>
+                                </div>
+                                <div class="card amber" style="padding: 18px 24px; background: rgba(255, 248, 232, 0.88); border-left: 6px solid var(--amber); min-height: auto;">
+                                    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                                        <h4 data-editable="true" style="font-size: 24px; margin: 0; font-family: var(--font-mono); font-weight: 700; color: var(--green-2);">Quarto</h4>
+                                        <a href="https://quarto.org/" target="_blank" rel="noopener noreferrer" style="color: var(--green); font-size: 17px; font-weight: 700; text-decoration: none;">quarto.org ↗</a>
+                                    </div>
+                                    <p data-editable="true" style="font-size: 18px; line-height: 1.38; margin-top: 6px; color: var(--muted);">
+                                        科學與學術發布系統，建立文件網站、研究報告與多格式電子書。
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Markdown to Multi-format</div>
+                        <div>07 / 16</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            工作區 vs 部署區 ｜ Workspace vs Deploy
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            兩個區域分工：過程留在工作區，成品才進部署區
+                        </h2>
+                        <div class="compare" style="margin-top: 32px">
+                            <div class="panel reveal">
+                                <h3 data-editable="true">
+                                    📂 專案工作區（完整研發過程）
+                                </h3>
+                                <ul class="bullets">
+                                    <li data-editable="true">
+                                        包含 <code>raw/</code> 原始資料、私人筆記與草稿
+                                    </li>
+                                    <li data-editable="true">
+                                        包含 <code>wiki/</code>、實驗腳本與 <code>SKILL.md</code>
+                                    </li>
+                                    <li data-editable="true">
+                                        ⚠️ <strong>機密與未整理內容絕不直接對外發布</strong>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="panel dark reveal">
+                                <h3 data-editable="true">
+                                    🌐 部署區（公開成果資料夾）
+                                </h3>
+                                <ul class="bullets">
+                                    <li data-editable="true">
+                                        只放經審核、確認可公開的展示成果
+                                    </li>
+                                    <li data-editable="true">
+                                        必須有入口首頁 <code>index.html</code> 與公開資產
+                                    </li>
+                                    <li data-editable="true">
+                                        ✅ <strong>Actions 只會將此目錄打包並部署至全世界</strong>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Workspace vs Deploy</div>
+                        <div>08 / 16</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            GitHub Actions ｜ 運作機制
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            把「重複的手工步驟」寫成一張食譜，讓 GitHub 的雲端廚房代勞
+                        </h2>
+                        <div class="three-col" style="margin-top: 36px; grid-template-columns: repeat(3, 1fr); gap: 20px">
+                            <div class="card reveal" style="min-height: 400px">
+                                <h3 data-editable="true">📜 食譜：Workflow 檔案</h3>
+                                <p data-editable="true" style="font-size: 23px; line-height: 1.5; margin-top: 12px">
+                                    一份寫在 Repo 裡的文字檔，記錄「遇到什麼情況，要依序做哪些事」。
+                                </p>
+                                <div class="path-box" style="margin-top: 16px; font-size: 20px">
+                                    <pre>.github/workflows/
+└── deploy.yaml</pre>
+                                </div>
+                            </div>
+                            <div class="card amber reveal" style="min-height: 400px">
+                                <h3 data-editable="true">🔔 門鈴：觸發條件</h3>
+                                <p data-editable="true" style="font-size: 23px; line-height: 1.5; margin-top: 12px">
+                                    食譜裡會寫明何時開工。例如你把檔案 <code>push</code> 到 <code>main</code>，就像按下門鈴，自動通知廚房開始作業。
+                                </p>
+                            </div>
+                            <div class="card green reveal" style="min-height: 400px">
+                                <h3 data-editable="true">👩‍🍳 廚房：雲端執行環境</h3>
+                                <p data-editable="true" style="font-size: 23px; line-height: 1.5; margin-top: 12px">
+                                    GitHub 臨時借你一台雲端電腦，照食譜完成工作，做完就收掉，不占用你自己的電腦。
+                                </p>
+                            </div>
+                        </div>
+                        <p class="reveal" data-editable="true" style="font-size: 24px; margin-top: 28px; color: var(--muted)">
+                            你不用每次親自下廚：食譜寫好一次，之後每次推送都會自動照做。
+                        </p>
+                        <a
+                            class="reveal"
+                            href="https://docs.github.com/actions"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="position: absolute; bottom: 92px; display: inline-block; color: var(--green); font-size: 22px; font-weight: 900; text-decoration: none"
+                            >參考閱讀：GitHub Actions →</a
+                        >
+                    </div>
+                    <div class="footer">
+                        <div>GitHub Actions</div>
+                        <div>09 / 16</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            選擇部署平台 ｜ Platform Decision
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            你的成果是靜態還是動態網頁？先決定平台再動手
+                        </h2>
+                        <div class="reveal" style="display: flex; align-items: center; gap: 24px; margin-top: 44px">
+                            <div class="card" style="flex: 0 0 300px; text-align: center; padding: 28px 22px">
+                                <h3 data-editable="true" style="font-size: 30px">🌐 準備好的成果</h3>
+                                <p data-editable="true" style="font-size: 22px; margin-top: 10px; color: var(--muted)">
+                                    HTML、簡報、報告、作品集…
+                                </p>
+                            </div>
+                            <div style="font-size: 48px; font-weight: 900; color: var(--green)">→</div>
+                            <div class="card amber" style="flex: 0 0 380px; text-align: center; padding: 28px 22px">
+                                <h3 data-editable="true" style="font-size: 30px">❓ 需要後端嗎？</h3>
+                                <p data-editable="true" style="font-size: 22px; margin-top: 10px; color: var(--muted)">
+                                    伺服器運算、API、資料庫、登入、表單處理
+                                </p>
+                            </div>
+                            <div style="font-size: 48px; font-weight: 900; color: var(--green)">→</div>
+                            <div style="flex: 1; display: flex; flex-direction: column; gap: 22px">
+                                <div class="card green" style="padding: 22px 26px">
+                                    <p data-editable="true" style="font-size: 21px; font-weight: 900; color: var(--green)">
+                                        否 ｜ 靜態網頁
+                                    </p>
+                                    <h3 data-editable="true" style="font-size: 32px; margin-top: 6px">GitHub Pages</h3>
+                                    <p data-editable="true" style="font-size: 20px; margin-top: 6px; color: var(--muted)">
+                                        免費、與 Repo 綁定 ｜ 純靜態網頁託管 ｜ Skill：<code>publish-to-pages</code>
+                                    </p>
+                                </div>
+                                <div class="card" style="padding: 22px 26px">
+                                    <p data-editable="true" style="font-size: 21px; font-weight: 900; color: var(--green)">
+                                        是 ｜ 動態網頁
+                                    </p>
+                                    <h3 data-editable="true" style="font-size: 32px; margin-top: 6px">Vercel</h3>
+                                    <p data-editable="true" style="font-size: 20px; margin-top: 6px; color: var(--muted)">
+                                        免費額度、可串接 Git 自動部署 ｜ 支援前端框架與全端應用 ｜ Skill：<code>deploy-to-vercel</code>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="reveal" data-editable="true" style="font-size: 24px; margin-top: 36px; color: var(--muted)">
+                            人類只需要判斷「靜態或動態」，選好平台後，部署細節交給 Agent 使用對應的 Skill 完成。
+                        </p>
+                    </div>
+                    <div class="footer">
+                        <div>Choose a Platform</div>
+                        <div>10 / 16</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            資安與隱私防線 ｜ Public vs Private
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            建立遠端 Repo 時，務必搞清楚 Public 與 Private 的差別
+                        </h2>
+                        <div class="two-col" style="margin-top: 36px">
+                            <div class="card reveal" style="min-height: 460px">
+                                <h3 data-editable="true">🌍 Public Repo（公開儲存庫）</h3>
+                                <ul class="bullets" style="margin-top: 16px">
+                                    <li data-editable="true" style="font-size: 24px">
+                                        <strong>全世界任何人都能看到原始碼</strong>與 commit 紀錄
+                                    </li>
+                                    <li data-editable="true" style="font-size: 24px">
+                                        GitHub 免費帳號可直接支援 GitHub Pages
+                                    </li>
+                                    <li data-editable="true" style="font-size: 24px; color: var(--red);">
+                                        ⚠️ <strong>嚴禁包含 API Key、密碼、個人隱私資料</strong>
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="card green reveal" style="min-height: 460px">
+                                <h3 data-editable="true">🔒 Private Repo（私人儲存庫）</h3>
+                                <ul class="bullets" style="margin-top: 16px">
+                                    <li data-editable="true" style="font-size: 24px">
+                                        <strong>僅有你與被邀請的協作者能存取</strong>
+                                    </li>
+                                    <li data-editable="true" style="font-size: 24px">
+                                        適合未公開研究、個人知識庫與原始機敏筆記
+                                    </li>
+                                    <li data-editable="true" style="font-size: 24px">
+                                        💡 免費版 Private Repo 預設無法使用 Pages（付費/學生方案除外）
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Public vs Private</div>
+                        <div>11 / 16</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            部署流程總覽 ｜ GitHub Pages
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            五個步驟，把成果部署到 GitHub Pages
+                        </h2>
+                        <div class="flow" style="margin-top: 36px; gap: 14px">
+                            <div class="flow-step reveal" style="padding: 24px 20px">
+                                <h3 data-editable="true" style="font-size: 28px">1️⃣ 註冊 GitHub 帳號</h3>
+                                <p data-editable="true" style="font-size: 22px">
+                                    到 <code>github.com</code> 免費註冊，記下你的 <code>&lt;username&gt;</code>（<a href="https://learn.microsoft.com/zh-tw/visualstudio/version-control/git-create-github-account?view=visualstudio" target="_blank" rel="noopener noreferrer" style="color: var(--green); font-weight: 900;">申請教學 ↗</a>）。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal" style="padding: 24px 20px">
+                                <h3 data-editable="true" style="font-size: 28px">2️⃣ 本機認證 GitHub</h3>
+                                <p data-editable="true" style="font-size: 22px">
+                                    執行 <code>gh auth login</code>，再用 <code>gh auth status</code> 確認登入。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal" style="padding: 24px 20px">
+                                <h3 data-editable="true" style="font-size: 28px">3️⃣ 新增 Repo</h3>
+                                <p data-editable="true" style="font-size: 22px">
+                                    <code>gh repo create &lt;repo-name&gt; --public --source=. --remote=origin</code>
+                                </p>
+                            </div>
+                            <div class="flow-step reveal" style="padding: 24px 20px">
+                                <h3 data-editable="true" style="font-size: 28px">4️⃣ 決定部署內容</h3>
+                                <p data-editable="true" style="font-size: 22px">
+                                    只放要公開的成果（含 <code>index.html</code>），用 <code>.gitignore</code> 排除 <code>raw/</code> 與私人筆記；Agent 產生 <code>deploy.yaml</code> 後 <code>git push</code>。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal" style="padding: 24px 20px">
+                                <h3 data-editable="true" style="font-size: 28px">5️⃣ 取得 Pages 網址</h3>
+                                <p data-editable="true" style="font-size: 22px">
+                                    到 Settings → Pages 將 Source 設為 GitHub Actions；部署完成後網址為<br>
+                                    <code>https://&lt;username&gt;.github.io/&lt;repo&gt;/</code>
+                                </p>
+                            </div>
+                        </div>
+                        <p class="reveal" data-editable="true" style="font-size: 24px; margin-top: 28px; color: var(--muted)">
+                            人類決定「放什麼、叫什麼」，其餘指令都可以交給 Agent 透過 <code>git</code> / <code>gh</code> CLI 完成。
+                        </p>
+                        <a
+                            class="reveal"
+                            href="https://docs.github.com/en/pages"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="position: absolute; bottom: 92px; display: inline-block; color: var(--green); font-size: 22px; font-weight: 900; text-decoration: none"
+                            >參考閱讀：GitHub Pages →</a
+                        >
+                    </div>
+                    <div class="footer">
+                        <div>Deploy to GitHub Pages</div>
+                        <div>12 / 16</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            動態網頁部署 ｜ Vercel
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            部署到 Vercel：先預覽、再上線，由 Agent 自動判斷流程
+                        </h2>
+                        <div class="flow" style="margin-top: 36px; gap: 14px">
+                            <div class="flow-step reveal" style="padding: 24px 20px">
+                                <h3 data-editable="true" style="font-size: 28px">1️⃣ 診斷專案</h3>
+                                <p data-editable="true" style="font-size: 22px">
+                                    Agent 檢查專案是否已連結 Vercel、是否有 Git 遠端。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal" style="padding: 24px 20px">
+                                <h3 data-editable="true" style="font-size: 28px">2️⃣ 選擇路徑</h3>
+                                <ul class="bullets" style="margin-top: 10px">
+                                    <li class="check" data-editable="true" style="font-size: 22px; line-height: 1.4; margin: 8px 0; padding-left: 28px">
+                                        有 Git 遠端 Repo：push 後由 Vercel 自動建置
+                                    </li>
+                                    <li class="check" data-editable="true" style="font-size: 22px; line-height: 1.4; margin: 8px 0; padding-left: 28px">
+                                        沒有 Git 遠端 Repo：用 <code>vercel deploy</code> 直接上傳
+                                    </li>
+                                </ul>
+                            </div>
+                            <div class="flow-step reveal" style="padding: 24px 20px">
+                                <h3 data-editable="true" style="font-size: 28px">3️⃣ 預覽部署</h3>
+                                <p data-editable="true" style="font-size: 22px">
+                                    預設先建立 Preview，確認無誤才推到 Production。
+                                </p>
+                            </div>
+                            <div class="flow-step reveal" style="padding: 24px 20px">
+                                <h3 data-editable="true" style="font-size: 28px">4️⃣ 取得網址</h3>
+                                <p data-editable="true" style="font-size: 22px">
+                                    Agent 回報 Preview 或正式網址，不必進控制台找連結。
+                                </p>
+                            </div>
+                        </div>
+                        <p class="reveal" data-editable="true" style="font-size: 24px; margin-top: 28px; color: var(--muted)">
+                            還沒登入 Vercel？Agent 可先建立免登入的臨時部署，之後再認領到自己的帳號。
+                        </p>
+                        <p class="reveal" data-editable="true" style="font-size: 24px; margin-top: 8px; color: var(--muted)">
+                            你只要說：「幫我把這個專案部署到 Vercel，給我預覽連結」，其餘交給 <code>deploy-to-vercel</code> Skill。
+                        </p>
+                        <a
+                            class="reveal"
+                            href="https://vercel.com/docs"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style="position: absolute; bottom: 92px; display: inline-block; color: var(--green); font-size: 22px; font-weight: 900; text-decoration: none"
+                            >參考閱讀：Vercel Docs →</a
+                        >
+                    </div>
+                    <div class="footer">
+                        <div>Deploy to Vercel</div>
+                        <div>13 / 16</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">課堂活動 ｜ Class Activity</div>
+                        <h2 class="reveal" data-editable="true" style="font-size: 58px; margin-bottom: 0">
+                            部署你的作品：四個步驟
+                        </h2>
+                        <div class="reveal" style="display: flex; flex-direction: column; gap: 14px; margin-top: 24px">
+                            <div class="card" style="min-height: 0; padding: 14px 22px; display: flex; align-items: center; gap: 22px">
+                                <div style="font: 700 44px/1 var(--font-mono); color: var(--red); width: 56px; flex: none">1</div>
+                                <div>
+                                    <h3 data-editable="true" style="font-size: 26px; margin: 0">取得專案檔案</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.4; margin: 4px 0 0">
+                                        第一次執行，按照
+                                        <a href="https://hw.is-a.dev/ibm-bobathon/workshops/w05/index.html" target="_blank" rel="noopener noreferrer" style="color: var(--green); font-weight: 900; text-decoration: none">網頁內容</a>
+                                        操作；若已執行過，要求 Agent 使用 <code>git</code> 跟遠端同步。
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="card amber" style="min-height: 0; padding: 14px 22px; display: flex; align-items: center; gap: 22px">
+                                <div style="font: 700 44px/1 var(--font-mono); color: var(--red); width: 56px; flex: none">2</div>
+                                <div>
+                                    <h3 data-editable="true" style="font-size: 26px; margin: 0">產生要部署的內容</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.4; margin: 4px 0 0">
+                                        請 Agent 把要公開的成果（含 <code>index.html</code>）整理進部署資料夾。
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="card green" style="min-height: 0; padding: 14px 22px; display: flex; align-items: center; gap: 22px">
+                                <div style="font: 700 44px/1 var(--font-mono); color: var(--red); width: 56px; flex: none">3</div>
+                                <div>
+                                    <h3 data-editable="true" style="font-size: 26px; margin: 0">在本地端檢視要部署的內容</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.4; margin: 4px 0 0">
+                                        請 Agent 啟動本地伺服器並開啟瀏覽器，確認畫面、連結與 <code>index.html</code> 都正常，再往下部署。
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="card red" style="min-height: 0; padding: 14px 22px; display: flex; align-items: center; gap: 22px">
+                                <div style="font: 700 44px/1 var(--font-mono); color: var(--red); width: 56px; flex: none">4</div>
+                                <div>
+                                    <h3 data-editable="true" style="font-size: 26px; margin: 0">告訴 AI Agent 你要部署的平台</h3>
+                                    <ul class="bullets" style="margin-top: 6px">
+                                        <li data-editable="true" style="font-size: 21px; line-height: 1.4; margin: 4px 0">
+                                            GitHub Pages：使用 <code>publish-to-pages</code> 技能
+                                        </li>
+                                        <li data-editable="true" style="font-size: 21px; line-height: 1.4; margin: 4px 0">
+                                            Vercel：使用 <code>deploy-to-vercel</code> 技能
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Class activity · Deploy</div>
+                        <div>14 / 16</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content">
+                        <div class="kicker reveal" data-editable="true">
+                            本週產出 ｜ Deliverables
+                        </div>
+                        <h2 class="reveal" data-editable="true">
+                            離開教室前，你的作品已經在全世界公開上線
+                        </h2>
+                        <ul class="bullets">
+                            <li class="reveal" data-editable="true">
+                                一個公開的 GitHub Repo（使用 <code>gh repo create</code> 建立）。
+                            </li>
+                            <li class="reveal" data-editable="true">
+                                （GitHub Pages 路線）自動化部署設定：<code>.github/workflows/deploy.yaml</code> 正確運作並觸發 CI/CD。
+                            </li>
+                            <li class="reveal" data-editable="true">
+                                一個真正公開的成果網址：<br>
+                                GitHub Pages 範例：<code>https://&lt;YOUR-USERNAME&gt;.github.io/&lt;REPO-NAME&gt;/</code><br>
+                                Vercel 範例：<code>https://&lt;PROJECT-NAME&gt;.vercel.app/</code>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="footer">
+                        <div>Deliverables</div>
+                        <div>15 / 16</div>
+                    </div>
+                </article>
+
+                <article class="slide">
+                    <div class="grain"></div>
+                    <div class="content" style="display: flex; flex-direction: column; gap: 28px;">
+                        <div>
+                            <div class="kicker reveal" data-editable="true">
+                                課程總結 ｜ Wrap-up
+                            </div>
+                            <h2 class="reveal" data-editable="true" style="font-size: 56px; margin-bottom: 0;">
+                                <span style="color: var(--cyan);">恭喜你！</span>你已經具備設計個人 Portable Agentic AI Workflow 的能力
+                            </h2>
+                        </div>
+
+                        <!-- 左右雙欄：Quote 與圖片 -->
+                        <div class="two-col reveal" style="margin-top: 0; gap: 36px; align-items: stretch;">
+                            <!-- Left: Quotes -->
+                            <div style="display: flex; flex-direction: column; gap: 20px; justify-content: space-between;">
+                                <div class="card" style="padding: 34px 36px; border-left: 10px solid var(--cyan); background: rgba(255, 248, 232, 0.9); flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                    <p style="font-family: var(--font-serif); font-size: 27px; font-weight: 700; line-height: 1.45; color: var(--green-2); margin: 0;" data-editable="true">
+                                        「その百分の一がお前を変えたんだ。」
+                                    </p>
+                                    <p style="font-size: 22px; font-weight: 500; color: var(--muted); margin-top: 12px; margin-bottom: 0;" data-editable="true">
+                                        「就是那百分之一，改變了你。」
+                                    </p>
+                                </div>
+
+                                <div class="card" style="padding: 34px 36px; border-left: 10px solid var(--amber); background: rgba(255, 248, 232, 0.9); flex: 1; display: flex; flex-direction: column; justify-content: center;">
+                                    <p style="font-family: var(--font-serif); font-size: 24px; font-weight: 700; line-height: 1.45; color: var(--green-2); margin: 0;" data-editable="true">
+                                        五週相較於整個 AI 能力培養歷程非常短，但這段時間已經讓大家開始用不同方式使用 AI Agents：
+                                    </p>
+                                    <p style="font-family: var(--font-mono); font-size: 21px; font-weight: 700; line-height: 1.5; color: var(--green); margin-top: 14px; margin-bottom: 0;" data-editable="true">
+                                        Prompt → AGENTS.md → CLI/API → Skills → MCP → Portable Workflow → Public Assets
+                                    </p>
+                                </div>
+                            </div>
+
+                            <!-- Right: Image -->
+                            <div class="card" style="padding: 16px; display: flex; flex-direction: column; justify-content: center; align-items: center; background: rgba(255, 248, 232, 0.9);">
+                                <img
+                                    src="https://image.p-c2-x.abema-tv.com/image/series/19-171/thumb.png?height=720&quality=75&version=1774674561&width=1280"
+                                    alt="《葬送的芙莉蓮》魔法想像"
+                                    style="
+                                        width: 100%;
+                                        height: 400px;
+                                        object-fit: cover;
+                                        border-radius: 20px;
+                                    "
+                                />
+                                <p style="font-family: var(--font-mono); font-size: 16px; line-height: 1.4; margin-top: 8px; margin-bottom: 0; color: var(--muted);">
+                                    來源出處：《葬送的芙莉蓮》（葬送のフリーレン）
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- 課程總結橫幅 -->
+                        <div class="reveal" style="background: rgba(0, 183, 199, 0.12); border-radius: 24px; padding: 28px 40px; border: 2px solid rgba(0, 183, 199, 0.38); display: flex; align-items: center; gap: 28px; box-shadow: 0 14px 36px rgba(23, 33, 31, 0.08);">
+                            <span style="font-family: var(--font-mono); font-size: 26px; color: var(--paper); background: var(--green); padding: 8px 22px; border-radius: 99px; font-weight: 900; white-space: nowrap; letter-spacing: 0.04em;">🎓 課程完成</span>
+                            <p style="font-size: 30px; font-weight: 700; line-height: 1.4; color: var(--ink); margin: 0;" data-editable="true">
+                                五週課程結束，把你的成果 <mark style="background: linear-gradient(transparent 50%, rgba(0, 183, 199, 0.45) 50%);">部署到公開網站</mark>，讓全世界看見你的 AI 工作流程成果。
+                            </p>
+                        </div>
+                    </div>
+                    <div class="footer">
+                        <div>Course Complete</div>
+                        <div>16 / 16</div>
+                    </div>
+                </article>
+            </section>
+        </main>
+
+        <nav class="nav-ui" aria-label="簡報導覽">
+            <button id="prev" type="button">←</button>
+            <div id="counter">1 / 16</div>
+            <button id="next" type="button">→</button>
+        </nav>
+
+        <script>
+            /* === STAGE SCALING === */
+            var stage = document.getElementById("stage");
+            function scaleStage() {
+                var viewport = window.visualViewport || window;
+                var scale = Math.min(
+                    viewport.width / 1920,
+                    viewport.height / 1080,
+                );
+                stage.style.transform =
+                    "translate(-50%, -50%) scale(" + scale + ")";
+            }
+            window.addEventListener("resize", scaleStage);
+            scaleStage();
+
+            /* === SLIDE NAVIGATION === */
+            var slides = Array.prototype.slice.call(
+                document.querySelectorAll(".slide"),
+            );
+            var counter = document.getElementById("counter");
+            var current = 0;
+            function showSlide(index) {
+                current = Math.max(0, Math.min(slides.length - 1, index));
+                slides.forEach(function (slide, i) {
+                    if (i === current) slide.classList.add("active");
+                    else slide.classList.remove("active");
+                });
+                counter.textContent = current + 1 + " / " + slides.length;
+                if (history.replaceState)
+                    history.replaceState(
+                        null,
+                        "",
+                        "#" + String(current + 1).padStart(2, "0"),
+                    );
+            }
+            function nextSlide() {
+                showSlide(current + 1);
+            }
+            function prevSlide() {
+                showSlide(current - 1);
+            }
+            document
+                .getElementById("next")
+                .addEventListener("click", nextSlide);
+            document
+                .getElementById("prev")
+                .addEventListener("click", prevSlide);
+            document.addEventListener("keydown", function (event) {
+                var key = event.key;
+                var editing = document.body.classList.contains("editing");
+                if (
+                    editing &&
+                    key.length === 1 &&
+                    !event.ctrlKey &&
+                    !event.metaKey
+                )
+                    return;
+                if (key === "ArrowRight" || key === "PageDown" || key === " ")
+                    nextSlide();
+                if (key === "ArrowLeft" || key === "PageUp") prevSlide();
+                if (key === "Home") showSlide(0);
+                if (key === "End") showSlide(slides.length - 1);
+                if (key.toLowerCase && key.toLowerCase() === "e")
+                    toggleEditing();
+                if (
+                    (event.ctrlKey || event.metaKey) &&
+                    key.toLowerCase &&
+                    key.toLowerCase() === "s"
+                ) {
+                    event.preventDefault();
+                    saveEdits();
+                }
+            });
+
+            /* === TOUCH NAVIGATION === */
+            var touchStartX = 0;
+            stage.addEventListener(
+                "touchstart",
+                function (event) {
+                    touchStartX = event.changedTouches[0].clientX;
+                },
+                { passive: true },
+            );
+            stage.addEventListener(
+                "touchend",
+                function (event) {
+                    var delta = event.changedTouches[0].clientX - touchStartX;
+                    if (Math.abs(delta) > 48) {
+                        if (delta < 0) nextSlide();
+                        else prevSlide();
+                    }
+                },
+                { passive: true },
+            );
+
+            /* === INLINE EDITING === */
+            var editableNodes = Array.prototype.slice.call(
+                document.querySelectorAll('[data-editable="true"]'),
+            );
+            function toggleEditing() {
+                var enabled = !document.body.classList.contains("editing");
+                if (enabled) document.body.classList.add("editing");
+                else document.body.classList.remove("editing");
+                editableNodes.forEach(function (node) {
+                    node.contentEditable = enabled ? "true" : "false";
+                });
+            }
+            function storageKey(index) {
+                return "w5-frontend-slides-edit-v24-" + index;
+            }
+            editableNodes.forEach(function (node, index) {
+                var saved = localStorage.getItem(storageKey(index));
+                if (saved !== null) node.innerHTML = saved;
+                node.addEventListener("input", function () {
+                    localStorage.setItem(storageKey(index), node.innerHTML);
+                });
+            });
+            function saveEdits() {
+                editableNodes.forEach(function (node, index) {
+                    localStorage.setItem(storageKey(index), node.innerHTML);
+                });
+                counter.textContent = "edits saved";
+                setTimeout(function () {
+                    counter.textContent = current + 1 + " / " + slides.length;
+                }, 900);
+            }
+
+            /* === DEEP LINK SUPPORT === */
+            var hashIndex = Number(location.hash.replace("#", ""));
+            if (hashIndex >= 1 && hashIndex <= slides.length)
+                showSlide(hashIndex - 1);
+        </script>
+    </body>
+</html>
