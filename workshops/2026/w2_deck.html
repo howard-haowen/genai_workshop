@@ -586,7 +586,7 @@
             }
             .outline-block {
                 border-radius: 30px;
-                padding: 28px 36px;
+                padding: 42px 48px;
                 display: flex;
                 flex-direction: column;
                 justify-content: space-between;
@@ -621,13 +621,13 @@
                 font-size: 19px;
                 letter-spacing: 0.14em;
                 text-transform: uppercase;
-                margin-bottom: 8px;
+                margin-bottom: 14px;
             }
             .outline-block.b1 .part-label {
                 color: var(--cyan);
             }
             .outline-block.b2 .part-label {
-                color: var(--green);
+                color: var(--amber);
             }
             .outline-block.b3 .part-label {
                 color: var(--green);
@@ -636,19 +636,19 @@
                 color: var(--red);
             }
             .outline-block h3 {
-                font-size: 40px;
+                font-size: 46px;
                 line-height: 1.1;
                 letter-spacing: -0.03em;
                 margin-bottom: 0;
             }
             .outline-block ul {
-                margin: 10px 0 0;
+                margin: 18px 0 0;
                 padding: 0;
                 list-style: none;
             }
             .outline-block ul li {
-                font-size: 24px;
-                line-height: 1.45;
+                font-size: 25px;
+                line-height: 1.5;
                 padding-left: 20px;
                 position: relative;
                 color: var(--green-2);
@@ -941,350 +941,82 @@
                 <article class="slide">
                     <div class="grain"></div>
                     <div class="content" style="display:flex;flex-direction:column;">
-                        <div class="kicker reveal" data-editable="true">
-                            五週課程地圖
-                        </div>
-                        <h2
-                            class="reveal"
-                            data-editable="true"
-                            style="font-size: 62px"
-                        >
-                            從 AI 使用者到 AI 工作流程創造者
-                        </h2>
-                        <div
-                            class="course-map"
-                            style="
-                                display: grid;
-                                grid-template-columns: 1fr;
-                                gap: 14px;
-                                margin-top: 24px;
-                                flex: 1;
-                                min-height: 0;
-                            "
-                        >
-                            <div
-                                class="outline-block b1 reveal"
-                                style="
-                                    padding: 18px 28px;
-                                    display: grid;
-                                    grid-template-columns: 1.16fr 0.84fr;
-                                    gap: 24px;
-                                    min-height: 0;
-                                "
-                            >
+                        <div class="kicker reveal" data-editable="true">五週課程地圖 ｜ Course Map</div>
+                        <h2 class="reveal" data-editable="true" style="font-size: 62px">從 AI 使用者到 AI 工作流程創造者</h2>
+                        <div class="course-map" style="display: grid; grid-template-columns: 1fr; gap: 14px; margin-top: 24px; flex: 1; min-height: 0;">
+                            <div class="outline-block b1 reveal" style="padding: 18px 28px; display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 24px; min-height: 0;">
                                 <div>
                                     <div class="part-label">W1 🧠</div>
-                                    <h3
-                                        data-editable="true"
-                                        style="font-size: 30px"
-                                    >
-                                        Agentic AI 的五個關鍵概念
-                                    </h3>
-                                    <p
-                                        data-editable="true"
-                                        style="
-                                            font-size: 21px;
-                                            line-height: 1.35;
-                                            margin-top: 8px;
-                                            color: var(--muted);
-                                        "
-                                    >
-                                        搞懂 <code>AGENTS.md</code>，讓 AI
-                                        從「隨機應答」變成你的專屬助理。
-                                    </p>
-                                    <p
-                                        data-editable="true"
-                                        style="
-                                            font-size: 20px;
-                                            line-height: 1.35;
-                                            margin-top: 8px;
-                                            color: var(--green-2);
-                                        "
-                                    >
-                                        <strong>學習成果：</strong>能撰寫
-                                        <code>AGENTS.md</code>，定義 AI
-                                        的角色、規則與邊界
-                                    </p>
+                                    <h3 data-editable="true" style="font-size: 30px">Agentic AI 的五個關鍵概念</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.35; margin-top: 8px; color: var(--muted);">搞懂 <code>AGENTS.md</code>，讓 AI 從「隨機應答」變成你的專屬助理。</p>
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.35; margin-top: 8px; color: var(--green-2);"><strong>學習成果：</strong>能撰寫 <code>AGENTS.md</code>，定義 AI 的角色、規則與邊界</p>
                                 </div>
-                                <div
-                                    style="
-                                        font-size: 19px;
-                                        line-height: 1.45;
-                                        color: var(--green-2);
-                                    "
-                                >
-                                    <p data-editable="true">
-                                        <strong>脈絡設計</strong>｜<strong
-                                            >指令工程</strong
-                                        >
-                                    </p>
-                                    <p data-editable="true">
-                                        🔑 Markdown、AGENTS.md、YAML、GIT
-                                    </p>
-                                    <p data-editable="true">
-                                        ⚗️ 建立個人 LLM Wiki、根據 Wiki 產出網頁
-                                    </p>
+                                <div style="font-size: 19px; line-height: 1.45; color: var(--green-2);">
+                                    <p data-editable="true"><strong>脈絡設計</strong>｜<strong>指令工程</strong></p>
+                                    <p data-editable="true">🔑 Markdown、AGENTS.md、YAML、Git</p>
+                                    <p data-editable="true">⚗️ 建立個人 LLM Wiki、根據 Wiki 產出網頁</p>
                                 </div>
                             </div>
-                            <div
-                                class="outline-block b2 reveal"
-                                style="
-                                    padding: 18px 28px;
-                                    display: grid;
-                                    grid-template-columns: 1.16fr 0.84fr;
-                                    gap: 24px;
-                                    min-height: 0;
-                                "
-                            >
+                            <div class="outline-block b2 reveal" style="padding: 18px 28px; display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 24px; min-height: 0;">
                                 <div>
                                     <div class="part-label">W2 🛠️</div>
-                                    <h3
-                                        data-editable="true"
-                                        style="font-size: 30px"
-                                    >
-                                        給 Agent 一把順手的工具
-                                    </h3>
-                                    <p
-                                        data-editable="true"
-                                        style="
-                                            font-size: 21px;
-                                            line-height: 1.35;
-                                            margin-top: 8px;
-                                            color: var(--muted);
-                                        "
-                                    >
-                                        工欲善其事，先替你的 AI
-                                        打造無障礙工作環境。
-                                    </p>
-                                    <p
-                                        data-editable="true"
-                                        style="
-                                            font-size: 20px;
-                                            line-height: 1.35;
-                                            margin-top: 8px;
-                                            color: var(--green-2);
-                                        "
-                                    >
-                                        <strong>學習成果：</strong>能理解不同工具對
-                                        AI 的友善程度
-                                    </p>
+                                    <h3 data-editable="true" style="font-size: 30px">給 Agent 一把順手的工具</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.35; margin-top: 8px; color: var(--muted);">工欲善其事，先替你的 AI 打造無障礙工作環境。</p>
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.35; margin-top: 8px; color: var(--green-2);"><strong>學習成果：</strong>能理解不同工具對 AI 的友善程度</p>
                                 </div>
-                                <div
-                                    style="
-                                        font-size: 19px;
-                                        line-height: 1.45;
-                                        color: var(--green-2);
-                                    "
-                                >
-                                    <p data-editable="true">
-                                        <strong>工具選擇</strong>｜<strong
-                                            >命令列</strong
-                                        >
-                                    </p>
-                                    <p data-editable="true">
-                                        🔑 API、CLI、GUI、ACI、JSON
-                                    </p>
-                                    <p data-editable="true">
-                                        ⚗️ Openlibrary API、Obsidian CLI
-                                    </p>
+                                <div style="font-size: 19px; line-height: 1.45; color: var(--green-2);">
+                                    <p data-editable="true"><strong>工具選擇</strong>｜<strong>命令列</strong></p>
+                                    <p data-editable="true">🔑 API、CLI、GUI、ACI、JSON</p>
+                                    <p data-editable="true">⚗️ Openlibrary API、Obsidian CLI</p>
                                 </div>
                             </div>
-                            <div
-                                class="outline-block b3 reveal"
-                                style="
-                                    padding: 18px 28px;
-                                    display: grid;
-                                    grid-template-columns: 1.16fr 0.84fr;
-                                    gap: 24px;
-                                    min-height: 0;
-                                "
-                            >
+                            <div class="outline-block b3 reveal" style="padding: 18px 28px; display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 24px; min-height: 0;">
                                 <div>
                                     <div class="part-label">W3 🎓</div>
-                                    <h3
-                                        data-editable="true"
-                                        style="font-size: 30px"
-                                    >
-                                        用 SKILL.md 培養 Agent 的專長
-                                    </h3>
-                                    <p
-                                        data-editable="true"
-                                        style="
-                                            font-size: 21px;
-                                            line-height: 1.35;
-                                            margin-top: 8px;
-                                            color: var(--muted);
-                                        "
-                                    >
-                                        一個檔案，讓 AI
-                                        記住你的工作方式，比你想得還快。
-                                    </p>
-                                    <p
-                                        data-editable="true"
-                                        style="
-                                            font-size: 20px;
-                                            line-height: 1.35;
-                                            margin-top: 8px;
-                                            color: var(--green-2);
-                                        "
-                                    >
-                                        <strong>學習成果：</strong>能讓 Agent
-                                        學習可重複使用的客製化技能
-                                    </p>
+                                    <h3 data-editable="true" style="font-size: 30px">用 SKILL.md 培養 Agent 的專長</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.35; margin-top: 8px; color: var(--muted);">一個檔案，讓 AI 記住你的工作方式，比你想得還快。</p>
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.35; margin-top: 8px; color: var(--green-2);"><strong>學習成果：</strong>能讓 Agent 學習可重複使用的客製化技能</p>
                                 </div>
-                                <div
-                                    style="
-                                        font-size: 19px;
-                                        line-height: 1.45;
-                                        color: var(--green-2);
-                                    "
-                                >
-                                    <p data-editable="true">
-                                        <strong>可攜式工作流</strong>｜<strong
-                                            >客製化技能</strong
-                                        >
-                                    </p>
-                                    <p data-editable="true">
-                                        🔑 SKILL.md、scripts、references
-                                    </p>
-                                    <p data-editable="true">
-                                        ⚗️ find-skills、skill-create
-                                    </p>
+                                <div style="font-size: 19px; line-height: 1.45; color: var(--green-2);">
+                                    <p data-editable="true"><strong>可攜式工作流</strong>｜<strong>客製化技能</strong></p>
+                                    <p data-editable="true">🔑 SKILL.md、scripts、references</p>
+                                    <p data-editable="true">⚗️ find-skills、skill-create</p>
                                 </div>
                             </div>
-                            <div
-                                class="outline-block b4 reveal"
-                                style="
-                                    padding: 18px 28px;
-                                    display: grid;
-                                    grid-template-columns: 1.16fr 0.84fr;
-                                    gap: 24px;
-                                    min-height: 0;
-                                "
-                            >
+                            <div class="outline-block b4 reveal" style="padding: 18px 28px; display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 24px; min-height: 0;">
                                 <div>
                                     <div class="part-label">W4 🔌</div>
-                                    <h3
-                                        data-editable="true"
-                                        style="font-size: 30px"
-                                    >
-                                        打通 Agent 與外界的連線
-                                    </h3>
-                                    <p
-                                        data-editable="true"
-                                        style="
-                                            font-size: 21px;
-                                            line-height: 1.35;
-                                            margin-top: 8px;
-                                            color: var(--muted);
-                                        "
-                                    >
-                                        接上 MCP，讓 AI
-                                        伸出手，直接操作各種外部服務。
-                                    </p>
-                                    <p
-                                        data-editable="true"
-                                        style="
-                                            font-size: 20px;
-                                            line-height: 1.35;
-                                            margin-top: 8px;
-                                            color: var(--green-2);
-                                        "
-                                    >
-                                        <strong>學習成果：</strong>能透過 MCP
-                                        為 Agent 接入真實世界的服務與資料
-                                    </p>
+                                    <h3 data-editable="true" style="font-size: 30px">打通 Agent 與外界的連線</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.35; margin-top: 8px; color: var(--muted);">接上 MCP，讓 AI 伸出手，直接操作各種外部服務。</p>
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.35; margin-top: 8px; color: var(--green-2);"><strong>學習成果：</strong>能透過 MCP 為 Agent 接入真實世界的服務與資料</p>
                                 </div>
-                                <div
-                                    style="
-                                        font-size: 19px;
-                                        line-height: 1.45;
-                                        color: var(--green-2);
-                                    "
-                                >
-                                    <p data-editable="true">
-                                        <strong>外部服務整合</strong>｜<strong
-                                            >工具擴充</strong
-                                        >
-                                    </p>
-                                    <p data-editable="true">
-                                        🔑 MCP、Zotero、Google Workspace
-                                    </p>
-                                    <p data-editable="true">
-                                        ⚗️ Zotero MCP、Google Workspace MCP
-                                    </p>
+                                <div style="font-size: 19px; line-height: 1.45; color: var(--green-2);">
+                                    <p data-editable="true"><strong>外部服務整合</strong>｜<strong>工具擴充</strong></p>
+                                    <p data-editable="true">🔑 MCP、Zotero、Google Workspace</p>
+                                    <p data-editable="true">⚗️ Zotero MCP、Google Workspace MCP</p>
                                 </div>
                             </div>
-                            <div
-                                class="outline-block b1 reveal"
-                                style="
-                                    padding: 18px 28px;
-                                    display: grid;
-                                    grid-template-columns: 1.16fr 0.84fr;
-                                    gap: 24px;
-                                    min-height: 0;
-                                "
-                            >
+                            <div class="outline-block b1 reveal" style="padding: 18px 28px; display: grid; grid-template-columns: 1.16fr 0.84fr; gap: 24px; min-height: 0;">
                                 <div>
                                     <div class="part-label">W5 🌍</div>
-                                    <h3
-                                        data-editable="true"
-                                        style="font-size: 30px"
-                                    >
-                                        把成果發布到全世界
-                                    </h3>
-                                    <p
-                                        data-editable="true"
-                                        style="
-                                            font-size: 21px;
-                                            line-height: 1.35;
-                                            margin-top: 8px;
-                                            color: var(--muted);
-                                        "
-                                    >
-                                        用 GitHub Pages 讓你的 AI
-                                        工作流程作品，站上公開舞台。
-                                    </p>
-                                    <p
-                                        data-editable="true"
-                                        style="
-                                            font-size: 20px;
-                                            line-height: 1.35;
-                                            margin-top: 8px;
-                                            color: var(--green-2);
-                                        "
-                                    >
-                                        <strong>學習成果：</strong>能將個人數位作品對外展示與分享
-                                    </p>
+                                    <h3 data-editable="true" style="font-size: 30px">把成果發布到全世界</h3>
+                                    <p data-editable="true" style="font-size: 21px; line-height: 1.35; margin-top: 8px; color: var(--muted);">用 GitHub Pages 讓你的 AI 工作流程作品，站上公開舞台。</p>
+                                    <p data-editable="true" style="font-size: 20px; line-height: 1.35; margin-top: 8px; color: var(--green-2);"><strong>學習成果：</strong>能將個人數位作品對外展示與分享</p>
                                 </div>
-                                <div
-                                    style="
-                                        font-size: 19px;
-                                        line-height: 1.45;
-                                        color: var(--green-2);
-                                    "
-                                >
-                                    <p data-editable="true">
-                                        <strong>成果發布</strong>｜<strong
-                                            >公開分享</strong
-                                        >
-                                    </p>
-                                    <p data-editable="true">
-                                        🔑 deployment、workflow、CI/CD
-                                    </p>
-                                    <p data-editable="true">
-                                        ⚗️ GitHub Pages、GitHub Workflows
-                                    </p>
+                                <div style="font-size: 19px; line-height: 1.45; color: var(--green-2);">
+                                    <p data-editable="true"><strong>成果發布</strong>｜<strong>公開分享</strong></p>
+                                    <p data-editable="true">🔑 deployment、workflow、CI/CD</p>
+                                    <p data-editable="true">⚗️ GitHub Pages、GitHub Actions、Vercel</p>
                                 </div>
                             </div>
                         </div>
-                       <div style="text-align: center; margin-top: 14px;">
+                        <div style="text-align: center; margin-top: 14px;">
                             <a href="https://howard-haowen.github.io/genai_workshop/2026" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 12px; padding: 12px 28px; background: var(--green); color: var(--paper-2); font-family: var(--font-mono); font-size: 22px; font-weight: 700; text-decoration: none; border-radius: 0; letter-spacing: 0.06em;">
                                 🌐 課程地圖網站 ↗
                             </a>
                         </div>
                     </div>
-                    <div class="footer"><div>Course map</div><div>04 / 23</div></div>
+                    <div class="footer"><div>Course Map</div><div>04 / 23</div></div>
                 </article>
 
                 <article class="slide">
